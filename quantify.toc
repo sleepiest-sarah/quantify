@@ -1,0 +1,12 @@
+## Interface: 80000
+## Title: quantify
+## Author: Sarah Mantovani
+## Version: 01
+## SavedVariables: qDb
+
+constants.lua
+
+quantify.lua
+
+quantify-exp.lua
+
