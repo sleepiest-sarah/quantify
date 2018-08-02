@@ -3,10 +3,23 @@
 ## Author: Sarah Mantovani
 ## Version: 01
 ## SavedVariables: qDb
+## SavedVariablesPerCharacter: qLog
 
-constants.lua
+Core\constants.lua
+
+Core\quantify-prototypes.lua
+
+Core\quantify-utils.lua
+Core\quantify-logger.lua
 
 quantify.lua
 
-quantify-exp.lua
+Core\quantify-state.lua
 
+Modules\quantify-time.lua
+Modules\quantify-exp.lua
+Modules\quantify-combat.lua
+Modules\quantify-zones.lua
+Modules\quantify-fun.lua
+
+quantify-ui.xml
