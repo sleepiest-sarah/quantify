@@ -12,7 +12,9 @@ function q:printModule(mod, segment)
   for statgrouptitle,statgroup in pairs(m) do
     print(string.format("    %s", statgrouptitle))
     for k,v in pairs(statgroup) do
-      print(string.format("        %s: %f", k, v))
+      if (type(v) == "number") then
+        print(string.format("        %s: %f", k, v))
+      end
     end
   end
 end
@@ -41,7 +43,9 @@ function q:calculateSegmentRates(segment, segment_stats)
   
   local session_rates = {}
   for k,v in pairs(segment_stats) do
-    session_rates[k] = (v/duration) * 3600
+    if (type(v) == "number") then
+      session_rates[k] = (v/duration) * 3600
+    end
   end
   
   return session_rates
@@ -159,6 +163,10 @@ function q:getShorthandInteger(n,precision)
 end
 
 function q:getFormattedUnit(n,units)
+  if (units == "string") then
+    return n
+  end
+  
   if (q:isInf(n) or q:isNan(n)) then
     n = 0
   end
@@ -200,4 +208,27 @@ end
 
 function q:isNan(n)
   return n ~= n
+end
+
+function q:getKeyForMaxValue(t)
+  local max = -math.huge
+  local max_key = nil
+  
+  for k,v in pairs(t) do
+    if (v > max) then
+      max_key = k
+      max = v
+    end
+  end
+  
+  return max_key
+end
+
+function q:length(t)
+  local count = 0
+  for _,_ in pairs(t) do
+    count = count + 1
+  end
+  
+  return count
 end

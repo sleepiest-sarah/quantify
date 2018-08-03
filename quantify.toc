@@ -21,5 +21,6 @@ Modules\quantify-exp.lua
 Modules\quantify-combat.lua
 Modules\quantify-zones.lua
 Modules\quantify-fun.lua
+Modules\quantify-chat.lua
 
 quantify-ui.xml

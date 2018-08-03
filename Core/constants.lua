@@ -32,5 +32,20 @@ quantify.STATS = {
   ["raw:time_afk"] = {text = "Total Time AFK", units = "time"},
   ["raw:play_time"] = {text = "Total Play Time", units = "time"},
   ["raw:zone_time_*"] = {text = "*", units ="time"},
-  ["derived_stats:zone_pct_*"] = {text = "Zone %: *", units = "percentage"}
+  ["derived_stats:zone_pct_*"] = {text = "Zone %: *", units = "percentage"},
+  ["derived_stats:word_cloud_*"] = {text = "Word Count: *", units = "integer"},
+  ["raw:whispers_sent"] = {text = "Whispers Sent", units = "integer"},
+  ["raw:say_sent"] = {text = "Say Sent", units = "integer"},
+  ["raw:yell_sent"] = {text = "Yell Sent", units = "integer"},
+  ["raw:party_sent"] = {text = "Party Sent", units = "integer"},
+  ["raw:raid_sent"] = {text = "Raid Sent", units = "integer"},
+  ["raw:guild_sent"] = {text = "Guild Sent", units = "integer"},
+  ["raw:combat_messages"] = {text = "Combat Messages Sent", units = "integer"},
+  ["raw:mentions"] = {text = "Times Mentioned", units = "integer"},
+  ["raw:emotes_sent"] = {text = "Emotes Used", units = "integer"},
+  ["raw:whispers_received"] = {text = "Whispers Received", units = "integer"},
+  ["raw:channel_sent_*"] = {text = "Channel Sent: *", units = "integer"},
+  ["derived_stats:bff_sent"] = {text = "Top Recipient", units = "string"},
+  ["derived_stats:bff_received"] = {text = "Top Sender", units = "string"}
+
   }

@@ -1,38 +1,55 @@
 quantify_state = {}
 
 local q = quantify
-local s = quantify_state
+
 
 quantify_state.state = {
     current_zone_name = nil,
     UiMapDetails = nil,
-    player_combat = nil
+    player_combat = nil,
+    current_player_name = nil,
+    player_name_realm = nil
 }
 
+local s = quantify_state.state
 
 local function zoneChangedNewArea(event, ...)
-   quantify_state.state.UiMapDetails = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
-   quantify_state.state.current_zone_name = quantify_state.state.UiMapDetails.name
+   s.UiMapDetails = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
+   s.current_zone_name = s.UiMapDetails.name
 end
 
 local function playerRegenDisabled()
-  s.state.player_combat = true
+  s.player_combat = true
 end
 
 local function playerRegenEnabled()
-  s.state.player_combat = false
+  s.player_combat = false
+end
+
+local function playerLogin()
+  s.current_player_name = GetUnitName("player", false)
+  s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
 end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)
 quantify:registerEvent("PLAYER_REGEN_DISABLED", playerRegenDisabled)
 quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
+quantify:registerEvent("PLAYER_LOGIN", playerLogin)
 
 
 --getters
-function s:getCurrentZoneName()
-  return s.state.current_zone_name
+function quantify_state:getCurrentZoneName()
+  return s.current_zone_name
 end
 
-function s:isPlayerInCombat()
-  return s.state.player_combat
+function quantify_state:isPlayerInCombat()
+  return s.player_combat
+end
+
+function quantify_state:getPlayerName()
+  return s.current_player_name
+end
+
+function quantify_state:getPlayerNameRealm()
+  return s.player_name_realm
 end

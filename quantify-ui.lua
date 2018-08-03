@@ -91,7 +91,9 @@ function q:ViewAllStats_Update()
       local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
       table.insert(ViewAllStats_List, readable_key..":"..tostring(readable_value))
     else  --just use the raw key and value if the text hasn't been initialized yet
-      table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
+      if (type(v) ~= "table") then
+        table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
+      end
     end
   end
   

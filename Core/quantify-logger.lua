@@ -47,6 +47,13 @@ logframe:RegisterEvent("ZONE_CHANGED_INDOORS")
 logframe:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 logframe:RegisterEvent("SCENARIO_COMPLETED")
 logframe:RegisterEvent("CHAT_MSG_SYSTEM")
+logframe:RegisterEvent("CHAT_MSG_WHISPER")
+logframe:RegisterEvent("CHAT_MSG_BN")
+logframe:RegisterEvent("CHAT_MSG_BN_WHISPER")
+logframe:RegisterEvent("CHAT_MSG_EMOTE")
+logframe:RegisterEvent("CHAT_MSG_TEXT_EMOTE")
+
+
 
 local t = time()
 local d = date("*t", t)
