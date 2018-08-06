@@ -1,15 +1,15 @@
 local q = quantify
 local _G = _G
 
-q.SEGMENT_ROW_HEIGHT = 16
-q.NUM_SEGMENT_ROWS = 5
-q.SELECT_SEGMENT_BUTTON_PREFIX ="SelectSegmentButton"
-
 q.STAT_ROW_HEIGHT = 30
 q.NUM_STAT_ROWS = 10
 q.VIEW_STATS_BUTTON_PREFIX = "ViewStatsButton"
 
 q.quantify_ui_shown = false
+
+q.UI_REFRESH_RATE = 5
+
+local last_refresh = 0
 
 local ViewAllStats_List = {}
 
@@ -208,6 +208,10 @@ function q:AddSegmentButton_OnClick(self)
 end
 
 function q:updateUi()
+  if (GetTime() - last_refresh < q.UI_REFRESH_RATE) then
+    return
+  end
+  
   for _,m in ipairs(q.modules) do
     m:updateStats(q.current_segment)
   end
@@ -230,6 +234,8 @@ function q:updateUi()
   end
   
   q:ViewAllStats_Update()
+  
+  last_refresh = GetTime()
 end
 
 function q:viewingTotalSegment()

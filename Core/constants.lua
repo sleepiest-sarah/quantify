@@ -76,4 +76,4 @@ quantify.STATS = {
   ["derived_stats:bff_sent"] = {text = "Top Recipient", units = "string"},
   ["derived_stats:bff_received"] = {text = "Top Sender", units = "string"}
 
-  }
+}
