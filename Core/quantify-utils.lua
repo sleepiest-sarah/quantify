@@ -25,7 +25,12 @@ function q:printSegment(segment)
     for statgrouptitle,statgroup in pairs(m) do
       print(string.format("    %s", statgrouptitle))
       for k,v in pairs(statgroup) do
-        print(string.format("        %s: %f", k, v))
+        if (type(v) == "table") then
+          print(k)
+          q:printTable(v)
+        else
+          print(string.format("        %s: %f", k, v))
+        end
       end
     end
   end
@@ -230,7 +235,7 @@ function q:getFormattedUnit(n,units)
       res = tostring(min).."m"..tostring(sec).."s"
     elseif (n >= 3600) then
       hour = math.floor(n/3600)
-      min = math.floor(n/60)
+      min = math.floor((n % 3600)/60)
       sec = math.floor(n) % 60
       res = tostring(hour).."h"..tostring(min).."m"..tostring(sec).."s"
     end

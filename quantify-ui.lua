@@ -120,7 +120,7 @@ function q:setViewingSegment(text)
   
   local seg_id = string.match(text, "Segment (%d+)")
   if (seg_id ~= nil) then
-    viewing_segment = q.segments[seg_id]
+    viewing_segment = q.segments[tonumber(seg_id)]
   else
     viewing_segment = q:convertSavedSegment(qDb[text])
   end
