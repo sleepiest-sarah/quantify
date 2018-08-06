@@ -1,7 +1,7 @@
 ## Interface: 80000
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: 01
+## Version: r02-alpha
 ## SavedVariables: qDb
 ## SavedVariablesPerCharacter: qLog
 
