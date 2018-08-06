@@ -74,6 +74,11 @@ quantify.STATS = {
   ["raw:whispers_received"] = {text = "Whispers Received", units = "integer"},
   ["raw:channel_sent_*"] = {text = "Channel Sent: *", units = "integer"},
   ["derived_stats:bff_sent"] = {text = "Top Recipient", units = "string"},
-  ["derived_stats:bff_received"] = {text = "Top Sender", units = "string"}
-
+  ["derived_stats:bff_received"] = {text = "Top Sender", units = "string"},
+  ["raw:num_rez_accepted"] = {text = "Rezes Accepted", units = "integer"},
+  ["raw:num_spirit_healer_rez"] = {text = "Rezs by Spirit Healer", units = "integer"},
+  ["raw:num_deaths"] = {text = "Deaths", units = "integer"},
+  ["raw:num_kills"] = {text = "Kills", units = "integer"},
+  ["raw:num_brez_accepted"] = {text = "Battle Rezes Accepted", units = "integer"},
+  ["raw:num_corpse_runs"] = {text = "Corpse Runs", units = "integer"}
 }
