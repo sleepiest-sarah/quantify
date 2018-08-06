@@ -13,10 +13,8 @@ quantify.LOADED_TEXT =
 quantify loaded :)
   use /qty or /quantify to see options
   
-  This addon is still very much a work-in-progress. I'll be updating frequently.
-  For issues, bugs, suggestions, or anything else please feel free to contact me.
-  Discord: Aeroxis#2344
-  Twitch: therealaeroxis
+This addon is still very much a work-in-progress. I'll be updating frequently. For issues, bugs, suggestions, or anything else please feel free to contact me.
+  Discord: Aeroxis#2344 Twitch: therealaeroxis
 ]]
 
 quantify.HELP_TEXT =
@@ -24,7 +22,11 @@ quantify.HELP_TEXT =
 quantify command line options
   /qty show   -- show the UI
   /qty hide   -- hide the UI
+  /qty debug  -- display debug options
+]]
 
+quantify.DEBUG_OPTIONS =
+[[
 debug options
   /qty segment new      -- create a new segment
   /qty segment <int>    -- print segment <int>

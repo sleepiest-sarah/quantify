@@ -137,6 +137,8 @@ local function qtySlashCmd(msg, editbox)
     q:printTable(quantify_state.state)
   elseif (cmd == "log" and (args == "0" or args == "1")) then
     quantify.logging_enabled = args == "1"
+  elseif (cmd == "debug") then
+    print(quantify.DEBUG_OPTIONS)
   elseif (cmd == "clear" and args ~= nil) then
     if (args == "all") then
       qDb = nil
