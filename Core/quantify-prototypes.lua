@@ -2,7 +2,7 @@ quantify.Segment = {}
 
 local Segment = quantify.Segment
 function Segment:new(o)
-  o = o or {start_time = nil, end_time = nil, _duration = nil, stats = {}}
+  o = o or {start_time = nil, end_time = nil, total_start_time = nil, _duration = nil, stats = {}}
   setmetatable(o, self)
   self.__index = self
   return o

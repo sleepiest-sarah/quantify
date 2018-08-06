@@ -17,6 +17,8 @@ local viewing_segment = nil
 local viewing_segment_key = "Segment 1"
 local viewing_module_key = "All"
 
+local segment_snapshot = nil
+
 local scroll_frame_initialized = false
 
 function q:FauxScrollFrame_OnLoad(frame, button_height, num_buttons, button_prefix, update_func)
@@ -206,12 +208,25 @@ function q:AddSegmentButton_OnClick(self)
 end
 
 function q:updateUi()
-    for _,m in ipairs(q.modules) do
-      m:updateStats(q.current_segment)
-    end
+  for _,m in ipairs(q.modules) do
+    m:updateStats(q.current_segment)
+  end
   
   if (q.viewingTotalSegment()) then
-    q:updateTotals(q.current_segment)
+    if (segment_snapshot == nil) then
+      q:updateTotals(q.current_segment)
+    else
+      for k, statgroup in pairs(q.current_segment.stats) do
+        if (segment_snapshot.stats[k] == nil) then
+          segment_snapshot.stats[k] = {}
+          segment_snapshot.stats[k].raw = statgroup.raw
+        else
+          q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
+        end
+      end
+      q:updateTotals(segment_snapshot)
+    end
+    segment_snapshot = q:createSegmentSnapshot(q.current_segment)
   end
   
   q:ViewAllStats_Update()

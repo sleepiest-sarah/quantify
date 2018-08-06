@@ -23,12 +23,13 @@ end
 
 function q:updateTotals(segment)
   local duration
-  if (segment.start_time == nil and segment.end_time == nil) then
+  local start_time = segment.total_start_time or segment.start_time
+  if (start_time == nil and segment.end_time == nil) then
     duration = 0
   elseif (segment.end_time ~= nil) then
-    duration = segment:duration()
+    duration = segment.end_time - start_time
   else
-    duration = GetTime() - segment.start_time
+    duration = GetTime() - start_time
   end
   
   qDb.account.time = qDb.account.time + duration
@@ -61,10 +62,22 @@ function quantify:registerEvent(event, func)
   table.insert(event_map[event], func)
 end
 
+function quantify:unregisterEvent(event, func)
+  if (event_map[event] ~= nil) then
+    for i,f in ipairs(event_map[event]) do
+      if (f == func) then
+        event_map[event][i] = nil
+        break
+      end
+    end
+  end
+end
+
 local function init(event, ...)
   local addon = ...
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
     --q:showUi(true)
+    print(quantify.LOADED_TEXT)
     if (qDb == nil) then
       qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
     elseif (qDb[q.TotalSegment:characterKey()] == nil) then
@@ -122,6 +135,22 @@ local function qtySlashCmd(msg, editbox)
     q:showUi(cmd == "show")
   elseif (cmd == "state")  then
     q:printTable(quantify_state.state)
+  elseif (cmd == "log" and (args == "0" or args == "1")) then
+    quantify.logging_enabled = args == "1"
+  elseif (cmd == "clear" and args ~= nil) then
+    if (args == "all") then
+      qDb = nil
+    else
+      qDb[args] = nil
+    end
+    
+    if (qDb == nil) then
+      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
+    elseif (qDb[q.TotalSegment:characterKey()] == nil) then
+      qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
+    end
+  else
+    print(quantify.HELP_TEXT)
   end
 end
 

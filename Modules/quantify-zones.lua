@@ -20,13 +20,6 @@ local session
 
 local zone_start_time
 
-local function init()
-  q.current_segment.stats.zones = {}
-  q.current_segment.stats.zones.raw = quantify_zones.Session:new()
-  q.current_segment.stats.zones.derived_stats = { }
-  session = q.current_segment.stats.zones.raw
-end
-
 local function getZoneKey(zone)
   return quantify_zones.RAW_ZONE_PREFIX..zone
 end
@@ -70,6 +63,14 @@ function quantify_zones:updateStats(segment)
   
   quantify_zones:calculateDerivedStats(segment)
 end
+
+local function init()
+  q.current_segment.stats.zones = {}
+  q.current_segment.stats.zones.raw = quantify_zones.Session:new()
+  q.current_segment.stats.zones.derived_stats = { }
+  session = q.current_segment.stats.zones.raw
+end
+
  
 function quantify_zones:newSegment(previous_seg,new_seg)
   zone_start_time = GetTime()

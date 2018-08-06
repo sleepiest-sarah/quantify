@@ -62,6 +62,8 @@ local log_file = nil
 
 quantify.log = {}
 
+quantify.logging_enabled = false
+
 local log = quantify.log
 
 function log:getLogFileName()
@@ -83,6 +85,10 @@ function log:initializeLogFile()
 end
 
 function log:logEvent(...)
+  if (not quantify.logging_enabled) then
+    return
+  end
+  
   log:initializeLogFile()
   local r = ""
   for i,v in ipairs({...}) do

@@ -54,13 +54,38 @@ end
 function q:addTables(a,b)
   --b expected to be the most up to date in the case of missing keys
   for k,v in pairs(b) do
-    if (a[k] == nil) then
-      a[k] = 0
+    if (type(v) == "table") then
+      if (a[k] == nil) then
+        a[k] = {}
+      end
+      q:addTables(a[k], v)
+    elseif (tonumber(v) ~= nil) then
+      if (a[k] == nil) then
+        a[k] = 0
+      end
+      a[k] = a[k] + v
     end
-    a[k] = a[k] + v
   end
   
   return a
+end
+
+function q:subtractTables(b,a)
+  for k,v in pairs(b) do
+    if (type(v) == "table") then
+      if (a[k] == nil) then
+        a[k] = {}
+      end
+      q:subtractTables(v,a[k])
+    elseif (tonumber(v) ~= nil) then
+      if (a[k] == nil) then
+        a[k] = 0
+      end
+      a[k] = v - a[k]
+    end
+  end
+  
+  return a  
 end
 
 
@@ -72,6 +97,22 @@ function q:shallowCopy(orig)
         for orig_key, orig_value in pairs(orig) do
             copy[orig_key] = orig_value
         end
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+
+--doesn't handle metadata
+function q:deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[q:deepcopy(orig_key)] = q:deepcopy(orig_value)
+        end
+        --setmetatable(copy, q:deepcopy(getmetatable(orig)))
     else -- number, string, boolean, etc
         copy = orig
     end
@@ -117,6 +158,10 @@ function q:convertSavedSegment(segment)
   end
   
   for _,m in ipairs(q.modules) do
+    if (cseg.stats[m.MODULE_KEY] == nil) then
+      cseg.stats[m.MODULE_KEY] = {}
+      cseg.stats[m.MODULE_KEY].raw = m.Session:new()
+    end
     m:updateStats(cseg)
   end
   
@@ -231,4 +276,11 @@ function q:length(t)
   end
   
   return count
+end
+
+function q:createSegmentSnapshot(segment)
+  segment.total_start_time = GetTime()
+  local snapshot = q:deepcopy(segment)
+  
+  return snapshot
 end

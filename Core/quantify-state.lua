@@ -14,8 +14,8 @@ quantify_state.state = {
 local s = quantify_state.state
 
 local function zoneChangedNewArea(event, ...)
-   s.UiMapDetails = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
-   s.current_zone_name = s.UiMapDetails.name
+  s.UiMapDetails = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
+  s.current_zone_name = s.UiMapDetails.name
 end
 
 local function playerRegenDisabled()
@@ -31,7 +31,7 @@ local function playerLogin()
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
 end
   
-quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)
+quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload
 quantify:registerEvent("PLAYER_REGEN_DISABLED", playerRegenDisabled)
 quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
