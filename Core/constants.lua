@@ -80,5 +80,25 @@ quantify.STATS = {
   ["raw:num_deaths"] = {text = "Deaths", units = "integer"},
   ["raw:num_kills"] = {text = "Kills", units = "integer"},
   ["raw:num_brez_accepted"] = {text = "Battle Rezes Accepted", units = "integer"},
-  ["raw:num_corpse_runs"] = {text = "Corpse Runs", units = "integer"}
+  ["raw:num_corpse_runs"] = {text = "Corpse Runs", units = "integer"},
+  ["raw:overall_raid_boss_kills"] = {text = "Raid Boss Kills", units = "integer"},
+  ["raw:legion_dungeon_boss_kills"] = {text = "Legion Dungeon Boss Kills", units = "integer"},
+  ["raw:player_raid_deaths"] = {text = "Players Deaths in Raids", units = "integer"},
+  ["raw:player_dungeon_deaths"] = {text = "Player Deaths in Dungeons", units = "integer"},
+  ["raw:legion_raid_boss_kills"] = {text = "Legion Raid Boss Kills", units = "integer"},
+  ["raw:legion_dungeon_boss_wipes"] = {text = "Legion Dungeon Boss Wipes", units = "integer"},
+  ["raw:overall_dungeon_boss_wipes"] = {text = "Dungeon Boss Wipes", units = "integer"},
+  ["raw:overall_dungeon_boss_kills"] = {text = "Dungeon Boss Kills", units = "integer"},
+  ["raw:dungeon_boss_kill_*"] = {text = "Boss Kills: *", units = "integer"},
+  ["raw:overall_raid_boss_wipes"] = {text = "Raid Boss Wipes", units = "integer"},
+  ["raw:legion_raid_boss_wipes"] = {text = "Legion Raid Boss Wipes", units = "integer"},
+  ["raw:dungeon_boss_wipe_*"] = {text = "Dungeon Boss Wipes: *", units = "integer"},
+  ["raw:raid_boss_wipe_*"] = {text = "Raid Boss Wipes: *", units = "integer"},
+  ["raw:raid_boss_kill_*"] = {text = "Raid Boss Kills: *", units = "integer"},
+  ["raw:time_crowd_controlled"] = {text = "Time Spent CC'd", units = "time"},
+  ["raw:player_actual_kills"] = {text = "Killing Blows", units = "integer"},
+  ["raw:player_kills"] = {text = "Total Kills", units = "integer"}
 }
+
+quantify.LEGION_DUNGEON_IDS = {1501, 1677, 1571, 1466, 1456, 1477, 1492, 1458, 1651, 1753, 1516, 1493, 1544}
+quantify.LEGION_RAID_IDS = {1520,1648,1530,1676,1712}

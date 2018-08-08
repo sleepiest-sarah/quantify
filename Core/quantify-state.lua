@@ -10,7 +10,11 @@ quantify_state.state = {
     current_player_name = nil,
     player_name_realm = nil,
     player_in_instance = nil,
-    player_alive = true
+    player_alive = true,
+    instance_type = nil,
+    instance_map_id = nil,
+    instance_name = nil,
+    player_control = true
 }
 
 local s = quantify_state.state
@@ -21,6 +25,9 @@ local function zoneChangedNewArea(event, ...)
   
   local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
   s.player_in_instance = instanceType ~= "none"
+  s.instance_type = instanceType
+  s.instance_map_id = instanceMapID
+  s.instance_name = name
 end
 
 local function playerRegenDisabled()
@@ -39,6 +46,14 @@ local function playerAlive()
   s.player_alive = true
 end
 
+local function playerControlLost()
+  s.player_control = false
+end
+
+local function playerControlGained()
+  s.player_control = true
+end
+
 local function playerLogin()
   s.current_player_name = GetUnitName("player", false)
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
@@ -50,6 +65,8 @@ quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
 quantify:registerEvent("PLAYER_DEAD", playerDead)
 quantify:registerEvent("PLAYER_ALIVE", playerAlive)
+quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControlGained)
+quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 
 
 --getters
@@ -75,4 +92,28 @@ end
 
 function quantify_state:isPlayerInInstance()
   return s.player_in_instance
+end
+
+function quantify_state:isPlayerInLegionRaid()
+  return q:contains(quantify.LEGION_RAID_IDS,s.instance_map_id)
+end
+
+function quantify_state:isPlayerInLegionDungeon()
+  return q:contains(quantify.LEGION_DUNGEON_IDS,s.instance_map_id)  
+end
+
+function quantify_state:getInstanceName()
+  return s.instance_name
+end
+
+function quantify_state:getInstanceType()
+  return s.instance_type
+end
+
+function quantify_state:playerHasControl()
+  return s.player_control
+end
+
+function quantify_state:playerCrowdControlled()
+  return not s.player_control and s.player_combat
 end

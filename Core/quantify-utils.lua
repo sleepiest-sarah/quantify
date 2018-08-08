@@ -289,3 +289,12 @@ function q:createSegmentSnapshot(segment)
   
   return snapshot
 end
+
+function q:contains(t,value)
+  for _,v in ipairs(t) do
+    if (v == value) then
+      return true
+    end
+  end
+  return false
+end
