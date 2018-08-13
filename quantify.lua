@@ -25,7 +25,7 @@ function q:updateTotals(segment)
   local duration
   local start_time = segment.total_start_time or segment.start_time
   if (start_time == nil and segment.end_time == nil) then
-    duration = 0
+    duration = segment._duration or 0
   elseif (segment.end_time ~= nil) then
     duration = segment.end_time - start_time
   else
@@ -37,16 +37,16 @@ function q:updateTotals(segment)
   
   for k, statgroup in pairs(segment.stats) do
     if (qDb.account.stats[k] == nil) then
-      qDb.account.stats[k] = statgroup.raw
-    else
-      q:addTables(qDb.account.stats[k], statgroup.raw)
+      qDb.account.stats[k] = {}
     end
+    q:addTables(qDb.account.stats[k], statgroup.raw)
+
     
     if (qDb[q.TotalSegment:characterKey()].stats[k] == nil) then
-      qDb[q.TotalSegment:characterKey()].stats[k] = statgroup.raw
-    else
-      q:addTables(qDb[q.TotalSegment:characterKey()].stats[k], statgroup.raw)
+      qDb[q.TotalSegment:characterKey()].stats[k] = {}
     end
+    q:addTables(qDb[q.TotalSegment:characterKey()].stats[k], statgroup.raw)
+
   end
 end
 

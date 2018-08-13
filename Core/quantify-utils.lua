@@ -68,7 +68,7 @@ function q:addTables(a,b)
       if (a[k] == nil) then
         a[k] = 0
       end
-      a[k] = a[k] + v
+      a[k] = a[k] + tonumber(v)
     end
   end
   
@@ -86,7 +86,7 @@ function q:subtractTables(b,a)
       if (a[k] == nil) then
         a[k] = 0
       end
-      a[k] = v - a[k]
+      a[k] = tonumber(v) - a[k]
     end
   end
   

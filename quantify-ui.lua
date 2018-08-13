@@ -223,14 +223,15 @@ function q:updateUi()
       for k, statgroup in pairs(q.current_segment.stats) do
         if (segment_snapshot.stats[k] == nil) then
           segment_snapshot.stats[k] = {}
-          segment_snapshot.stats[k].raw = statgroup.raw
-        else
-          q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
+          segment_snapshot.stats[k].raw = {}
         end
+        segment_snapshot.stats[k].raw = q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
       end
       q:updateTotals(segment_snapshot)
     end
     segment_snapshot = q:createSegmentSnapshot(q.current_segment)
+    
+    viewing_segment = q:convertSavedSegment(qDb[viewing_segment_key])
   end
   
   q:ViewAllStats_Update()
