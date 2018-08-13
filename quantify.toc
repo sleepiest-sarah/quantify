@@ -1,7 +1,7 @@
 ## Interface: 80000
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: r03-alpha
+## Version: r04-alpha
 ## SavedVariables: qDb
 
 Core\constants.lua
@@ -18,8 +18,8 @@ Modules\quantify-time.lua
 Modules\quantify-exp.lua
 Modules\quantify-combat.lua
 Modules\quantify-zones.lua
-Modules\quantify-fun.lua
 Modules\quantify-chat.lua
 Modules\quantify-instances.lua
+Modules\quantify-currency.lua
 
 quantify-ui.xml

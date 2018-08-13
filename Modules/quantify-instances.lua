@@ -56,7 +56,7 @@ local function encounterEnd(event, ...)
     session.overall_dungeon_boss_kills = session.overall_dungeon_boss_kills + 1
   elseif (success == 1 and quantify_state:getInstanceType() == "raid") then
     incrementPrefix(quantify_instances.RAW_RAID_BOSS_KILL_PREFIX, instance_name)
-    session.overall_raid_boss_kills = session.overal_raid_boss_kills + 1
+    session.overall_raid_boss_kills = session.overall_raid_boss_kills + 1
   elseif (success == 0 and quantify_state:getInstanceType() == "party") then
     incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_WIPE_PREFIX, instance_name)
     session.overall_dungeon_boss_wipes = session.overall_dungeon_boss_wipes + 1

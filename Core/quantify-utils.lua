@@ -212,6 +212,24 @@ function q:getShorthandInteger(n,precision)
   return res
 end
 
+function q:getCurrencyString(n)
+    local copper,silver, gold,res
+    if (math.abs(n) > 10000) then
+      gold = math.floor(n/10000)
+      silver = math.floor((n % 10000) / 100)
+      copper = math.floor(n) % 100
+      res = tostring(gold).."g"..tostring(silver).."s"..tostring(copper).."c"
+    elseif (math.abs(n) > 1000) then
+      silver = math.floor(n/100)
+      copper = math.floor(n) % 100
+      res = tostring(silver).."s"..tostring(copper).."c"
+    else
+      res = tostring(math.floor(n)).."c"
+    end
+    
+    return res
+end
+
 function q:getFormattedUnit(n,units)
   if (units == "string") then
     return n
@@ -247,6 +265,12 @@ function q:getFormattedUnit(n,units)
     res = q:getShorthandInteger(n,2)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
+  elseif (units == "money") then
+    res = q:getCurrencyString(n)
+  elseif (units == "money/hour") then
+    res = q:getCurrencyString(n)
+  elseif (units == "money_icon") then
+    res = GetCoinTextureString(n)
   end
 
   return res
@@ -297,4 +321,19 @@ function q:contains(t,value)
     end
   end
   return false
+end
+
+function q:getCoppersFromText(text)
+  local copper = 0
+  for n,currency in string.gmatch(text, "(%d+) (%w+)") do
+    if (currency == "Gold") then
+      copper = copper + (n * 10000)
+    elseif (currency == "Silver") then
+      copper = copper + (n * 100)
+    else
+      copper = copper + n
+    end
+  end
+  
+  return copper
 end

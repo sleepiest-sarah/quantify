@@ -58,6 +58,10 @@ local function playerLogin()
   s.current_player_name = GetUnitName("player", false)
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
 end
+
+local function playerEnteringWorld()
+  zoneChangedNewArea()
+end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload
 quantify:registerEvent("PLAYER_REGEN_DISABLED", playerRegenDisabled)
@@ -67,6 +71,7 @@ quantify:registerEvent("PLAYER_DEAD", playerDead)
 quantify:registerEvent("PLAYER_ALIVE", playerAlive)
 quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControlGained)
 quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
+quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 
 
 --getters

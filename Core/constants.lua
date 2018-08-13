@@ -97,7 +97,21 @@ quantify.STATS = {
   ["raw:raid_boss_kill_*"] = {text = "Raid Boss Kills: *", units = "integer"},
   ["raw:time_crowd_controlled"] = {text = "Time Spent CC'd", units = "time"},
   ["raw:player_actual_kills"] = {text = "Killing Blows", units = "integer"},
-  ["raw:player_kills"] = {text = "Total Kills", units = "integer"}
+  ["raw:player_kills"] = {text = "Total Kills", units = "integer"},
+  ["raw:currency_gained_*"] = {text = "* Gained", units="integer"},
+  ["raw:currency_lost_*"] = {text = "* Spent", units="integer"},
+  ["raw:delta_money"] = {text = "Net Money Earned", units="money"},
+  ["raw:total_money_gained"] = {text = "Money Earned", units="money"},
+  ["raw:total_money_spent"] = {text = "Money Spent", units="money"},
+  ["raw:money_looted"] = {text = "Money Looted", units="money"},
+  ["raw:guild_tax"] = {text = "Guild Tax", units="money"},
+  ["session_rates:currency_gained_*"] = {text = "* Gained Per Hour", units="integer/hour"},
+  ["session_rates:currency_lost_*"] = {text = "* Spent Per Hour", units="integer/hour"},
+  ["session_rates:delta_money"] = {text = "Net Money Earned Per Hour", units="money/hour"},
+  ["session_rates:total_money_gained"] = {text = "Money Earned Per Hour", units="money/hour"},
+  ["session_rates:total_money_spent"] = {text = "Money Spent Per Hour", units="money/hour"},
+  ["session_rates:money_looted"] = {text = "Money Looted Per Hour", units="money/hour"},
+  ["session_rates:guild_tax"] = {text = "Guild Tax Per Hour", units="money/hour"}
 }
 
 quantify.LEGION_DUNGEON_IDS = {1501, 1677, 1571, 1466, 1456, 1477, 1492, 1458, 1651, 1753, 1516, 1493, 1544}
