@@ -111,8 +111,50 @@ quantify.STATS = {
   ["session_rates:total_money_gained"] = {text = "Money Earned Per Hour", units="money/hour"},
   ["session_rates:total_money_spent"] = {text = "Money Spent Per Hour", units="money/hour"},
   ["session_rates:money_looted"] = {text = "Money Looted Per Hour", units="money/hour"},
-  ["session_rates:guild_tax"] = {text = "Guild Tax Per Hour", units="money/hour"}
+  ["session_rates:guild_tax"] = {text = "Guild Tax Per Hour", units="money/hour"},
+  ["raw:inv_type_*"] = {text = "* Items Looted", units = "integer"},
+  ["raw:junk_looted_value"] = {text = "Value of Junk Looted", units = "money"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_wipes"] = {text = "BFA Dungeon Boss Wipes", units = "integer"},
+  ["raw:bfa_raid_boss_kills"] = {text = "BFA Raid Boss Kills", units = "integer"},
+  ["raw:bfa_raid_boss_wipes"] = {text = "BFA Raid Boss Wipes", units = "integer"},
+  ["raw:total_items_looted"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:gear_loot"] = {text = "Gear Looted", units = "integer"},
+  ["raw:cloth_looted"] = {text = "Cloth Gathered", units = "integer"},
+  ["raw:tradeskill_looted"] = {text = "Tradeskill Items Looted", units = "integer"},
+  ["raw:enchanting_looted"] = {text = "Enchanting Items Gathered", units = "integer"},
+  ["raw:herb_looted"] = {text = "Herbs Gathered", units = "integer"},
+  ["raw:jewelcrafting_looted"] = {text = "Jewelcrafting Items Gathered", units = "integer"},
+  ["raw:meat_looted"] = {text = "Meat Gathered", units = "integer"},
+  ["raw:leather_looted"] = {text = "Leather Gathered", units = "integer"},
+  ["raw:metal_looted"] = {text = "Ore Gathered", units = "integer"},
+  ["raw:junk_looted"] = {text = "Junk Items Looted", units = "integer"},
+  ["raw:poor_loot"] = {text = "Greys Looted", units = "integer"},
+  ["raw:common_loot"] = {text = "Common Items Looted", units = "integer"},
+  ["raw:uncommon_loot"] = {text = "Greens Looted", units = "integer"},
+  ["raw:rare_loot"] = {text = "Blues Looted", units = "integer"},
+  ["raw:epic_loot"] = {text = "Purples Looted", units = "integer"},
+  ["raw:bfa_poor_loot"] = {text = "BFA Greys Looted", units = "integer"},
+  ["raw:bfa_common_loot"] = {text = "BFA Common Items Looted", units = "integer"},
+  ["raw:bfa_uncommon_loot"] = {text = "BFA Greens Looted", units = "integer"},
+  ["raw:bfa_rare_loot"] = {text = "BFA Blues Looted", units = "integer"},
+  ["raw:bfa_epic_loot"] = {text = "BFA Purples Looted", units = "integer"},
+  ["raw:cloth_gear_loot"] = {text = "Cloth Pieces Looted", units = "integer"},
+  ["raw:leather_gear_loot"] = {text = "Mail Pieces Looted", units = "integer"},
+  ["raw:mail_gear_loot"] = {text = "Mail Pieces Looted", units = "integer"},
+  ["raw:plate_gear_loot"] = {text = "Plate Gear Looted", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  ["raw:bfa_dungeon_boss_kills"] = {text = "BFA Dungeon Boss Kills", units = "integer"},
+  
 }
 
 quantify.LEGION_DUNGEON_IDS = {1501, 1677, 1571, 1466, 1456, 1477, 1492, 1458, 1651, 1753, 1516, 1493, 1544}
 quantify.LEGION_RAID_IDS = {1520,1648,1530,1676,1712}
+quantify.BFA_DUNGEON_IDS = {1763,1754,1762,1864,1822,1877,1594,1841,1771,1862}
+quantify.BFA_RAID_IDS = {1861}
+quantify.BFA_END_BOSSES = {}

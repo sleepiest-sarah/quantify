@@ -14,7 +14,9 @@ quantify_state.state = {
     instance_type = nil,
     instance_map_id = nil,
     instance_name = nil,
-    player_control = true
+    player_control = true,
+    instance_difficulty_name = nil,
+    instance_start_time = nil
 }
 
 local s = quantify_state.state
@@ -25,9 +27,15 @@ local function zoneChangedNewArea(event, ...)
   
   local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
   s.player_in_instance = instanceType ~= "none"
+  if (s.instance_map_id ~= instanceMapID or s.instance_difficulty_name ~= difficultyName) then
+    s.instance_start_time = GetTime()
+  end
   s.instance_type = instanceType
   s.instance_map_id = instanceMapID
   s.instance_name = name
+  s.instance_difficulty_name = difficultyName
+  
+
 end
 
 local function playerRegenDisabled()
@@ -107,6 +115,14 @@ function quantify_state:isPlayerInLegionDungeon()
   return q:contains(quantify.LEGION_DUNGEON_IDS,s.instance_map_id)  
 end
 
+function quantify_state:isPlayerInBfaRaid()
+  return q:contains(quantify.BFA_RAID_IDS,s.instance_map_id)
+end
+
+function quantify_state:isPlayerInBfaDungeon()
+  return q:contains(quantify.BFA_DUNGEON_IDS,s.instance_map_id)  
+end
+
 function quantify_state:getInstanceName()
   return s.instance_name
 end
@@ -121,4 +137,16 @@ end
 
 function quantify_state:playerCrowdControlled()
   return not s.player_control and s.player_combat
+end
+
+function quantify_state:getCurrentMapId()
+  return s.UiMapDetails.mapID
+end
+
+function quantify_state:getInstanceDifficulty()
+  return s.instance_difficulty_name
+end
+
+function quantify_state:getInstanceStartTime()
+  return s.instance_start_time
 end

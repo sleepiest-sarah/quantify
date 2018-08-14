@@ -23,6 +23,8 @@ local cc_start_time = 0
 
 local CC_WINDOW = 30
 
+local dead_time = 0
+
 local function init()
   quantify.current_segment.stats.combat = {} 
   quantify.current_segment.stats.combat.raw = quantify_combat.Session:new()
@@ -32,7 +34,10 @@ local function init()
 end
 
 local function playerDead()
-  session.num_deaths = session.num_deaths + 1
+  if (GetTime() - dead_time > quantify.EVENT_WINDOW) then --getting occasional double death events
+    session.num_deaths = session.num_deaths + 1
+    dead_time = GetTime()
+  end
 end
 
 local function playerAlive()

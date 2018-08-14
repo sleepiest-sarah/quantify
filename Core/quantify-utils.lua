@@ -337,3 +337,13 @@ function q:getCoppersFromText(text)
   
   return copper
 end
+
+function q:getItemId(itemLink)
+  local id = string.match(itemLink, "item:(%d+):")
+  return tonumber(id)
+end
+
+function q:getJournalIdFromLink(journalLink)
+  local id = string.match(journalLink, "HJournal:%d?:(%d+):")
+  return tonumber(id)
+end
