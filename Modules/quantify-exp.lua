@@ -103,7 +103,7 @@ function quantify_exp:calculateDerivedStats(segment)
   
   local session_xp_rate = segment.stats.xp.session_rates.xp
   segment.stats.xp.derived_stats = {}
-  segment.stats.xp.derived_stats.time_to_level = (UnitXPMax("player") - UnitXP("player")) / (session_xp_rate)
+  segment.stats.xp.derived_stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
 end
 
 function quantify_exp:updateStats(segment)
