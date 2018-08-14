@@ -14,7 +14,7 @@ function Segment:duration()
   elseif (self.end_time == nil and self.start_time ~= nil) then
     return GetTime() - self.start_time
   else 
-    return _duration
+    return self._duration
   end
 end
 

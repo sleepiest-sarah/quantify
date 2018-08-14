@@ -102,7 +102,7 @@ function q:ViewAllStats_Update()
   if (viewing_module_key == "All") then                   --sort alphabetically
     table.sort(ViewAllStats_List, function(a,b) return a.label < b.label end)
   else                                                    --sort according to order
-    table.sort(ViewAllStats_List, function(a,b) return a.order < b.order end)
+    table.sort(ViewAllStats_List, function(a,b) return (a.order == b.order and a.label < b.label) or (a.order < b.order) end)
   end
   
   updateFauxScrollFrame(ViewAllStats_Frame, ViewAllStats_List, q.NUM_STAT_ROWS, q.STAT_ROW_HEIGHT,q.VIEW_STATS_BUTTON_PREFIX)
