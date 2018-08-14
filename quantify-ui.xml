@@ -19,6 +19,10 @@
 	  <Color r="1.0" g="1.0" b="1.0" a="1.0" />
 	</Font>
 	
+	<Font name="StatRowValueFont" justifyH="RIGHT" inherits="GameFontNormal">
+	  <Color r="1.0" g="0.82" b="0" a="1.0"/>
+	</Font>
+	
 	<Script file="Templates\QuantifyStatRowTemplate.lua" />
 	<Button name="QuantifyStatRowTemplate" virtual="true">
 		<NormalTexture file="Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground.blp">
@@ -45,14 +49,14 @@
 			</Anchors>
 		  </Button>
 		  <Button name="$parentValue">
-		    <NormalFont style="GameFontNormal"/>
+		    <NormalFont style="StatRowValueFont"/>
 			<Size>
 			  <AbsDimension x="20" y="10" />
 			</Size>
 			<Anchors>
 			  <Anchor point="RIGHT">
 				<Offset>
-				  <AbsDimension x="-10" y="0" />
+				  <AbsDimension x="-30" y="0" />
 				</Offset>
 			  </Anchor>
 			</Anchors>
@@ -95,28 +99,6 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Frame name="QuantifyIcon">
-				<Size>
-				  <AbsDimension x="20" y="20" />
-				</Size>
-				<Layers>
-				  <Layer level="ARTWORK">
-				    <Texture name="$parentTexture" file="Interface\addons\quantify\Textures\noun_calculate.tga" setAllPoints="true" alphaMode="BLEND">
-					  
-					</Texture>
-				  </Layer>
-				</Layers>
-				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="12" y="-13"/>
-						</Offset>
-					</Anchor>
-				</Anchors>	
-				<Scripts>
-<!-- 				  <OnLoad>QuantifyIconTexture:SetVertexColor(1.0,1.0,1.0);</OnLoad> -->
-				</Scripts>
-			</Frame>
 			<Frame name="SelectSegmentDropdown" inherits="UIDropDownMenuTemplate" >
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -151,7 +133,7 @@
 			    <Anchors>
 				  <Anchor point="TOPLEFT">
 				    <Offset>
-						<AbsDimension x="170" y="-13"/>
+						<AbsDimension x="270" y="-13"/>
 					</Offset>
 				  </Anchor>
 				</Anchors>

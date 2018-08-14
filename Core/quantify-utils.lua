@@ -266,9 +266,9 @@ function q:getFormattedUnit(n,units)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
   elseif (units == "money") then
-    res = q:getCurrencyString(n)
+    res = GetCoinTextureString(n)
   elseif (units == "money/hour") then
-    res = q:getCurrencyString(n)
+    res = GetCoinTextureString(n)
   elseif (units == "money_icon") then
     res = GetCoinTextureString(n)
   end
@@ -346,4 +346,16 @@ end
 function q:getJournalIdFromLink(journalLink)
   local id = string.match(journalLink, "HJournal:%d?:(%d+):")
   return tonumber(id)
+end
+
+function q:capitalizeString(str)
+  local res
+  
+  if (str ~= nil and string.len(str) > 0) then
+    local c = string.sub(str,0,1)
+    c = string.upper(c)
+    res = c..string.sub(str,2)
+  end
+  
+  return res
 end
