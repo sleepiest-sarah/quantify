@@ -9,8 +9,7 @@ function QuantifyStatRowTemplate_SetValue(self,text)
   value:SetText(text)
 end
 
-function QuantifyStatRowTemplate_SetText(self,text)
-  local label,value = string.match(text,"(.+):(.+)")
-  QuantifyStatRowTemplate_SetLabel(self,label)
-  QuantifyStatRowTemplate_SetValue(self,value)
+function QuantifyStatRowTemplate_SetText(self,item)
+  QuantifyStatRowTemplate_SetLabel(self,item.label)
+  QuantifyStatRowTemplate_SetValue(self,item.value)
 end

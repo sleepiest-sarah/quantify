@@ -91,12 +91,18 @@ function q:ViewAllStats_Update()
         readable_key = string.gsub(readable_key,"*",star_string)
       end
       local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
-      table.insert(ViewAllStats_List, readable_key..":"..tostring(readable_value))
+      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500)})
     else  --just use the raw key and value if the text hasn't been initialized yet
       if (type(v) ~= "table") then
-        table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
+        --table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
       end
     end
+  end
+  
+  if (viewing_module_key == "All") then                   --sort alphabetically
+    table.sort(ViewAllStats_List, function(a,b) return a.label < b.label end)
+  else                                                    --sort according to order
+    table.sort(ViewAllStats_List, function(a,b) return a.order < b.order end)
   end
   
   updateFauxScrollFrame(ViewAllStats_Frame, ViewAllStats_List, q.NUM_STAT_ROWS, q.STAT_ROW_HEIGHT,q.VIEW_STATS_BUTTON_PREFIX)

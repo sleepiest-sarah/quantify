@@ -28,7 +28,7 @@
 		  <Color r=".5" g=".5" b=".b" a=".5"/>
 		</HighlightTexture>
 		<Size>
-		  <AbsDimension x="270" y="30"/>
+		  <AbsDimension x="470" y="30"/>
 		</Size>
 		<Frames>
 		  <Button name="$parentLabel">
@@ -76,7 +76,7 @@
    
   <Frame name="QuantifyContainer_Frame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" inherits="ViewWindowTemplate" hidden="true">
 		<Size>
-			<AbsDimension x="300" y="350"/>
+			<AbsDimension x="500" y="350"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER">
@@ -197,7 +197,7 @@
 			</Frame>			
 			<Frame name="ViewAllStats_Container" setAllPoints="true">
 				<Size>
-					<AbsDimension y="300" x="270" />
+					<AbsDimension y="300" x="470" />
 				</Size>
 				<Anchors>
 				  <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
