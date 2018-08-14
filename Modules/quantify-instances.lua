@@ -36,7 +36,7 @@ end
 
 local function encounterEnd(event, ...)
   local encounterID, encounterName, difficultyID, groupSize, success = unpack({...})
-  print("encounterId: ", encounterID)
+  --print("encounterId: ", encounterID)
   
   if quantify_state:isPlayerInLegionRaid() then
     if (success == 1) then

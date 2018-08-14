@@ -48,7 +48,7 @@ local function confirmLootRoll(event, rollId, roll)
 end
 
 local function processItem(item,amount) 
-  q:printTable(item)
+  --q:printTable(item)
   
   --item types
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
