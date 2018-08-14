@@ -67,7 +67,11 @@ local function playerCurrency(event, msg)
     amount = 1
   end
   
-  session[qc.CURRENCY_GAINED_PREFIX..currency] = session[qc.CURRENCY_GAINED_PREFIX..currency] + amount
+  local name, currentAmount, texture, earnedThisWeek, weeklyMax, totalMax, isDiscovered, rarity = GetCurrencyInfo(currency)
+  if (session[qc.CURRENCY_GAINED_PREFIX..name] == nil) then
+    session[qc.CURRENCY_GAINED_PREFIX..name] = 0
+  end
+  session[qc.CURRENCY_GAINED_PREFIX..name] = session[qc.CURRENCY_GAINED_PREFIX..name] + tonumber(amount)
 end
 
 function quantify_currency:calculateDerivedStats(segment)

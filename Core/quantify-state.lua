@@ -22,8 +22,11 @@ quantify_state.state = {
 local s = quantify_state.state
 
 local function zoneChangedNewArea(event, ...)
-  s.UiMapDetails = C_Map.GetMapInfo(C_Map.GetBestMapForUnit("player"))
-  s.current_zone_name = s.UiMapDetails.name
+  local map = C_Map.GetBestMapForUnit("player")
+  if (map ~= nil) then
+    s.UiMapDetails = C_Map.GetMapInfo(map)
+    s.current_zone_name = s.UiMapDetails.name
+  end
   
   local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
   s.player_in_instance = instanceType ~= "none"
