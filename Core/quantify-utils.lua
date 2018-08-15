@@ -265,14 +265,20 @@ function q:getFormattedUnit(n,units)
     res = q:getShorthandInteger(n,2)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
-  elseif (units == "money") then
-    res = GetCoinTextureString(n)
+  elseif (units == "money") then 
+    local negative = n < 0
+    res = GetCoinTextureString(math.abs(n))
+    if (negative) then
+      res = "-"..res
+    end
   elseif (units == "money/hour") then
-    res = GetCoinTextureString(n)
-  elseif (units == "money_icon") then
-    res = GetCoinTextureString(n)
+    local negative = n < 0
+    res = GetCoinTextureString(math.abs(n))
+    if (negative) then
+      res = "-"..res
+    end
   end
-
+    
   return res
 end
 
