@@ -15,16 +15,16 @@ ql.UNCOMMON = 2
 ql.RARE = 3
 ql.EPIC = 4
 
-ql.VANILLA = 0
-ql.BC = 1
-ql.WOTLK = 2
-ql.CATA = 3
-ql.WOD = 4
-ql.LEGION = 5
-ql.BFA = 6
+ql.VANILLA = 1
+ql.BC = 2
+ql.WOTLK = 3
+ql.CATA = 4
+ql.WOD = 5
+ql.LEGION = 6
+ql.BFA = 7
 
 function quantify_loot.Session:new(o)
-  o = o or {total_items_looted = 0, gear_loot = 0, cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0}
+  o = o or {total_items_looted = 0, gear_loot = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -48,7 +48,9 @@ local function confirmLootRoll(event, rollId, roll)
 end
 
 local function processItem(item,amount) 
-  --q:printTable(item)
+  if (item.isCraftingReagent) then
+    return
+  end
   
   --item types
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
@@ -61,23 +63,6 @@ local function processItem(item,amount)
       session.mail_gear_loot = session.mail_gear_loot + amount
     elseif (item.itemSubType == "Plate") then
       session.plate_gear_loot = session.plate_gear_loot + amount
-    end
-  elseif (item.itemType == "Tradeskill") then
-    session.tradeskill_looted = session.tradeskill_looted + amount  
-    if (item.itemSubType == "Cloth") then
-      session.cloth_looted = session.cloth_looted + amount
-    elseif (item.itemSubType == "Enchanting") then
-      session.enchanting_looted = session.enchanting_looted + amount
-    elseif (item.itemSubType == "Herb") then
-      session.herb_looted = session.herb_looted + amount
-    elseif (item.itemSubType == "Jewelcrafting") then
-      session.jewelcrafting_loot = session.jewelcrafting_loot + amount
-    elseif (item.itemSubType == "Leather") then
-      session.leather_looted = session.leather_looted + amount
-    elseif (item.itemSubType == "Meat") then
-      session.meat_looted = session.meat_looted + amount
-    elseif (item.itemSubType == "Metal & Stone") then
-      session.metal_looted = session.metal_looted + amount
     end
   end
     
@@ -129,6 +114,7 @@ local function getItemInfoReceived(event, itemId)
   if (item_queue[itemId] ~= nil) then
     local item = q.Item:new(itemId)
     processItem(item,item_queue[itemId].amount)
+    quantify_tradeskill:processItem(item,amount)
     item_queue[itemId] = nil
   end
 end
@@ -150,6 +136,7 @@ local function chatMsgLoot(event, msg, player, chatLineId)
       item_queue[id].amount = item_queue[id].amount + amount
     else
       processItem(item,amount)
+      quantify_tradeskill:processItem(item,amount)
     end
   end
 end

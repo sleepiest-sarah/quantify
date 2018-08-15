@@ -1,7 +1,7 @@
 ## Interface: 80000
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: 1.0
+## Version: r06-alpha
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml
@@ -25,5 +25,6 @@ Modules\quantify-chat.lua
 Modules\quantify-instances.lua
 Modules\quantify-currency.lua
 Modules\quantify-loot.lua
+Modules\quantify-tradeskill.lua
 
 quantify-ui.xml
