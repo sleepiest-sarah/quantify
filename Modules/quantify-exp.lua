@@ -75,9 +75,9 @@ local function playerMsgCombatXpGain(event, ...)
     player_kill = GetTime()
   end
   
-  local rested_xp = string.match(msg, "%+(%d+) Rested bonus")
+  local rested_xp = string.match(msg, "%+(%d+) exp Rested bonus")
   if (rested_xp ~= nil) then
-    session.rested_xp = session.rested_xp + rested_xp
+    session.rested_xp = session.rested_xp + tonumber(rested_xp)
   end
 end
 
