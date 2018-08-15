@@ -6,7 +6,7 @@ local player_kill = 0
 local player_quest = 0
 
 local previous_xp = nil
-
+local previous_level = nil
 local previous_max_xp = nil
 
 quantify_exp = {}
@@ -94,12 +94,16 @@ local function playerScenarioCompleted(event, ...)
 end
 
 local function playerLevelUp(event, ...)
-  session.levels_gained = session.levels_gained + 1
+  if (UnitLevel("player") ~= previous_level) then
+    session.levels_gained = session.levels_gained + 1
+    previous_level = UnitLevel("player")
+  end
 end
 
 local function playerLogin(event, ...)
   previous_xp = UnitXP("player")
   previous_max_xp = UnitXPMax("player")
+  previous_level = UnitLevel("player")
 end
 
 function quantify_exp:calculateDerivedStats(segment)

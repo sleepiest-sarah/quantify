@@ -192,19 +192,23 @@ function q:getModuleKeys()
   return keys
 end
 
-function q:getShorthandInteger(n,precision)
+function q:getShorthandInteger(n,precision,decimal)
   precision = precision or 1
   
   local format = "%." .. tostring(precision) .. "f"
   
   local res
-  n = math.floor(n)
+  if (not decimal) then
+    n = math.floor(n)
+  end
   if (n > 1000 and n < 1000000) then
     n = (n * 1.0) / 1000
     res = string.format(format,n).."k"
   elseif (n > 1000000) then
     n = (n * 1.0) / 1000000
     res = string.format(format,n).."m"
+  elseif (decimal) then
+    res = string.format(format,n)
   else
     res = n
   end  
@@ -262,7 +266,7 @@ function q:getFormattedUnit(n,units)
   elseif (units == "integer/hour") then
     res = q:getShorthandInteger(n)
   elseif (units == "decimal/hour") then
-    res = q:getShorthandInteger(n,2)
+    res = q:getShorthandInteger(n,2,true)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
   elseif (units == "money") then 
