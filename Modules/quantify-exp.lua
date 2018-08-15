@@ -61,7 +61,9 @@ end
 local function playerQuestTurnedIn(event, ...)
   local questid, xp, money = unpack({...})
   
-  session.quest_xp = session.quest_xp + xp
+  if (xp ~= nil) then
+    session.quest_xp = session.quest_xp + xp
+  end
   
   player_quest = GetTime()
 end
@@ -84,7 +86,9 @@ end
 local function playerScenarioCompleted(event, ...)
   local questid, xp, money = unpack({...})
   
-  session.scenario_xp = session.scenario_xp + xp
+  if (xp ~= nil) then
+    session.scenario_xp = session.scenario_xp + xp
+  end
   
   player_quest = GetTime()
 end
