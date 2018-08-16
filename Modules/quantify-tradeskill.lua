@@ -25,7 +25,7 @@ local function init()
   session = q.current_segment.stats[qt.MODULE_KEY].raw
 end
 
-local function processItem(item,amount) 
+function qt:processItem(item,amount) 
   
   if (item.itemType == "Tradeskill") then
     session.tradeskill_looted = session.tradeskill_looted + amount  
@@ -47,11 +47,11 @@ local function processItem(item,amount)
   end
   
   if (item.isCraftingReagent and item.expacID == quantify_loot.BFA) then
-    local key = qt.BFA_TRADE_GOOD_PREFIX..item.Name
+    local key = qt.BFA_TRADE_GOOD_PREFIX..item.itemName
     if (session[key] == nil) then
       session[key] = 0
     end
-    session[key] = session[key] + 1
+    session[key] = session[key] + amount
   end
     
 end

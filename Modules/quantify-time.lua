@@ -58,6 +58,10 @@ local function playerAfk(event, ...)
     
 end
 
+local function playerSpellCastSucceded(event, ...)
+    
+end
+
 function quantify_time:calculateDerivedStats(segment)
   local derived_stats = {}
   

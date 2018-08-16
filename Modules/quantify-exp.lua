@@ -15,7 +15,7 @@ quantify_exp.Session = {}
 quantify_exp.MODULE_KEY = "xp"
 
 function quantify_exp.Session:new(o)
-  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0}
+  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -80,6 +80,11 @@ local function playerMsgCombatXpGain(event, ...)
   local rested_xp = string.match(msg, "%+(%d+) exp Rested bonus")
   if (rested_xp ~= nil) then
     session.rested_xp = session.rested_xp + tonumber(rested_xp)
+  end
+  
+  local group_xp = string.match(msg, "%+(%d+) group bonus")
+  if (group_xp ~= nil) then
+    session.group_xp = session.group_xp + tonumber(group_xp)
   end
 end
 
