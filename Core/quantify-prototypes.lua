@@ -51,3 +51,33 @@ function Item:new(arg1)
   self.__index = self
   return o
 end
+
+quantify.Faction = {}
+local Faction = quantify.Faction
+local function Faction_Init(self,...)
+  local o = self or {}
+  o.name, o.description, o.standingId, o.barMin, o.barMax, o.barValue, o.atWarWith, o.canToggleAtWar,
+  o.isHeader, o.isCollapsed, o.hasRep, o.isWatched, o.isChild, o.factionId, o.hasBonusRepGain, o.hasBonusRepGain, 
+  o.canBeLFGBonus = unpack({...})  
+  return o
+end
+
+function Faction:new(...)
+  local o = Faction_Init(nil,...)
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+function Faction:update()
+  Faction_Init(self,GetFactionInfo(self.factionId))
+end
+
+Faction.HATED = 1
+Faction.HOSTILE = 2
+Faction.UNFRIENDLY = 3
+Faction.NEUTRAL = 4
+Faction.FRIENDLY = 5
+Faction.HONORED = 6
+Faction.REVERED = 7
+Faction.EXALTED = 8
