@@ -9,10 +9,11 @@ quantify_instances.RAW_DUNGEON_BOSS_KILL_PREFIX = "dungeon_boss_kill_*"
 quantify_instances.RAW_RAID_BOSS_KILL_PREFIX = "raid_boss_kill_*"
 quantify_instances.RAW_DUNGEON_BOSS_WIPE_PREFIX = "dungeon_boss_wipe_*"
 quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX = "raid_boss_wipe_*"
-quantify_instances.BFA_DUNGEON_COMPLETE_PREFIX = "dungeon_complete_*"
+quantify_instances.BFA_DUNGEON_TIME_PREFIX = "bfa_dungeon_time_*"
+quantify_instances.BFA_DUNGEON_COMPLETED_PREFIX = "bfa_dungeon_completed_*"
 
 function quantify_instances.Session:new(o)
-  o = o or {legion_raid_boss_kills = 0, legion_raid_boss_wipes = 0, legion_dungeon_boss_kills = 0, legion_dungeon_boss_wipes = 0, bfa_raid_boss_kills = 0, bfa_raid_boss_wipes = 0, bfa_dungeon_boss_kills = 0, bfa_dungeon_boss_wipes = 0, overall_raid_boss_kills = 0, overall_raid_boss_wipes = 0, overall_dungeon_boss_kills = 0, overall_dungeon_boss_wipes = 0, player_raid_deaths = 0, player_dungeon_deaths = 0}
+  o = o or {legion_raid_boss_kills = 0, legion_raid_boss_wipes = 0, legion_dungeon_boss_kills = 0, legion_dungeon_boss_wipes = 0, bfa_raid_boss_kills = 0, bfa_raid_boss_wipes = 0, bfa_dungeon_boss_kills = 0, bfa_dungeon_boss_wipes = 0, overall_raid_boss_kills = 0, overall_raid_boss_wipes = 0, overall_dungeon_boss_kills = 0, overall_dungeon_boss_wipes = 0, player_raid_deaths = 0, player_dungeon_deaths = 0, bfa_dungeon_time = {}, bfa_total_dungeon_completed = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -95,26 +96,36 @@ local function playerDead(event, ...)
 end
 
 local function bossKill(event, encounterId, encounterName)
-  if (q:contains(q.BFA_END_BOSSES, "encounterName") and quantify_state:isPlayerInInstance() and quantify_state:getInstanceStartTime() ~= nil) then
-    local key = ql.BFA_DUNGEON_COMPLETE_PREFIX..quantify_state:getInstanceName()..getInstanceDifficulty()
-    if (session[key] == nil) then
-      session[key] = {n = 0, avg = 0}
+  if (q:contains(q.BFA_END_BOSSES, encounterName) and quantify_state:isPlayerInBfaDungeon() and quantify_state:getInstanceStartTime() ~= nil) then
+    session.bfa_total_dungeon_completed = session.bfa_total_dungeon_completed + 1
+    
+    local key = quantify_state:getInstanceName().."-"..quantify_state:getInstanceDifficulty()
+    if (session.bfa_dungeon_time[key] == nil) then
+      session.bfa_dungeon_time[key] = {n = 0, time = 0}
     end
-    local prev_sum = session[key].n * session[key].avg
-    local n = session[key].n + 1
-    local sum = prev_sum + (GetTime() - quantify_state:getInstanceStartTime())
-    session[key].n = n
-    session[key].avg = sum / n
+    session.bfa_dungeon_time[key].n = session.bfa_dungeon_time[key].n + 1
+    session.bfa_dungeon_time[key].time = session.bfa_dungeon_time[key].time + (GetTime() - quantify_state:getInstanceStartTime())
   end
   
 end
 
 function quantify_instances:calculateDerivedStats(segment)
-
+  local derived = {}
+  
+  if (segment.stats.instances.raw ~= nil and segment.stats.instances.raw.bfa_dungeon_time ~= nil) then
+    for k,v in pairs(segment.stats.instances.raw.bfa_dungeon_time) do
+      local time,completed = quantify_instances.BFA_DUNGEON_TIME_PREFIX..k, quantify_instances.BFA_DUNGEON_COMPLETED_PREFIX..k
+      
+      derived[time] = v.time / v.n
+      derived[completed] = v.n
+    end
+  end
+  
+  segment.stats.instances.derived_stats = derived
 end
 
 function quantify_instances:updateStats(segment)
-
+  quantify_instances:calculateDerivedStats(segment)
 end
  
 function quantify_instances:newSegment(previous_seg,new_seg)
