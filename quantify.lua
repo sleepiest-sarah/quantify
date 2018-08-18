@@ -115,6 +115,9 @@ local function init(event, ...)
 end
 
 local function logout(event, ...)
+  for _,m in ipairs(q.modules) do
+    m:updateStats(q.current_segment)
+  end
   q:updateTotals(q.current_segment)
 end
 

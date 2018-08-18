@@ -41,6 +41,10 @@ local function zoneChangedNewArea(event,...)
   end
 end
 
+local function playerEnteringWorld()
+  zoneChangedNewArea()
+end
+
 function quantify_zones:calculateDerivedStats(segment)
   local derived_stats = {}
   local total_time = segment:duration()
@@ -83,5 +87,6 @@ init()
 table.insert(quantify.modules, quantify_zones)
 
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)
+quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
   
   
