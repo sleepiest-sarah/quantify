@@ -12,7 +12,9 @@ local function correctBnAccountNames()
             new_whispers_stat[player] = v
           else
             local _,_,bnname = BNGetFriendInfoByID(id)
-            new_whispers_stat[bnname] = v
+			if (bnname) then					--friend could have been removed
+			  new_whispers_stat[bnname] = v
+			end
           end
         end
         seg.stats.chat.whispers_received_from = new_whispers_stat
