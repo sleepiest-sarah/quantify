@@ -46,8 +46,6 @@ function q:updateTotals(segment)
   qDb.account.time = qDb.account.time + duration
   qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
   
-  qDb.version = q.VERSION
-  
   for k, statgroup in pairs(segment.stats) do
     if (qDb.account.stats[k] == nil) then
       qDb.account.stats[k] = {}
@@ -92,7 +90,7 @@ local function init(event, ...)
     --q:showUi(true)
     print(quantify.LOADED_TEXT)
     if (qDb == nil) then
-      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new(), version = q.VERSION}
+      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
     elseif (qDb[q.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
     else

@@ -16,10 +16,7 @@ quantify_state.state = {
     instance_name = nil,
     player_control = true,
     instance_difficulty_name = nil,
-    instance_start_time = nil,
-    player_mounted = false,
-    player_has_azerite_item = false,
-    azerite_item_table = nil
+    instance_start_time = nil
 }
 
 local s = quantify_state.state
@@ -42,14 +39,6 @@ local function zoneChangedNewArea(event, ...)
   s.instance_difficulty_name = difficultyName
   
 
-end
-
-local function playerMount(...)
-  if (nil == unpack({...})) then
-    s.player_mounted = IsMounted()
-  else
-    q:registerNextFrame(playerMount)
-  end
 end
 
 local function playerRegenDisabled()
@@ -81,21 +70,8 @@ local function playerLogin()
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
 end
 
-local function checkAzeriteItem(event, unit)
-  if (event == nil or unit == "player") then
-    s.player_has_azerite_item = C_AzeriteItem.HasActiveAzeriteItem()
-    if (s.player_has_azerite_item) then
-      s.azerite_item_table = C_AzeriteItem.FindActiveAzeriteItem()
-    end
-  end
-end
-
 local function playerEnteringWorld()
   zoneChangedNewArea()
-  
-  checkAzeriteItem()
-  
-  s.player_mounted = IsMounted()
 end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload
@@ -107,8 +83,6 @@ quantify:registerEvent("PLAYER_ALIVE", playerAlive)
 quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControlGained)
 quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
-quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
-quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
 
 
 --getters
@@ -178,16 +152,4 @@ end
 
 function quantify_state:getInstanceStartTime()
   return s.instance_start_time
-end
-
-function quantify_state:isPlayerMounted()
-  return s.player_mounted
-end
-
-function quantify_state:hasAzeriteItem()
-  return s.player_has_azerite_item
-end
-
-function quantify_state:getActiveAzeriteLocationTable()
-  return s.azerite_item_table
 end

@@ -3,8 +3,6 @@ quantify = {}
 
 quantify.ADDON_NAME = "quantify"
 
-quantify.VERSION = "r07-alpha"
-
 quantify.EVENT_WINDOW = 1
 
 SLASH_quantify1 = "/quantify"

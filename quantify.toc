@@ -25,7 +25,5 @@ Modules\quantify-chat.lua
 Modules\quantify-instances.lua
 Modules\quantify-currency.lua
 Modules\quantify-loot.lua
-Modules\quantify-tradeskill.lua
-Modules\quantify-reputation.lua
 
 quantify-ui.xml
