@@ -1,10 +1,11 @@
 ## Interface: 80000
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: r06-alpha
+## Version: r07-alpha
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml
+
 
 Core\constants.lua
 Core\stat_dictionary.lua

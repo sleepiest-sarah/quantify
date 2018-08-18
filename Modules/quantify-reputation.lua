@@ -86,15 +86,12 @@ local function combatFactionChange(event, msg)
     return
   end
   
-  --newly discovered faction so reprocess everything
-  if (faction ~= nil and qr.factions[faction] == nil) then
-    dirty_factions = nil
-    processFactions()
-  end
-  
-  
   if (faction ~= nil) then
-    table.insert(dirty_factions, qr.factions[faction].factionId)
+    if (qr.factions[faction] == nil) then --newly discovered faction so reprocess everything
+      dirty_factions = nil
+    else
+      table.insert(dirty_factions, qr.factions[faction].factionId)
+    end
 
     local amount = string.match(msg, "increased by (%d+)")
     if (amount == nil) then
@@ -103,15 +100,13 @@ local function combatFactionChange(event, msg)
     end
     
     if (amount ~= nil) then
-      local key = qr.FACTION_CHANGE_DELTA_PREFIX..qr.factions[faction].name
+      local key = qr.FACTION_CHANGE_DELTA_PREFIX..faction
       if (session[key] == nil) then
         session[key] = 0
       end
       session[key] = session[key] + amount
     end
   end
-  
-  processFactions()
 end
 
 local function playerLogin()
@@ -155,6 +150,8 @@ function quantify_reputation:calculateDerivedStats(segment)
 end
 
 function quantify_reputation:updateStats(segment)
+  processFactions()
+  
   qr:calculateDerivedStats(segment)
 end
  

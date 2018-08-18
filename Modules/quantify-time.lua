@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -17,9 +17,11 @@ local session
 
 local combat_start = nil
 local afk_start = nil
+local mount_start = nil
 
 local in_combat = false
 local isAfk = false
+local is_mounted = false
 
 local function init()
   q.current_segment.stats.time = {}
@@ -58,8 +60,21 @@ local function playerAfk(event, ...)
     
 end
 
-local function playerSpellCastSucceded(event, ...)
-    
+local function playerMount(...)
+  if (nil == unpack({...})) then
+    if (is_mounted) then
+      session.time_mounted = session.time_mounted + (GetTime() - mount_start)
+    elseif (not is_mounted and quantify_state:isPlayerMounted()) then
+      mount_start = GetTime()
+    end
+    is_mounted = quantify_state:isPlayerMounted()
+  else
+    q:registerNextFrame(playerMount)
+  end
+end
+
+local function playerEnteringWorld()
+  playerMount()
 end
 
 function quantify_time:calculateDerivedStats(segment)
@@ -68,6 +83,7 @@ function quantify_time:calculateDerivedStats(segment)
   local raw = segment.stats.time.raw
   derived_stats.pct_play_time_combat = (raw.time_combat / raw.play_time) * 100
   derived_stats.pct_play_time_afk = (raw.time_afk / raw.play_time) * 100
+  derived_stats.pct_time_mounted = (raw.time_mounted / raw.play_time) * 100
   segment.stats.time.derived_stats = derived_stats
 end
 
@@ -85,6 +101,11 @@ function quantify_time:updateStats(segment)
       afk_start = GetTime()
     end
     
+    if is_mounted then
+      playerMount()
+      mount_start = GetTime()
+    end
+    
     if q.current_segment.start_time ~= nil then
       session.play_time = GetTime() - q.current_segment.start_time
     end
@@ -96,6 +117,7 @@ end
 function quantify_time:newSegment(previous_seg,new_seg)
   combat_start = GetTime()
   afk_start = GetTime()
+  mount_start = GetTime()
   
   init()
   
@@ -108,5 +130,7 @@ table.insert(quantify.modules, quantify_time)
 quantify:registerEvent("PLAYER_REGEN_DISABLED", playerRegenDisabled)
 quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
 quantify:registerEvent("CHAT_MSG_SYSTEM", playerAfk)
+quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
+quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
   
   
