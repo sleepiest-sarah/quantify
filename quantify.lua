@@ -1,6 +1,7 @@
 local sframe = CreateFrame("FRAME")
 
 local event_map = {}
+local next_frame_callbacks = {}
 
 --alias namespace
 local q = quantify
@@ -14,11 +15,21 @@ q.current_segment = q.segments[1]
 
 
 function sframe:OnEvent(event, ...)
+  for _,c in pairs(next_frame_callbacks) do
+    c.callback(unpack(c.args))
+  end
+  
+  next_frame_callbacks = {}
+  
   if (event_map[event] ~= nil) then
     for _, f in pairs(event_map[event]) do
       f(event, ...)
     end
   end
+end
+
+function quantify:registerNextFrame(callback, ...)
+  table.insert(next_frame_callbacks, {callback = callback, args = {...}})
 end
 
 function q:updateTotals(segment)
@@ -34,6 +45,8 @@ function q:updateTotals(segment)
   
   qDb.account.time = qDb.account.time + duration
   qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
+  
+  qDb.version = q.VERSION
   
   for k, statgroup in pairs(segment.stats) do
     if (qDb.account.stats[k] == nil) then
@@ -79,10 +92,27 @@ local function init(event, ...)
     --q:showUi(true)
     print(quantify.LOADED_TEXT)
     if (qDb == nil) then
-      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
+      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new(), version = q.VERSION}
     elseif (qDb[q.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
+    else
+      q:runMigrations()
     end
+    
+    if (qDbOptions == nil) then
+      qDbOptions = {profile = {minimap = {hide = false}}}
+    end
+    
+    local addon = LibStub("AceAddon-3.0"):NewAddon("quantify")
+    local bunnyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("quantify", {
+      type = "data source",
+      text = "quantify",
+      icon = "Interface\\addons\\quantify\\Textures\\noun_calculate.tga",
+      OnClick = function() q:toggleUi() end,
+      OnTooltipShow = function(tooltip) tooltip:SetText("quantify\n\n|cFFFFFF00Click |cFFFFFFFFto toggle UI") end
+    })
+    local icon = LibStub("LibDBIcon-1.0")
+    icon:Register("quantify", bunnyLDB, qDbOptions.profile.minimap)
   end
 end
 

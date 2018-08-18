@@ -98,6 +98,9 @@
 					<Anchor point="TOPRIGHT">
 					</Anchor>
 				</Anchors>
+        <Scripts>
+            
+        </Scripts>
 			</Button>
 			<Frame name="SelectSegmentDropdown" inherits="UIDropDownMenuTemplate" >
 				<Anchors>
@@ -216,6 +219,7 @@
 		<Scripts>
 		  <OnLoad>
 		    self:RegisterForDrag("LeftButton");
+        QuantifyCloseButton:HookScript("OnClick", quantify.uiCloseButton)
 		  </OnLoad>
 		  <OnDragStart>
 		    self:StartMoving()

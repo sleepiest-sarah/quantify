@@ -1,9 +1,14 @@
 local q = quantify
 
 function q:printTable(t)
-    for k,v in pairs(t) do
+  for k,v in pairs(t) do
+    if (type(v) == "table") then
+      print(string.format("%s:", k))
+      q:printTable(v)
+    else
       print(string.format("%s: %s", k, tostring(v)))
     end
+  end
 end
 
 function q:printModule(mod, segment)
@@ -36,7 +41,9 @@ function q:printSegment(segment)
   end
 end
 
-function q:calculateSegmentRates(segment, segment_stats)
+function q:calculateSegmentRates(segment, segment_stats, period)
+  local period = period or 3600
+  
   local duration
   if (segment:duration() ~= nil) then
     duration = segment:duration()
@@ -49,7 +56,7 @@ function q:calculateSegmentRates(segment, segment_stats)
   local session_rates = {}
   for k,v in pairs(segment_stats) do
     if (type(v) == "number") then
-      session_rates[k] = (v/duration) * 3600
+      session_rates[k] = (v/duration) * period
     end
   end
   
@@ -128,7 +135,9 @@ function q:getSegmentList()
   local segments = {}
   if (qDb ~= nil) then
     for k,v in pairs(qDb) do
-      segments[k] = v
+      if (type(v) == "table") then
+        segments[k] = v
+      end
     end
   end
   
@@ -167,6 +176,15 @@ function q:convertSavedSegment(segment)
       cseg.stats[m.MODULE_KEY] = {}
       cseg.stats[m.MODULE_KEY].raw = m.Session:new()
     end
+    
+    --add any stats that are missing from the saved segment
+    local empty_stats = m.Session:new()
+    for s,v in pairs(empty_stats) do
+      if (cseg.stats[m.MODULE_KEY].raw[s] == nil) then
+        cseg.stats[m.MODULE_KEY].raw[s] = v
+      end
+    end
+    
     m:updateStats(cseg)
   end
   
@@ -263,7 +281,7 @@ function q:getFormattedUnit(n,units)
     end
   elseif (units == "decimal") then
     res = string.format("%.2f",n)
-  elseif (units == "integer/hour") then
+  elseif (units == "integer/hour" or units == "integer/day") then
     res = q:getShorthandInteger(n)
   elseif (units == "decimal/hour") then
     res = q:getShorthandInteger(n,2,true)
@@ -368,4 +386,14 @@ function q:capitalizeString(str)
   end
   
   return res
+end
+
+function q:getBnAccountNameFromChatString(str)
+  local id = string.match(str, "|K[gsf]([0-9]+)|")
+  local bn_name
+  if (id ~= nil) then
+    local _,_,bn_name = BNGetFriendInfoByID(id)
+  end
+  
+  return bn_name
 end

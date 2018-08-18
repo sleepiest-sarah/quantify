@@ -27,8 +27,11 @@ local function init()
   session = q.current_segment.stats[quantify_instances.MODULE_KEY].raw
 end
 
-local function incrementPrefix(prefix, instance)
+local function incrementPrefix(prefix, instance, difficulty)
   local key = prefix .. instance
+  if (difficulty ~= nil) then
+    key = key.."-"..difficulty
+  end
   if (session[key] == nil) then
     session[key] = 0
   end
@@ -69,16 +72,16 @@ local function encounterEnd(event, ...)
   
   local instance_name = quantify_state:getInstanceName()
   if (success == 1 and quantify_state:getInstanceType() == "party") then
-    incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_KILL_PREFIX,instance_name)
+    incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_KILL_PREFIX,instance_name,quantify_state:getInstanceDifficulty())
     session.overall_dungeon_boss_kills = session.overall_dungeon_boss_kills + 1
   elseif (success == 1 and quantify_state:getInstanceType() == "raid") then
-    incrementPrefix(quantify_instances.RAW_RAID_BOSS_KILL_PREFIX, instance_name)
+    incrementPrefix(quantify_instances.RAW_RAID_BOSS_KILL_PREFIX, instance_name, quantify_state:getInstanceDifficulty())
     session.overall_raid_boss_kills = session.overall_raid_boss_kills + 1
   elseif (success == 0 and quantify_state:getInstanceType() == "party") then
-    incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_WIPE_PREFIX, instance_name)
+    incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_WIPE_PREFIX, instance_name,quantify_state:getInstanceDifficulty())
     session.overall_dungeon_boss_wipes = session.overall_dungeon_boss_wipes + 1
   elseif (success == 0 and quantify_state:getInstanceType() == "raid") then
-    incrementPrefix(quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX, instance_name)
+    incrementPrefix(quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX, instance_name,quantify_state:getInstanceDifficulty())
     session.overall_raid_boss_wipes = session.overall_raid_boss_wipes + 1
   end
   

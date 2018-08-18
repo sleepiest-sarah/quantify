@@ -10,6 +10,8 @@ quantify_chat.CHANNEL_CHAT_PREFIX = "channel_sent_*"
 quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
 quantify_chat.MAX_CLOUD_WORDS = 5
 
+quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to"}
+
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}
   setmetatable(o, self)
@@ -24,17 +26,29 @@ local function init()
   q.current_segment.stats.chat.raw = quantify_chat.Session:new()
   q.current_segment.stats.chat.derived_stats = { }
   session = q.current_segment.stats.chat.raw
+  
+  local filtered = {}
+  for _,w in ipairs(quantify_chat.filtered_words) do
+    filtered[w] = w
+  end
+  quantify_chat.filtered_words = filtered
 end
 
 local function chatMsgWhisper(event, ...)
-  local msg, author,_,_,recipient = unpack({...})
+  local msg, author,_,_,recipient,_, _, _, _, _, _, _, bnSenderID = unpack({...})
   
-  if (author == quantify_state:getPlayerNameRealm()) then
+  --check if author/recipient is actually a BN account string
+  recipient = q:getBnAccountNameFromChatString(recipient) or recipient
+  author = q:getBnAccountNameFromChatString(author) or author
+  
+  local _,bn_account_name = BNGetInfo()
+  
+  print(author,bn_account_name,bnSenderID)
+  
+  if (author == quantify_state:getPlayerNameRealm() or author == bn_account_name or BNIsSelf(bnSenderID)) then
     if (session.whispers_sent_to[recipient] == nil) then
       session.whispers_sent_to[recipient] = 0
     end
-    
-    print(recipient)
     
     session.whispers_sent_to[recipient] = session.whispers_sent_to[recipient] + 1
     session.whispers_sent = session.whispers_sent + 1
@@ -120,17 +134,19 @@ local function chatMsg(event, ...)
   local player_no_realm = quantify_state:getPlayerName()
   for word in string.gmatch(msg, "([^%s]+)") do
     word = string.lower(word)
-    if (author == player) then
-      if (session.word_cloud[word] == nil) then
-        session.word_cloud[word] = 0
+    if (quantify_chat.filtered_words[word] == nil) then
+      if (author == player) then
+        if (session.word_cloud[word] == nil) then
+          session.word_cloud[word] = 0
+        end
+        session.word_cloud[word] = session.word_cloud[word] + 1
+        
+        if (quantify_state:isPlayerInCombat()) then
+          session.combat_messages = session.combat_messages + 1
+        end
+      elseif (string.lower(word) == string.lower(player_no_realm)) then
+        session.mentions = session.mentions + 1
       end
-      session.word_cloud[word] = session.word_cloud[word] + 1
-      
-      if (quantify_state:isPlayerInCombat()) then
-        session.combat_messages = session.combat_messages + 1
-      end
-    elseif (string.lower(word) == string.lower(player_no_realm)) then
-      session.mentions = session.mentions + 1
     end
   end
 
@@ -157,13 +173,13 @@ function quantify_chat:calculateDerivedStats(segment)
     end
   end
   
-  if (q:length(session.whispers_sent_to) > 0) then
-    local bff_sent = q:getKeyForMaxValue(session.whispers_sent_to)
+  if (q:length(segment.stats.chat.raw.whispers_sent_to) > 0) then
+    local bff_sent = q:getKeyForMaxValue(segment.stats.chat.raw.whispers_sent_to)
     derived_stats.bff_sent = bff_sent
   end
   
-  if (q:length(session.whispers_received_from) > 0) then
-    local bff_received = q:getKeyForMaxValue(session.whispers_received_from)
+  if (q:length(segment.stats.chat.raw.whispers_received_from) > 0) then
+    local bff_received = q:getKeyForMaxValue(segment.stats.chat.raw.whispers_received_from)
     derived_stats.bff_received = bff_received
   end
    
@@ -185,6 +201,7 @@ init()
 table.insert(quantify.modules, quantify_chat)
 
 quantify:registerEvent("CHAT_MSG_BN_WHISPER", chatMsgWhisper)
+quantify:registerEvent("CHAT_MSG_BN", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_CHANNEL", chatMsgChannel)
 quantify:registerEvent("CHAT_MSG_OFFICER", chatMsgGuild)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsgGuild)
@@ -212,6 +229,6 @@ quantify:registerEvent("CHAT_MSG_RAID", chatMsg)
 quantify:registerEvent("CHAT_MSG_WHISPER", chatMsg)
 quantify:registerEvent("CHAT_MSG_YELL", chatMsg)
 
-quantify_chat.filtered_words = {"a", "the", "and"}
+
   
   

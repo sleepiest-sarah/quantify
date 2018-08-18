@@ -117,6 +117,10 @@ function q:showUi(bool)
   end
 end
 
+function q:toggleUi()
+  q:showUi(not q.quantify_ui_shown)
+end
+
 local function SelectSegmentDropdown_Update(self)
   SelectSegmentDropdownSelected:SetText(q:capitalizeString(viewing_segment_key))
 end
@@ -204,6 +208,7 @@ local function SelectModuleDropdown_Initialize()
   UIDropDownMenu_AddButton(info)
   
   local modules = q:getModuleKeys()
+  table.sort(modules)
   for _,m in ipairs(modules) do
     info.text = q:capitalizeString(m)
     info.arg1 = m
@@ -266,4 +271,12 @@ end
 
 function q:viewingTotalSegment()
   return string.find(viewing_segment_key, "Segment %d+") == nil
+end
+
+function q:getViewingSegmentKey()
+  return viewing_segment_key
+end
+
+function quantify:uiCloseButton()
+  q.quantify_ui_shown = false
 end
