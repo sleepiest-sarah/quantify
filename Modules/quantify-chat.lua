@@ -235,8 +235,3 @@ quantify:registerEvent("CHAT_MSG_RAID_WARNING", chatMsg)
 quantify:registerEvent("CHAT_MSG_RAID", chatMsg)
 quantify:registerEvent("CHAT_MSG_WHISPER", chatMsg)
 quantify:registerEvent("CHAT_MSG_YELL", chatMsg)
-
-
-
-  
-  

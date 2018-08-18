@@ -115,38 +115,41 @@ end
 
 
 function quantify_reputation:calculateDerivedStats(segment)
-  local derived = {}
-  local rates = q:calculateSegmentRates(segment, segment.stats.reputation.raw, 86400) --per day
+  --really shouldn't be checking the viewing segment but it's a quick workaround so we don't calculate these stats for the account
+  if (segment == q.current_segment or q:getViewingSegmentKey() == quantify_state:getPlayerNameRealm()) then  
+    local derived = {}
+    local rates = q:calculateSegmentRates(segment, segment.stats.reputation.raw, 86400) --per day
 
-  for k,r in pairs(rates) do
-    local faction_key = string.sub(k,string.len(qr.FACTION_CHANGE_DELTA_PREFIX) + 1)
-    local faction = qr.factions[faction_key]
-    
-    if (q:isInf(r) or q:isNan(r) or r <= 0) then
-      rates[faction_key] = nil
-    else
-    
-      --time until neutral
-      if (not faction.atWarWith and faction.standingId < q.Faction.NEUTRAL) then
-        derived[qr.FACTION_TIME_NEUTRAL_PREFIX..faction_key] = (math.abs(faction.barValue) / r) * 86400
-      end
+    for k,r in pairs(rates) do
+      local faction_key = string.sub(k,string.len(qr.FACTION_CHANGE_DELTA_PREFIX) + 1)
+      local faction = qr.factions[faction_key]
       
+      if (q:isInf(r) or q:isNan(r) or r <= 0) then
+        rates[faction_key] = nil
+      else
       
-      if (not faction.atWarWith and faction.standingId >= q.Faction.NEUTRAL and faction.standingId < q.Faction.EXALTED) then
-        --rep until exalted
-        local remaining_rep = qr.TOTAL_EXALTED_REP - faction.barValue
-        derived[qr.FACTION_STANDING_REMAINING_EXALTED_PREFIX..faction_key] = remaining_rep
+        --time until neutral
+        if (not faction.atWarWith and faction.standingId < q.Faction.NEUTRAL) then
+          derived[qr.FACTION_TIME_NEUTRAL_PREFIX..faction_key] = (math.abs(faction.barValue) / r) * 86400
+        end
         
-        --time until exalted
-        derived[qr.FACTION_TIME_EXALTED_PREFIX..faction_key] = (remaining_rep / r) * 86400
+        
+        if (not faction.atWarWith and faction.standingId >= q.Faction.NEUTRAL and faction.standingId < q.Faction.EXALTED) then
+          --rep until exalted
+          local remaining_rep = qr.TOTAL_EXALTED_REP - faction.barValue
+          derived[qr.FACTION_STANDING_REMAINING_EXALTED_PREFIX..faction_key] = remaining_rep
+          
+          --time until exalted
+          derived[qr.FACTION_TIME_EXALTED_PREFIX..faction_key] = (remaining_rep / r) * 86400
 
+        end
       end
+      
     end
     
+    segment.stats.reputation.derived_stats = derived
+    segment.stats.reputation.session_rates = rates
   end
-  
-  segment.stats.reputation.derived_stats = derived
-  segment.stats.reputation.session_rates = rates
 end
 
 function quantify_reputation:updateStats(segment)
