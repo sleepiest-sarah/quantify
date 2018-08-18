@@ -9,13 +9,15 @@ local previous_xp = nil
 local previous_level = nil
 local previous_max_xp = nil
 
+local previous_max_azerite_xp
+
 quantify_exp = {}
 quantify_exp.Session = {}
 
 quantify_exp.MODULE_KEY = "xp"
 
 function quantify_exp.Session:new(o)
-  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0}
+  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -111,12 +113,34 @@ local function playerLogin(event, ...)
   previous_level = UnitLevel("player")
 end
 
+local function playerEnteringWorld()
+  _,previous_max_azerite_xp = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
+end
+
+local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
+  session.azerite_xp = session.azerite_xp + (newExp - oldExp)
+  
+  local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
+  
+  local delta = newExp - oldExp
+  if (delta < 0) then
+    delta = (previous_max_azerite_xp - oldExp) + xp
+    previous_max_xp = totalLevelXP
+  end
+  session.xp = session.xp + delta
+end
+
 function quantify_exp:calculateDerivedStats(segment)
   segment.stats.xp.session_rates = quantify:calculateSegmentRates(segment, segment.stats.xp.raw)
   
   local session_xp_rate = segment.stats.xp.session_rates.xp
   segment.stats.xp.derived_stats = {}
   segment.stats.xp.derived_stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
+  
+  if (quantify_state:hasAzeriteItem()) then
+    local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
+    segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
+  end
 end
 
 function quantify_exp:updateStats(segment)
@@ -140,3 +164,5 @@ quantify:registerEvent("QUEST_TURNED_IN", playerQuestTurnedIn)
 quantify:registerEvent("SCENARIO_COMPLETED", playerScenarioCompleted)
 quantify:registerEvent("PLAYER_LEVEL_UP", playerLevelUp)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
+quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
+quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)

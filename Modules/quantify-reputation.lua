@@ -36,7 +36,7 @@ end
 
 local function processFaction(id)
   local faction = q.Faction:new(GetFactionInfo(id))
-  if (not faction.isHeader or faction.hasRep) then
+  if (faction.name and not faction.isHeader or faction.hasRep) then
     qr.factions[faction.name] = faction
     if (faction.standingId == q.Faction.HATED) then
       tally.hated = tally.hated + 1

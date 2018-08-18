@@ -119,6 +119,20 @@ local function getItemInfoReceived(event, itemId)
   end
 end
 
+local function itemReceived(itemLink,amount)
+  local item = q.Item:new(itemLink)
+  if (item == nil) then
+    local id = q:getItemId(loot)
+    if (item_queue[id] == nil) then
+      item_queue[id] = {link = loot, amount = 0}
+    end
+    item_queue[id].amount = item_queue[id].amount + amount
+  else
+    processItem(item,amount)
+    quantify_tradeskill:processItem(item,amount)
+  end   
+end
+
 local function chatMsgLoot(event, msg, player, chatLineId)
   local loot = string.match(msg,"You receive loot: (.+)x?(%d*).")
   local amount = string.match(msg, "You receive loot: .+x(%d+).")
@@ -127,18 +141,12 @@ local function chatMsgLoot(event, msg, player, chatLineId)
   if (loot ~= nil) then
     session.total_items_looted = session.total_items_looted + 1
     
-    local item = q.Item:new(loot)
-    if (item == nil) then
-      local id = q:getItemId(loot)
-      if (item_queue[id] == nil) then
-        item_queue[id] = {link = loot, amount = 0}
-      end
-      item_queue[id].amount = item_queue[id].amount + amount
-    else
-      processItem(item,amount)
-      quantify_tradeskill:processItem(item,amount)
-    end
+    itemReceived(loot,amount)
   end
+end
+
+local function questLootReceived(event, questID, itemLink, quantity)
+  itemReceived(itemLink,quantity)
 end
 
 function quantify_loot:calculateDerivedStats(segment)
