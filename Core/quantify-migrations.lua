@@ -1,6 +1,5 @@
 local q = quantify
 
-
 local function correctBnAccountNames()
   for seg_k,seg in pairs(qDb) do
     local new_whispers_stat = {}
