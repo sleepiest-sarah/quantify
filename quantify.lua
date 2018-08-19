@@ -87,7 +87,6 @@ end
 local function init(event, ...)
   local addon = ...
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
-    --q:showUi(true)
     print(quantify.LOADED_TEXT)
     if (qDb == nil) then
       qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
@@ -99,6 +98,10 @@ local function init(event, ...)
     
     if (qDbOptions == nil) then
       qDbOptions = {profile = {minimap = {hide = false}}}
+    end
+    
+    if (qDbOptions.version == nil) then
+      qDbOptions.version = GetAddOnMetadata("quantify", "Version")
     end
     
     local addon = LibStub("AceAddon-3.0"):NewAddon("quantify")

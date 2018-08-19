@@ -10,7 +10,7 @@ quantify_chat.CHANNEL_CHAT_PREFIX = "channel_sent_*"
 quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
 quantify_chat.MAX_CLOUD_WORDS = 5
 
-quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to"}
+quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an"}
 
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}
@@ -43,7 +43,11 @@ local function chatMsgWhisper(event, ...)
   
   local _,bn_account_name = BNGetInfo()
   
-  print(author,bn_account_name,bnSenderID)
+  --pretty sure the inform events only fire for battle.net messages you send and don't include anything about the author. Both the author field and bnSenderId refer to the recepient
+  if (event == "CHAT_MSG_BN_WHISPER_INFORM") then
+    recipient = author
+    author = bn_account_name
+  end
   
   if (author == quantify_state:getPlayerNameRealm() or author == bn_account_name or BNIsSelf(bnSenderID)) then
     if (session.whispers_sent_to[recipient] == nil) then
@@ -135,7 +139,7 @@ local function chatMsg(event, ...)
   for word in string.gmatch(msg, "([^%s]+)") do
     word = string.lower(word)
     if (quantify_chat.filtered_words[word] == nil) then
-      if (author == player) then
+      if (author == player or event == "CHAT_MSG_BN_WHISPER_INFORM") then
         if (session.word_cloud[word] == nil) then
           session.word_cloud[word] = 0
         end
@@ -202,6 +206,7 @@ table.insert(quantify.modules, quantify_chat)
 
 quantify:registerEvent("CHAT_MSG_BN_WHISPER", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_BN", chatMsgWhisper)
+quantify:registerEvent("CHAT_MSG_BN_WHISPER_INFORM", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_CHANNEL", chatMsgChannel)
 quantify:registerEvent("CHAT_MSG_OFFICER", chatMsgGuild)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsgGuild)
@@ -217,6 +222,8 @@ quantify:registerEvent("CHAT_MSG_WHISPER", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_YELL", chatMsgYell)
 
 quantify:registerEvent("CHAT_MSG_BN_WHISPER", chatMsg)
+quantify:registerEvent("CHAT_MSG_BN", chatMsg)
+quantify:registerEvent("CHAT_MSG_BN_WHISPER_INFORM", chatMsg)
 quantify:registerEvent("CHAT_MSG_CHANNEL", chatMsg)
 quantify:registerEvent("CHAT_MSG_OFFICER", chatMsg)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsg)
@@ -228,6 +235,7 @@ quantify:registerEvent("CHAT_MSG_RAID_WARNING", chatMsg)
 quantify:registerEvent("CHAT_MSG_RAID", chatMsg)
 quantify:registerEvent("CHAT_MSG_WHISPER", chatMsg)
 quantify:registerEvent("CHAT_MSG_YELL", chatMsg)
+
 
 
   
