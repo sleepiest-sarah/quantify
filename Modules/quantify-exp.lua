@@ -118,6 +118,8 @@ local function playerEnteringWorld()
 end
 
 local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
+  print(oldExp,newExp, previous_max_azerite_xp)
+  
   session.azerite_xp = session.azerite_xp + (newExp - oldExp)
   
   local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
@@ -137,7 +139,7 @@ function quantify_exp:calculateDerivedStats(segment)
   segment.stats.xp.derived_stats = {}
   segment.stats.xp.derived_stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
   
-  if (quantify_state:hasAzeriteItem()) then
+  if (quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
     local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
     segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
   end

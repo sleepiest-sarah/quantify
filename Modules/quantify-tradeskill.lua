@@ -10,7 +10,7 @@ quantify_tradeskill.BFA_TRADE_GOOD_PREFIX = "bfa_trade_good_*"
 local qt = quantify_tradeskill
 
 function quantify_tradeskill.Session:new(o)
-  o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0 }
+  o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, cooking_looted = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -26,6 +26,7 @@ local function init()
 end
 
 function qt:processItem(item,amount) 
+  --q:printTable(item)
   
   if (item.itemType == "Tradeskill") then
     session.tradeskill_looted = session.tradeskill_looted + amount  
@@ -43,6 +44,8 @@ function qt:processItem(item,amount)
       session.meat_looted = session.meat_looted + amount
     elseif (item.itemSubType == "Metal & Stone") then
       session.metal_looted = session.metal_looted + amount
+    elseif (item.itemSubType == "Cooking") then
+      session.cooking_looted = session.cooking_looted + amount
     end
   end
   

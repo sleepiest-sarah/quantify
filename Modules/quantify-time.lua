@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -18,6 +18,7 @@ local session
 local combat_start = nil
 local afk_start = nil
 local mount_start = nil
+local fishing_start = nil
 
 local in_combat = false
 local isAfk = false
@@ -77,6 +78,21 @@ local function playerEnteringWorld()
   playerMount()
 end
 
+local function combatLog()
+  local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
+  
+  if (event == "SPELL_CAST_SUCCESS" and sourceGUID == UnitGUID("player") and spellName == "Fishing") then
+    fishing_start = GetTime()
+  elseif (event == "SPELL_AURA_REMOVED" and sourceGUID == UnitGUID("player") and spellName == "Fishing") then
+    if (fishing_start ~= nil) then
+      local duration = GetTime() - fishing_start
+      if (duration < 23) then --sanity check
+        session.time_fishing = session.time_fishing + duration
+      end
+    end
+  end
+end
+
 function quantify_time:calculateDerivedStats(segment)
   local derived_stats = {}
   
@@ -84,6 +100,7 @@ function quantify_time:calculateDerivedStats(segment)
   derived_stats.pct_play_time_combat = (raw.time_combat / raw.play_time) * 100
   derived_stats.pct_play_time_afk = (raw.time_afk / raw.play_time) * 100
   derived_stats.pct_time_mounted = (raw.time_mounted / raw.play_time) * 100
+  derived_stats.pct_time_fishing = (raw.time_fishing / raw.play_time) * 100
   segment.stats.time.derived_stats = derived_stats
 end
 
@@ -132,5 +149,6 @@ quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
 quantify:registerEvent("CHAT_MSG_SYSTEM", playerAfk)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
+quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
   
   

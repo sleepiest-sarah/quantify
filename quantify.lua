@@ -46,8 +46,6 @@ function q:updateTotals(segment)
   qDb.account.time = qDb.account.time + duration
   qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
   
-  qDb.version = q.VERSION
-  
   for k, statgroup in pairs(segment.stats) do
     if (qDb.account.stats[k] == nil) then
       qDb.account.stats[k] = {}

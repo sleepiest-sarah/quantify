@@ -28,7 +28,7 @@ function q:runMigrations()
   local installed_version = GetAddOnMetadata("quantify", "Version")
   
   --always run all migrations if the current version or data is an alpha or beta release
-  if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(installed_version) then
+  if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(installed_version)) then
     correctBnAccountNames()
   elseif (qDbOptions.version < "1.0") then
     correctBnAccountNames()

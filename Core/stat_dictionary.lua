@@ -127,5 +127,12 @@ quantify.STATS = {
   ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344},
   ["raw:azerite_xp"] = {text = "Azerite XP Gained", units = "integer", order = 343},
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345},  
-  ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100} --FOR TESTING ONLY
+  ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
+  
+  --tradeskill
+  ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
+  
+  --time
+  ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
+  ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852},
 }
