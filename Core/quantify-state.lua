@@ -19,7 +19,11 @@ quantify_state.state = {
     instance_start_time = nil,
     player_mounted = false,
     player_has_azerite_item = false,
-    azerite_item_table = nil
+    azerite_item_table = nil,
+    player_armor_skills = {},
+    player_weapon_skills = {},
+    player_class = nil,
+    player_spec = nil
 }
 
 local s = quantify_state.state
@@ -76,9 +80,57 @@ local function playerControlGained()
   s.player_control = true
 end
 
+local function initArmorWeaponSkills()
+  local _, _, _, _, _, _, armorSpellId = GetSpellInfo("Armor Skills")
+  local _, _, _, _, _, _, weaponSpellId = GetSpellInfo("Weapon Skills")
+  
+  local armor_desc = armorSpellId and GetSpellDescription(armorSpellId) or nil
+  local weapon_desc = weaponSpellId and GetSpellDescription(weaponSpellId) or nil
+  
+  if (armor_desc) then  -- only consider the "best" armor the class can use
+    local plate = string.find(armor_desc,"plate")
+    s.player_armor_skills["plate"] = plate and "plate" or nil
+    if (not s.player_armor_skills["plate"]) then
+      local mail = string.find(armor_desc,"mail")
+      s.player_armor_skills["mail"] = mail and "mail" or nil
+    end
+    if (not s.player_armor_skills["plate"] and not s.player_armor_skills["mail"]) then
+      local leather = string.find(armor_desc,"leather")
+      s.player_armor_skills["leather"] = leather and "leather" or nil
+    end
+    if (not s.player_armor_skills["plate"] and not s.player_armor_skills["mail"] and not s.player_armor_skills["leather"]) then
+      local cloth = string.find(armor_desc,"cloth")
+      s.player_armor_skills["cloth"] = cloth and "cloth" or nil
+    end
+  end
+  
+  if (weapon_desc) then
+    for weapon,subtext in string.gmatch(weapon_desc, "\r\n(%a+)[ ]?%(?([A-Za-z%-]*)%)?") do
+      if (subtext == "") then
+        subtext = nil
+      end
+      local weapon_string = subtext and (subtext.." "..weapon) or weapon
+      s.player_weapon_skills[weapon_string] = weapon_string
+    end
+  end
+end
+
+local function checkClassSpec()
+  s.player_class = UnitClass("player")
+  
+  local spec_i = GetSpecialization()
+  if (spec_i) then
+    _,s.player_spec = GetSpecializationInfo(spec_i)
+  end
+end
+
 local function playerLogin()
   s.current_player_name = GetUnitName("player", false)
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
+  
+  initArmorWeaponSkills()
+  
+  checkClassSpec()
 end
 
 local function checkAzeriteItem(event, unit)
@@ -109,6 +161,7 @@ quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
+quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)
 
 
 --getters
@@ -190,4 +243,12 @@ end
 
 function quantify_state:getActiveAzeriteLocationTable()
   return s.azerite_item_table
+end
+
+function quantify_state:canPlayerEquipType(equip_type)
+  return s.player_armor_skills[equip_type] or s.player_weapon_skills[equip_type]
+end
+
+function quantify_state:getPlayerSpecClass()
+  return s.player_spec.." "..s.player_class
 end

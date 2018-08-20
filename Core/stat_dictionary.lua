@@ -129,10 +129,14 @@ quantify.STATS = {
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345},  
   ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
-  --tradeskill
-  ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
+  --loot
+  ["raw:upgrade_received_*"] = {text = "iLvl Upgrades: *", units = "integer", order = 150},
+  ["session_rates:upgrade_received_*"] = {text = "iLvl Upgrades Per Day: *", units = "integer", order = 160},
   
   --time
   ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
   ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852},
+  
+  --tradeskill
+  ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
 }

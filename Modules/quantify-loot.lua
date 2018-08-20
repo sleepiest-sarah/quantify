@@ -6,6 +6,7 @@ quantify_loot.Session = {}
 
 quantify_loot.MODULE_KEY = "loot"
 quantify_loot.INV_TYPE_PREFIX = "inv_type_*"
+quantify_loot.UPGRADE_PREFIX = "upgrade_received_*"
 
 local ql = quantify_loot
 
@@ -55,6 +56,15 @@ local function processItem(item,amount)
   --item types
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
     session.gear_loot = session.gear_loot + amount
+    
+    if (item:isEquippable() and item:isILevelUpgrade()) then
+      local k = ql.UPGRADE_PREFIX..quantify_state:getPlayerSpecClass()
+      if (session[k] == nil) then
+        session[k] = 0
+      end
+      session[k] = session[k] + 1
+    end
+    
     if (item.itemSubType == "Cloth") then
       session.cloth_gear_loot = session.cloth_gear_loot + amount
     elseif (item.itemSubType == "Leather") then
@@ -150,11 +160,13 @@ local function questLootReceived(event, questID, itemLink, quantity)
 end
 
 function quantify_loot:calculateDerivedStats(segment)
-
+  local rates_to_calc = {table.foreach(segment.stats.loot.raw,function(k,v) if (string.starts(ql.UPGRADE_PREFIX)) then return v end end)}
+  
+  segment.stats.loot.session_rates =  q:calculateSegmentRates(segment, rates_to_calc, 86400)
 end
 
 function quantify_loot:updateStats(segment)
-
+  ql:calculateDerivedStats(segment)
 end
  
 function quantify_loot:newSegment(previous_seg,new_seg)

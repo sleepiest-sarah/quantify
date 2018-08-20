@@ -52,6 +52,67 @@ function Item:new(arg1)
   return o
 end
 
+function Item:isEquippable()
+  if (quantify_state:canPlayerEquipType(self.itemSubType)) then
+    return true
+  end
+  return false
+end
+
+function Item:getEffectiveILevel()
+  return GetDetailedItemLevelInfo(self.itemLink)
+end
+
+function Item:isILevelUpgrade()
+  local current1,current2 = self:getItemsInEquivalentSlot()
+  
+  local this_ilevel = self:getEffectiveILevel()
+  local current1_ilevel = current1 and current1:getEffectiveILevel() or nil
+  local current2_ilevel = current2 and current1:getEffectiveILevel() or nil
+  
+  return ((current1_ilevel and this_ilevel > current1_ilevel) or (current2_ilevel and this_ilevel > current2_ilevel))
+end
+
+function Item:getItemsInEquivalentSlot()
+  local equipped_items = {}
+  
+  for _,slot in ipairs(Item[self.itemEquipLoc]) do
+    local link = GetInventoryItemLink("player", slot)
+    if (link) then
+      table.insert(equipped_items, Item:new(link))
+    end
+  end
+  
+  return unpack(equipped_items)
+end
+
+Item.INVTYPE_AMMO = {0}
+Item.INVTYPE_HEAD	=	{1}
+Item.INVTYPE_NECK	=	{2}
+Item.INVTYPE_SHOULDER	=	{3}
+Item.INVTYPE_BODY	=	{4}
+Item.INVTYPE_CHEST =	{5}
+Item.INVTYPE_ROBE	=	{5}
+Item.INVTYPE_WAIST	=	{6}
+Item.INVTYPE_LEGS	=	{7}
+Item.INVTYPE_FEET	=	{8}
+Item.INVTYPE_WRIST	=	{9}
+Item.INVTYPE_HAND	=	{10}
+Item.INVTYPE_FINGER	=	{11,12}
+Item.INVTYPE_TRINKET	=	{13,14}
+Item.INVTYPE_CLOAK	=	{15}
+Item.INVTYPE_WEAPON	= {16,17}
+Item.INVTYPE_SHIELD	=	{17}
+Item.INVTYPE_2HWEAPON	=	{16}
+Item.INVTYPE_WEAPONMAINHAND	=	{16}
+Item.INVTYPE_WEAPONOFFHAND	=	{17}
+Item.INVTYPE_HOLDABLE =	{17}
+Item.INVTYPE_RANGED	=	{18}
+Item.INVTYPE_THROWN	=	{18}
+Item.INVTYPE_RANGEDRIGHT=	{18}
+Item.INVTYPE_RELIC =	{18}
+Item.INVTYPE_TABARD	=	{19}
+
 quantify.Faction = {}
 local Faction = quantify.Faction
 local function Faction_Init(self,...)

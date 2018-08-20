@@ -42,7 +42,7 @@ function q:printSegment(segment)
 end
 
 function q:calculateSegmentRates(segment, segment_stats, period)
-  local period = period or 3600
+  period = period or 3600
   
   local duration
   if (segment:duration() ~= nil) then
