@@ -56,8 +56,7 @@ local function processItem(item,amount)
   --item types
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
     session.gear_loot = session.gear_loot + amount
-    
-    print(item:isEquippable(),item:isILevelUpgrade())
+  
     if (item:isEquippable() and item:isILevelUpgrade()) then
       local k = ql.UPGRADE_PREFIX..quantify_state:getPlayerSpecClass()
       if (session[k] == nil) then
