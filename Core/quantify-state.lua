@@ -102,6 +102,11 @@ local function initArmorWeaponSkills()
       local cloth = string.find(armor_desc,"cloth")
       s.player_armor_skills["cloth"] = cloth and "cloth" or nil
     end
+    
+    local shields = string.find(armor_desc, "Shields")
+    if (shields) then
+      s.player_armor_skills["Shields"] = "Shields"
+    end
   end
   
   if (weapon_desc) then
@@ -246,7 +251,7 @@ function quantify_state:getActiveAzeriteLocationTable()
 end
 
 function quantify_state:canPlayerEquipType(equip_type)
-  return s.player_armor_skills[equip_type] or s.player_weapon_skills[equip_type]
+  return s.player_armor_skills[string.lower(equip_type)] or s.player_weapon_skills[equip_type]
 end
 
 function quantify_state:getPlayerSpecClass()

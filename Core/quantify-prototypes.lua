@@ -53,7 +53,7 @@ function Item:new(arg1)
 end
 
 function Item:isEquippable()
-  if (quantify_state:canPlayerEquipType(self.itemSubType)) then
+  if (quantify_state:canPlayerEquipType(self.itemSubType) or self.itemSubType == "Miscellaneous") then
     return true
   end
   return false

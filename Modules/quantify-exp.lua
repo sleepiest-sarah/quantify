@@ -118,17 +118,14 @@ local function playerEnteringWorld()
 end
 
 local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
-  print(oldExp,newExp, previous_max_azerite_xp)
-  
-  session.azerite_xp = session.azerite_xp + (newExp - oldExp)
-  
   local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
   
   local delta = newExp - oldExp
   if (delta < 0) then
     delta = (previous_max_azerite_xp - oldExp) + xp
-    previous_max_xp = totalLevelXP
+    previous_max_azerite_xp = totalLevelXP
   end
+
   session.xp = session.xp + delta
 end
 

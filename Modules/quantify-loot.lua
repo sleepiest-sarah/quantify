@@ -57,6 +57,7 @@ local function processItem(item,amount)
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
     session.gear_loot = session.gear_loot + amount
     
+    print(item:isEquippable(),item:isILevelUpgrade())
     if (item:isEquippable() and item:isILevelUpgrade()) then
       local k = ql.UPGRADE_PREFIX..quantify_state:getPlayerSpecClass()
       if (session[k] == nil) then
@@ -160,7 +161,8 @@ local function questLootReceived(event, questID, itemLink, quantity)
 end
 
 function quantify_loot:calculateDerivedStats(segment)
-  local rates_to_calc = {table.foreach(segment.stats.loot.raw,function(k,v) if (string.starts(ql.UPGRADE_PREFIX)) then return v end end)}
+  local rates_to_calc = {}
+  table.foreach(segment.stats.loot.raw,function(k,v) if (string.find(k,ql.UPGRADE_PREFIX)) then rates_to_calc[k] = v end end)
   
   segment.stats.loot.session_rates =  q:calculateSegmentRates(segment, rates_to_calc, 86400)
 end
