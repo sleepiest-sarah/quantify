@@ -126,7 +126,7 @@ local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
     previous_max_azerite_xp = totalLevelXP
   end
 
-  session.xp = session.xp + delta
+  session.azerite_xp = session.azerite_xp + delta
 end
 
 function quantify_exp:calculateDerivedStats(segment)

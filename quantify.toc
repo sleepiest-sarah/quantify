@@ -1,7 +1,7 @@
 ## Interface: 80000
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: r07-alpha
+## Version: r08-alpha
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml

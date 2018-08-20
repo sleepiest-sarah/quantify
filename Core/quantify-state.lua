@@ -115,7 +115,12 @@ local function initArmorWeaponSkills()
         subtext = nil
       end
       local weapon_string = subtext and (subtext.." "..weapon) or weapon
-      s.player_weapon_skills[weapon_string] = weapon_string
+      if (subtext == nil and (weapon == "Axes" or weapon == "Maces" or weapon == "Swords")) then  --for classes that can wield both varieties
+        s.player_weapon_skills["One-Handed "..weapon] = "One-Handed "..weapon
+        s.player_weapon_skills["Two-Handed "..weapon] = "Two-Handed "..weapon
+      else
+        s.player_weapon_skills[weapon_string] = weapon_string
+      end
     end
   end
 end

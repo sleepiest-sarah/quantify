@@ -21,6 +21,9 @@ local segment_snapshot = nil
 
 local scroll_frame_initialized = false
 
+local watchlist_enabled = false
+local watchlist = {}
+
 function q:FauxScrollFrame_OnLoad(frame, button_height, num_buttons, button_prefix, update_func)
   for i = 1, num_buttons do
     local button = CreateFrame("Button", nil, frame:GetParent(), "QuantifyStatRowTemplate")
@@ -64,6 +67,24 @@ local function updateFauxScrollFrame(frame, list, num_buttons, button_height, bu
 
 end
 
+local function getReadableKeyValue(k,v)
+  local star_index = string.find(k, "*")
+  local star_string
+  if (star_index ~= nil) then
+    star_string = string.sub(k,star_index + 1)
+    k = string.sub(k,1,star_index) 
+  end
+  if (q.STATS[k] ~= nil) then
+    local readable_key = q.STATS[k].text
+    if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
+      readable_key = string.gsub(readable_key,"*",star_string)
+    end
+    local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
+    
+    return readable_key,readable_value
+  end  
+end
+
 function q:ViewAllStats_Update()
   if (viewing_segment == nil) then
     viewing_segment = q.current_segment
@@ -91,7 +112,7 @@ function q:ViewAllStats_Update()
         readable_key = string.gsub(readable_key,"*",star_string)
       end
       local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
-      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500)})
+      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500), dict_key = k, subkey = star_string})
     else  --just use the raw key and value if the text hasn't been initialized yet
       if (type(v) ~= "table") then
         --table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
@@ -269,8 +290,89 @@ function q:updateUi()
   last_refresh = GetTime()
 end
 
+function q:updateWatchlist(frame)
+  local segments = {}
+  if (q:viewingTotalSegment()) then
+    q:updateUi()
+  else
+   for _,m in ipairs(q.modules) do
+     m:updateStats(q.current_segment)
+    end 
+  end
+  
+  frame.items = {}
+  
+  for watchlist_key,item in pairs(watchlist) do
+    if (segments[item.segment] == nil) then
+      local seg_id = string.match(item.segment, "Segment (%d+)")
+      if (seg_id ~= nil) then
+        segments[item.segment] = q.segments[tonumber(seg_id)]
+      else
+        segments[item.segment] = q:convertSavedSegment(qDb[item.segment])
+      end
+    end
+    
+    local seg = segments[item.segment]
+    
+    local group = string.sub(item.key, 1, string.find(item.key, ":") - 1)
+    
+    local keynogroup = string.sub(item.key,string.len(group) + 2)
+    
+    local concat_key_no_group = item.subkey and keynogroup..item.subkey or keynogroup
+    for _,mod in pairs(seg.stats) do
+      if (mod[group] ~= nil) then
+        for k,v in pairs(mod[group]) do
+          if (k == concat_key_no_group) then
+            local readable_key, readable_value = getReadableKeyValue(group..":"..k,v)
+            QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
+          end
+        end
+      end
+    end
+  end
+
+  QuantifyWatchList_Update(frame)
+end
+
+function q:addWatchListItem(key, subkey)
+  local concat_key = subkey and viewing_segment_key..key..subkey or viewing_segment_key..key
+  watchlist[concat_key] = {key = key, subkey = subkey, segment = viewing_segment_key}
+end
+
+function q:removeWatchListItem(key,subkey,segment)
+  local concat_key = subkey and segment..key..subkey or segment..key
+  watchlist[concat_key] = nil
+end
+
+function q:toggleWatchlist(watchlist,button)
+  if (watchlist_enabled) then
+    button:SetChecked(false)
+    watchlist_enabled = false
+    watchlist:Hide()
+  else
+    button:SetChecked(true)
+    watchlist_enabled = true
+    watchlist:Show()    
+  end
+end
+
 function q:viewingTotalSegment()
-  return string.find(viewing_segment_key, "Segment %d+") == nil
+  local res = nil
+  
+  if (q.quantify_ui_shown) then
+    res = string.find(viewing_segment_key, "Segment %d+") == nil
+  end
+  
+  if (watchlist_enabled) then
+    for k,item in pairs(watchlist) do
+      res = string.find(item.segment, "Segment %d+") == true
+      if (res) then
+        break
+      end
+    end
+  end
+    
+  return res
 end
 
 function q:getViewingSegmentKey()
@@ -279,4 +381,10 @@ end
 
 function quantify:uiCloseButton()
   q.quantify_ui_shown = false
+end
+
+function q:test_ui()
+  local key = "raw:xp"
+  
+  print(getReadableKeyValue(key, 0))
 end

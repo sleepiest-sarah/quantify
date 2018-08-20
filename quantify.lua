@@ -89,7 +89,7 @@ local function init(event, ...)
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
     print(quantify.LOADED_TEXT)
     if (qDb == nil) then
-      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new(), version = q.VERSION}
+      qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
     elseif (qDb[q.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
     else
