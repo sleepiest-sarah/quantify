@@ -114,7 +114,9 @@ local function playerLogin(event, ...)
 end
 
 local function playerEnteringWorld()
-  _,previous_max_azerite_xp = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
+  if (quantify_state:getActiveAzeriteLocationTable() ~= nil) then
+    _,previous_max_azerite_xp = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
+  end
 end
 
 local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)

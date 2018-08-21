@@ -7,7 +7,7 @@ function QuantifyWatchList_Initialize(self, max_rows, button_height)
   self.items = {}
   
   for i = 1, max_rows do
-    local button = CreateFrame("Button", nil, self, "QuantifyWatchListRowTemplate")
+    local button = CreateFrame("Button", "WatchListRow"..tostring(i), self, "QuantifyWatchListRowTemplate")
     if i == 1 then
       button:SetPoint("TOP", self)
     else
@@ -22,9 +22,17 @@ function QuantifyWatchList_Update(self)
   
   local height = numItems > 0 and (self.row_height * numItems) or self.row_height
   self:SetHeight(height)
+  local width = self:GetWidth()
 	for line = 1, self.max_rows do
 		local button = _G["WatchListRow"..tostring(line)]
-    button:SetWidth(self:GetWidth())
+    button:SetWidth(width)
+    local label,value = button:GetChildren()
+    label:SetScript("OnEnter", QuantifyWatchListRowTemplate_OnEnter)
+    label:SetScript("OnLeave", QuantifyWatchListRowTemplate_OnLeave)
+    label:SetWidth(math.floor(width * .6))
+    label:SetHeight(self.row_height)
+    _G[label:GetName().."Text"]:SetWidth(math.floor(width * .6))
+    
 		if line > numItems then
 			button:Hide()
 		else

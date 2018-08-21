@@ -24,6 +24,8 @@ local scroll_frame_initialized = false
 local watchlist_enabled = false
 local watchlist = {}
 
+
+
 function q:FauxScrollFrame_OnLoad(frame, button_height, num_buttons, button_prefix, update_func)
   for i = 1, num_buttons do
     local button = CreateFrame("Button", nil, frame:GetParent(), "QuantifyStatRowTemplate")
@@ -67,7 +69,7 @@ local function updateFauxScrollFrame(frame, list, num_buttons, button_height, bu
 
 end
 
-local function getReadableKeyValue(k,v)
+local function getReadableKeyValue(k,v,abbr)
   local star_index = string.find(k, "*")
   local star_string
   if (star_index ~= nil) then
@@ -75,11 +77,12 @@ local function getReadableKeyValue(k,v)
     k = string.sub(k,1,star_index) 
   end
   if (q.STATS[k] ~= nil) then
-    local readable_key = q.STATS[k].text
+    
+    local readable_key = abbr and q.STATS[k].abbr or q.STATS[k].text
     if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
       readable_key = string.gsub(readable_key,"*",star_string)
     end
-    local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
+    local readable_value = q:getFormattedUnit(v,q.STATS[k].units,abbr)
     
     return readable_key,readable_value
   end  
@@ -258,7 +261,7 @@ function q:AddSegmentButton_OnClick(self)
   q:setViewingSegment("Segment "..table.maxn(q.segments))
 end
 
-function q:updateUi()
+function q:updateUi(watchlist)
   if (GetTime() - last_refresh < q.UI_REFRESH_RATE) then
     return
   end
@@ -287,13 +290,15 @@ function q:updateUi()
   
   q:ViewAllStats_Update()
   
-  last_refresh = GetTime()
+  if (not watchlist) then
+    last_refresh = GetTime()
+  end
 end
 
 function q:updateWatchlist(frame)
   local segments = {}
   if (q:viewingTotalSegment()) then
-    q:updateUi()
+    q:updateUi(true)
   else
    for _,m in ipairs(q.modules) do
      m:updateStats(q.current_segment)
@@ -323,7 +328,7 @@ function q:updateWatchlist(frame)
       if (mod[group] ~= nil) then
         for k,v in pairs(mod[group]) do
           if (k == concat_key_no_group) then
-            local readable_key, readable_value = getReadableKeyValue(group..":"..k,v)
+            local readable_key, readable_value = getReadableKeyValue(group..":"..k,v, true)
             QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
           end
         end
@@ -363,7 +368,7 @@ function q:viewingTotalSegment()
     res = string.find(viewing_segment_key, "Segment %d+") == nil
   end
   
-  if (watchlist_enabled) then
+  if (not res and watchlist_enabled) then
     for k,item in pairs(watchlist) do
       res = string.find(item.segment, "Segment %d+") == true
       if (res) then
@@ -388,3 +393,20 @@ function q:test_ui()
   
   print(getReadableKeyValue(key, 0))
 end
+
+local function saveUiState()
+  qDbOptions.watchlist = watchlist
+  qDbOptions.watchlist_enabled = watchlist_enabled
+end
+
+local function loadUiState()
+  if (qDbOptions.watchlist ~= nil and qDbOptions.watchlist_enabled ~= nil) then
+    watchlist = qDbOptions.watchlist
+    if (qDbOptions.watchlist_enabled) then
+      q:toggleWatchlist(QuantifyWatchList,QuantifyWatchListCheckbox)
+    end
+  end
+end
+
+quantify:registerEvent("PLAYER_LOGOUT",saveUiState)
+quantify:registerEvent("PLAYER_LOGIN",loadUiState)

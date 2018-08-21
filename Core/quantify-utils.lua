@@ -252,7 +252,7 @@ function q:getCurrencyString(n)
     return res
 end
 
-function q:getFormattedUnit(n,units)
+function q:getFormattedUnit(n,units,abbr)
   if (units == "string") then
     return n
   end
@@ -279,6 +279,10 @@ function q:getFormattedUnit(n,units)
       sec = math.floor(n) % 60
       res = tostring(hour).."h"..tostring(min).."m"..tostring(sec).."s"
     end
+    
+    if (abbr and hour) then
+      res = tostring(hour).."h"..tostring(min).."m"
+    end
   elseif (units == "decimal") then
     res = string.format("%.2f",n)
   elseif (units == "integer/hour" or units == "integer/day") then
@@ -288,12 +292,20 @@ function q:getFormattedUnit(n,units)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
   elseif (units == "money") then 
+    if (abbr) then
+      local copper = math.floor(n) % 100
+      n = n - copper
+    end
     local negative = n < 0
     res = GetCoinTextureString(math.abs(n))
     if (negative) then
       res = "-"..res
     end
   elseif (units == "money/hour") then
+    if (abbr) then
+      local copper = math.floor(n) % 100
+      n = n - copper
+    end
     local negative = n < 0
     res = GetCoinTextureString(math.abs(n))
     if (negative) then

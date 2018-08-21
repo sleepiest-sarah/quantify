@@ -35,10 +35,18 @@
 		  <AbsDimension x="470" y="30"/>
 		</Size>
 		<Frames>
-		  <Button name="$parentLabel">
-		    <NormalFont style="StatRowLabelFont" enableMouse="false"/>
+		  <Button name="$parentLabel" enableMouse="false">
+		    <NormalFont style="StatRowLabelFont" />
+			<HighlightTexture file="Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground.blp">
+			  <Color r=".5" g=".5" b=".b" a=".5"/>
+			</HighlightTexture>
+			<ButtonText name="$parentText" wordwrap="true" justifyH="LEFT" >
+				<Size>
+				  <AbsDimension x="470" y="10" />
+				</Size>
+			</ButtonText>
 			<Size>
-			  <AbsDimension x="10" y="10" />
+			  <AbsDimension x="1" y="10" />
 			</Size>
 			<Anchors>
 			  <Anchor point="LEFT">
@@ -56,12 +64,12 @@
 		  <Button name="$parentValue" enableMouse="false">
 		    <NormalFont style="StatRowValueFont"/>
 			<Size>
-			  <AbsDimension x="20" y="10" />
+			  <AbsDimension x="1" y="10" />
 			</Size>
 			<Anchors>
 			  <Anchor point="RIGHT">
 				<Offset>
-				  <AbsDimension x="-30" y="0" />
+				  <AbsDimension x="-5" y="0" />
 				</Offset>
 			  </Anchor>
 			</Anchors>
@@ -113,7 +121,7 @@
 	</Button>
   
   <Script file="Templates\QuantifyWatchList.lua" />
-  <Frame name="QuantifyWatchList" toplevel="true" parent="UIParent" movable="true" enableMouse="true" hidden="true" inherits="ViewWindowTemplate">
+  <Frame name="QuantifyWatchList" toplevel="true" parent="UIParent" frameStrata="HIGH" movable="true" enableMouse="true" hidden="true" inherits="ViewWindowTemplate">
 	<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background.blp" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
       <BackgroundInsets>
         <AbsInset left="4" right="4" top="4" bottom="4" />

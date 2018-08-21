@@ -1,3 +1,4 @@
+local LibQTip = LibStub('LibQTip-1.0')
 
 function QuantifyStatRowTemplate_SetLabel(self,text)
   local label,value = self:GetChildren()
@@ -23,4 +24,22 @@ end
 
 function QuantifyWatchListRowTemplate_OnDoubleClick(self)
   quantify:removeWatchListItem(self.dict_key,self.subkey,self.segment)
+end
+
+function QuantifyWatchListRowTemplate_OnEnter(self)
+ local tooltip = LibQTip:Acquire("LabelTooltip", 2, "LEFT", "LEFT")
+ self.tooltip = tooltip 
+ 
+ tooltip:AddHeader('Segment', 'Label')
+ 
+ tooltip:AddLine(self:GetParent().segment, self:GetText())
+ 
+ tooltip:SmartAnchorTo(self)
+ 
+ tooltip:Show()  
+end
+
+function QuantifyWatchListRowTemplate_OnLeave(self)
+ LibQTip:Release(self.tooltip)
+ self.tooltip = nil
 end
