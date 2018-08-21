@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -19,10 +19,14 @@ local combat_start = nil
 local afk_start = nil
 local mount_start = nil
 local fishing_start = nil
+local outdoors_start = nil
+local indoors_start = nil
 
 local in_combat = false
 local isAfk = false
 local is_mounted = false
+local is_outdoors = false
+local is_indoors = false
 
 local function init()
   q.current_segment.stats.time = {}
@@ -93,6 +97,26 @@ local function combatLog()
   end
 end
 
+local function zoneChanged()
+  if (quantify_state:IsPlayerOutdoors() and not is_outdoors) then
+    outdoors_start = GetTime()
+    is_outdoors = true
+  elseif (not quantify_state:IsPlayerOutdoors() and is_outdoors) then
+    is_outdoors = false
+    local duration = GetTime() - outdoors_start
+    session.time_outdoors = session.time_outdoors + duration
+  end
+  
+  if (quantify_state:IsPlayerIndoors() and not is_indoors) then
+    indoors_start = GetTime()
+    is_indoors = true
+  elseif (not quantify_state:IsPlayerIndoors() and is_indoors) then
+    is_indoors = false
+    local duration = GetTime() - indoors_start
+    session.time_indoors = session.time_indoors + duration
+  end
+end
+
 function quantify_time:calculateDerivedStats(segment)
   local derived_stats = {}
   
@@ -101,6 +125,8 @@ function quantify_time:calculateDerivedStats(segment)
   derived_stats.pct_play_time_afk = (raw.time_afk / raw.play_time) * 100
   derived_stats.pct_time_mounted = (raw.time_mounted / raw.play_time) * 100
   derived_stats.pct_time_fishing = (raw.time_fishing / raw.play_time) * 100
+  derived_stats.pct_time_indoors = (raw.time_indoors / raw.play_time) * 100
+  derived_stats.pct_time_outdoors = (raw.time_outdoors / raw.play_time) * 100
   segment.stats.time.derived_stats = derived_stats
 end
 
@@ -121,6 +147,16 @@ function quantify_time:updateStats(segment)
     if is_mounted then
       playerMount()
       mount_start = GetTime()
+    end
+    
+    if is_outdoors then
+      zoneChanged()
+      outdoors_start = GetTime()
+    end
+    
+    if is_indoors then
+      zoneChanged()
+      indoors_start = GetTime()
     end
     
     if q.current_segment.start_time ~= nil then
@@ -150,5 +186,8 @@ quantify:registerEvent("CHAT_MSG_SYSTEM", playerAfk)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChanged)
+quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChanged)
+quantify:registerEvent("ZONE_CHANGED", zoneChanged)
   
   

@@ -12,7 +12,7 @@ qc.CURRENCY_GAINED_PREFIX = "currency_gained_*"
 qc.CURRENCY_LOST_PREFIX = "currency_lost_*"
 
 function quantify_currency.Session:new(o)
-  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0}
+  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -74,6 +74,15 @@ local function playerCurrency(event, msg)
   session[qc.CURRENCY_GAINED_PREFIX..name] = session[qc.CURRENCY_GAINED_PREFIX..name] + tonumber(amount)
 end
 
+local function playerQuestTurnedIn(event, ...)
+  local questid, xp, money = unpack({...})
+  
+  if (money ~= nil) then
+    session.quest_money = session.quest_money + money
+  end
+  
+end
+
 function quantify_currency:calculateDerivedStats(segment)
   segment.stats.currency.session_rates = quantify:calculateSegmentRates(segment, segment.stats.currency.raw)
 end
@@ -96,3 +105,4 @@ quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("CHAT_MSG_MONEY", playerLootMoney)
 quantify:registerEvent("CHAT_MSG_CURRENCY", playerCurrency)
 quantify:registerEvent("PLAYER_MONEY", playerMoney)
+quantify:registerEvent("QUEST_TURNED_IN", playerQuestTurnedIn)

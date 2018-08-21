@@ -129,6 +129,11 @@ quantify.STATS = {
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345},  
   ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
+  --currency
+  ["raw:quest_money"] = {text = "Money from Quests", abbr = "Quest Money", units = "money"},
+  ["session_rates:quest_money"] = {text = "Quest Money Per Hour", abbr = "QMpH", units = "money/hour"},
+  
+  
   --loot
   ["raw:upgrade_received_*"] = {text = "iLvl Upgrades: *", units = "integer", order = 150},
   ["session_rates:upgrade_received_*"] = {text = "iLvl Upgrades Per Day: *", units = "integer", order = 160},
@@ -136,7 +141,15 @@ quantify.STATS = {
   --time
   ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
   ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852},
+  ["raw:time_indoors"] = {text = "Total Time Indoors", units = "time", abbr="Indoors" order = 855},
+  ["derived_stats:pct_time_indoors"] = {text = "% Play Time: Indoors", abbr = "Indoors" units = "percentage", order = 857},
+  ["raw:time_outdoors"] = {text = "Total Time Outdoors", units = "time", abbr="Outdoors" order = 858},
+  ["derived_stats:pct_time_outdoors"] = {text = "% Play Time: Outdoors", abbr = "Outdoors", units = "percentage", order = 859},
   
   --tradeskill
   ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
+  
+  --xp
+  ["raw:pet_battle_xp"] = {text = "Total XP from Pet Battles", abbr="Pet Battle XP", units = "integer"},
+  ["session_rates:pet_battle_xp"] = {text = "Pet Battle XP Per Hour", abbr="Pet Battle xp/hr", units = "integer/hour"},  
 }

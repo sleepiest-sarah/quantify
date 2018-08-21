@@ -4,6 +4,7 @@ local session
 
 local player_kill = 0
 local player_quest = 0
+local pet_battle = 0
 
 local previous_xp = nil
 local previous_level = nil
@@ -17,7 +18,7 @@ quantify_exp.Session = {}
 quantify_exp.MODULE_KEY = "xp"
 
 function quantify_exp.Session:new(o)
-  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0}
+  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0, pet_battle_xp = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -51,8 +52,10 @@ local function playerExpUpdate(event, ...)
     session.pct_levels_gained = session.pct_levels_gained + xp_pct
     
     local curtime = GetTime()
-    if (curtime - player_kill > quantify.EVENT_WINDOW) and (curtime - player_quest > quantify.EVENT_WINDOW) then
+    if (curtime - player_kill > quantify.EVENT_WINDOW) and (curtime - player_quest > quantify.EVENT_WINDOW and (curtime - pet_battle > quantify.EVENT_WINDOW)) then
       session.other_xp = session.other_xp + xp_gain
+    elseif (curtime - pet_battle < quantify.EVENT_WINDOW) then
+      session.pet_battle_xp = session.pet_battle_xp + xp_gain
     end
     
     previous_xp = current_xp
@@ -98,6 +101,10 @@ local function playerScenarioCompleted(event, ...)
   end
   
   player_quest = GetTime()
+end
+
+local petBattleClose()
+  pet_battle = GetTime()
 end
 
 local function playerLevelUp(event, ...)
@@ -167,3 +174,4 @@ quantify:registerEvent("PLAYER_LEVEL_UP", playerLevelUp)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
 quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
+quantify:registerEvent("PET_BATTLE_CLOSE", petBattleClose)

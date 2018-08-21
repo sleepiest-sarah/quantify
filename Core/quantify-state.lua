@@ -23,7 +23,9 @@ quantify_state.state = {
     player_armor_skills = {},
     player_weapon_skills = {},
     player_class = nil,
-    player_spec = nil
+    player_spec = nil,
+    player_indoors = nil,
+    player_outdoors = nil
 }
 
 local s = quantify_state.state
@@ -45,6 +47,8 @@ local function zoneChangedNewArea(event, ...)
   s.instance_name = name
   s.instance_difficulty_name = difficultyName
   
+  s.player_indoors = IsIndoors()
+  s.player_outdoors = IsOutdoors()
 
 end
 
@@ -172,6 +176,8 @@ quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
 quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)
+quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChangedNewArea)
+quantify:registerEvent("ZONE_CHANGED", zoneChangedNewArea)
 
 
 --getters
@@ -261,4 +267,12 @@ end
 
 function quantify_state:getPlayerSpecClass()
   return s.player_spec.." "..s.player_class
+end
+
+function quantify_state:IsIndoors()
+  return s.player_indoors
+end
+
+function quantify_state:IsOutdoors()
+  return s.player_outdoors
 end
