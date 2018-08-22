@@ -103,7 +103,7 @@ local function playerScenarioCompleted(event, ...)
   player_quest = GetTime()
 end
 
-local petBattleClose()
+local function petBattleClose()
   pet_battle = GetTime()
 end
 

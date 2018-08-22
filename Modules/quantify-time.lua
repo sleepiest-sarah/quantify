@@ -78,9 +78,7 @@ local function playerMount(...)
   end
 end
 
-local function playerEnteringWorld()
-  playerMount()
-end
+
 
 local function combatLog()
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
@@ -98,23 +96,26 @@ local function combatLog()
 end
 
 local function zoneChanged()
-  if (quantify_state:IsPlayerOutdoors() and not is_outdoors) then
-    outdoors_start = GetTime()
-    is_outdoors = true
-  elseif (not quantify_state:IsPlayerOutdoors() and is_outdoors) then
-    is_outdoors = false
+  if (is_outdoors) then
     local duration = GetTime() - outdoors_start
     session.time_outdoors = session.time_outdoors + duration
+  elseif (IsOutdoors() and not is_outdoors) then
+    outdoors_start = GetTime()
   end
+  is_outdoors = IsOutdoors()
   
-  if (quantify_state:IsPlayerIndoors() and not is_indoors) then
-    indoors_start = GetTime()
-    is_indoors = true
-  elseif (not quantify_state:IsPlayerIndoors() and is_indoors) then
-    is_indoors = false
+  if (is_indoors) then
     local duration = GetTime() - indoors_start
     session.time_indoors = session.time_indoors + duration
+  elseif (IsIndoors() and not is_indoors) then
+    indoors_start = GetTime()
   end
+  is_indoors = IsIndoors()
+end
+
+local function playerEnteringWorld()
+  playerMount()
+  zoneChanged()
 end
 
 function quantify_time:calculateDerivedStats(segment)

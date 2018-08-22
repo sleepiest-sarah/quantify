@@ -162,6 +162,8 @@ local function playerEnteringWorld()
   checkAzeriteItem()
   
   s.player_mounted = IsMounted()
+  s.player_indoors = IsIndoors()
+  s.player_outdoors = IsOutdoors()
 end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload

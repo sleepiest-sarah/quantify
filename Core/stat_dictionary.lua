@@ -141,9 +141,9 @@ quantify.STATS = {
   --time
   ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
   ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852},
-  ["raw:time_indoors"] = {text = "Total Time Indoors", units = "time", abbr="Indoors" order = 855},
-  ["derived_stats:pct_time_indoors"] = {text = "% Play Time: Indoors", abbr = "Indoors" units = "percentage", order = 857},
-  ["raw:time_outdoors"] = {text = "Total Time Outdoors", units = "time", abbr="Outdoors" order = 858},
+  ["raw:time_indoors"] = {text = "Total Time Indoors", units = "time", abbr="Indoors", order = 855},
+  ["derived_stats:pct_time_indoors"] = {text = "% Play Time: Indoors", abbr = "Indoors", units = "percentage", order = 857},
+  ["raw:time_outdoors"] = {text = "Total Time Outdoors", units = "time", abbr="Outdoors", order = 858},
   ["derived_stats:pct_time_outdoors"] = {text = "% Play Time: Outdoors", abbr = "Outdoors", units = "percentage", order = 859},
   
   --tradeskill

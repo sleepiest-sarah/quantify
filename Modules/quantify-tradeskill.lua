@@ -37,7 +37,7 @@ function qt:processItem(item,amount)
     elseif (item.itemSubType == "Herb") then
       session.herb_looted = session.herb_looted + amount
     elseif (item.itemSubType == "Jewelcrafting") then
-      session.jewelcrafting_loot = session.jewelcrafting_loot + amount
+      session.jewelcrafting_looted = session.jewelcrafting_looted + amount
     elseif (item.itemSubType == "Leather") then
       session.leather_looted = session.leather_looted + amount
     elseif (item.itemSubType == "Meat") then
