@@ -114,6 +114,8 @@ local function init(event, ...)
     })
     local icon = LibStub("LibDBIcon-1.0")
     icon:Register("quantify", bunnyLDB, qDbOptions.profile.minimap)
+    
+    quantify:initializeUi()
   end
 end
 

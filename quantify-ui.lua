@@ -318,18 +318,20 @@ function q:updateWatchlist(frame)
     end
     
     local seg = segments[item.segment]
+    if (seg)  then
     
-    local group = string.sub(item.key, 1, string.find(item.key, ":") - 1)
-    
-    local keynogroup = string.sub(item.key,string.len(group) + 2)
-    
-    local concat_key_no_group = item.subkey and keynogroup..item.subkey or keynogroup
-    for _,mod in pairs(seg.stats) do
-      if (mod[group] ~= nil) then
-        for k,v in pairs(mod[group]) do
-          if (k == concat_key_no_group) then
-            local readable_key, readable_value = getReadableKeyValue(group..":"..k,v, true)
-            QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
+      local group = string.sub(item.key, 1, string.find(item.key, ":") - 1)
+      
+      local keynogroup = string.sub(item.key,string.len(group) + 2)
+      
+      local concat_key_no_group = item.subkey and keynogroup..item.subkey or keynogroup
+      for _,mod in pairs(seg.stats) do
+        if (mod[group] ~= nil) then
+          for k,v in pairs(mod[group]) do
+            if (k == concat_key_no_group) then
+              local readable_key, readable_value = getReadableKeyValue(group..":"..k,v, true)
+              QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
+            end
           end
         end
       end
@@ -391,8 +393,8 @@ function q:test_ui()
   print(getReadableKeyValue(key, 0))
 end
 
-function q:initializeUi(frame)
-  QuantifyContainer_Initialize(frame)
+function q:initializeUi()
+  QuantifyContainer_Initialize()
 end
 
 local function saveUiState()
@@ -404,7 +406,8 @@ local function loadUiState()
   if (qDbOptions.watchlist ~= nil and qDbOptions.watchlist_enabled ~= nil) then
     watchlist = qDbOptions.watchlist
     if (qDbOptions.watchlist_enabled) then
-      q:toggleWatchlist(QuantifyWatchList,QuantifyWatchListCheckbox)
+      q:toggleWatchlist(nil,true)
+      QuantifyWatchListCheckbox_Toggle(true)
     end
   end
 end
