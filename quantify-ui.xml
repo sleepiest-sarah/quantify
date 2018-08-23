@@ -23,6 +23,10 @@
 	  <Color r="1.0" g="0.82" b="0" a="1.0"/>
 	</Font>
 	
+	<Font name="SelectedRowBold" inherits="GameFontNormal">
+		<Color r="1.0" g="0.82" b="0" a="1.0"/>
+	</Font>
+	
 	<Script file="Templates\QuantifyStatRowTemplate.lua" />
 	<Button name="QuantifyStatRowTemplate" enableMouse="true" virtual="true">
 		<NormalTexture file="Interface\ACHIEVEMENTFRAME\UI-Achievement-StatsBackground.blp">
@@ -205,7 +209,7 @@
 					</Anchor>
 				</Anchors>
 			</Button>
-			<Frame name="SelectSegmentDropdown" inherits="UIDropDownMenuTemplate" >
+<!-- 			<Frame name="SelectSegmentDropdown" inherits="UIDropDownMenuTemplate" >
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -234,7 +238,7 @@
 						quantify:SelectSegmentDropdown_OnShow(self);
 					</OnShow>
 				</Scripts>
-			</Frame>
+			</Frame> -->
 			<Button name="AddSegmentButton" inherits="QuantifyPlusButton">
 			    <Anchors>
 				  <Anchor point="TOPLEFT">
@@ -253,7 +257,7 @@
 				  </OnClick>
 				</Scripts>
 			</Button>
-			<Frame name="SelectModuleDropdown" inherits="UIDropDownMenuTemplate" >
+<!-- 			<Frame name="SelectModuleDropdown" inherits="UIDropDownMenuTemplate" >
 				<Anchors>
 					<Anchor point="TOPRIGHT">
 						<Offset>
@@ -282,7 +286,7 @@
 						quantify:SelectModuleDropdown_OnShow(self);
 					</OnShow>
 				</Scripts>
-			</Frame>			
+			</Frame>	 -->		
 			<Frame name="ViewAllStats_Container" setAllPoints="true">
 				<Size>
 					<AbsDimension y="300" x="470" />

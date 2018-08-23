@@ -5,6 +5,8 @@ local LibQTip = LibStub('LibQTip-1.0')
 
 local watchlist_cb
 
+local selected_module,selected_segment
+
 local function CreateWatchlistCheckbox(width)
   width = width or 200
   x = x or 0
@@ -38,6 +40,30 @@ local function segmentListComparator(a,b)
     
 end
 
+local function QuantifySegmentLabel_OnClick(self) 
+  q:setViewingSegment(self.segment)
+  
+  selected_segment:SetColor(nil)
+  selected_segment:SetFontObject(GameFontHighlightSmall)
+  
+  self:SetColor(1,.82,0)
+  self:SetFontObject(AchievementPointsFontSmall)
+  
+  selected_segment = self
+end
+
+local function QuantifyModuleLabel_OnClick(self) 
+  q:setCurrentViewModule(self.module)
+  
+  selected_module:SetColor(nil)
+  selected_module:SetFontObject(GameFontHighlightSmall)
+  
+  self:SetColor(1,.82,0)
+  self:SetFontObject(AchievementPointsFontSmall)
+  
+  selected_module = self
+end
+
 local function CreateSegmentList()
   local segments = quantify:getSegmentList()
   local keys_t = {}
@@ -57,7 +83,16 @@ local function CreateSegmentList()
   for _,seg in ipairs(keys_t) do
     local label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(seg))
-    label:SetHighlight(.5,.7,.3,.4)
+    label.segment = seg
+    
+    if (seg == "Segment 1") then 
+      label:SetColor(1,.82,0)
+      label:SetFontObject(AchievementPointsFontSmall)
+      selected_segment = label
+    end
+    
+    label:SetCallback("OnClick", QuantifySegmentLabel_OnClick)
+    
     c:AddChild(label)
   end
   
@@ -80,13 +115,19 @@ local function CreateModuleList()
   
   local label = agui:Create("InteractiveLabel")
   label:SetText("All")
-  label:SetHighlight(.5,.7,.3,.4)
+  label.module = "All"
+  label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
+  label:SetColor(1,.82,0)
+  label:SetFontObject(AchievementPointsFontSmall)
   c:AddChild(label)  
+  
+  selected_module = label
   
   for _,m in ipairs(modules) do
     label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(m))
-    label:SetHighlight(.5,.7,.3,.4)
+    label.module = m
+    label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
     c:AddChild(label)
   end
   

@@ -159,95 +159,14 @@ function q:setViewingSegment(text)
     viewing_segment = q:convertSavedSegment(qDb[text])
   end
   
-  SelectSegmentDropdown_Update(SelectSegmentDropdown)
-  
   q:ViewAllStats_Update()
 end
 
-local function segmentListComparator(a,b)
-  local a_id = string.match(a, "Segment (%d+)")
-  local b_id = string.match(a, "Segment (%d+)")
-  if (a == "account" or b == "account") then  --account should always be first
-    return a == "account"
-  elseif (a_id ~= nil and b_id ~= nil) then   --sort segments according to id
-    return a_id < b_id
-  elseif (a_id ~= nil and b_id == nil) then   --segments should be last
-    return false
-  else                                        --sort character names alphabetically
-    return a < b
-  end
-    
-end
-
-local function SelectSegmentDropdown_Initialize()
-  local info = UIDropDownMenu_CreateInfo()
-  info.padding = 8
-  info.checked = nil;
-  info.notCheckable = true
-  info.notClickable = false
-  info.func = q.setViewingSegment
-  
-  local segments = q:getSegmentList()
-  local keys_t = {}
-  table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
-  table.sort(keys_t, segmentListComparator)
-  for _,k in ipairs(keys_t) do
-    info.text = q:capitalizeString(k)
-    info.arg1 = k
-    UIDropDownMenu_AddButton(info)
-  end
-end
-
-function q:SelectSegmentDropdown_OnLoad(frame)
-  UIDropDownMenu_Initialize(frame, SelectSegmentDropdown_Initialize)
-  UIDropDownMenu_SetWidth(frame, 200)
-end
-
-function q:SelectSegmentDropdown_OnShow(frame)
-	UIDropDownMenu_Initialize(frame, SelectSegmentDropdown_Initialize);
-	SelectSegmentDropdown_Update(frame);  
-end
-
-local function SelectModuleDropdown_Update(self)
-  SelectModuleDropdownSelected:SetText(q:capitalizeString(viewing_module_key))
-end
 
 function q:setCurrentViewModule(text)
   viewing_module_key = text
   
-  SelectModuleDropdown_Update(SelectModuleDropdown)
-  
   q:ViewAllStats_Update()
-end
-
-local function SelectModuleDropdown_Initialize()
-  local info = UIDropDownMenu_CreateInfo()
-  info.padding = 8
-  info.checked = nil;
-  info.notCheckable = 1
-  info.func = q.setCurrentViewModule
-  
-  info.text = "All"
-  info.arg1 = "All"
-  UIDropDownMenu_AddButton(info)
-  
-  local modules = q:getModuleKeys()
-  table.sort(modules)
-  for _,m in ipairs(modules) do
-    info.text = q:capitalizeString(m)
-    info.arg1 = m
-    UIDropDownMenu_AddButton(info)
-  end
-end
-
-function q:SelectModuleDropdown_OnLoad(frame)
-  UIDropDownMenu_Initialize(frame, SelectModuleDropdown_Initialize)
-  UIDropDownMenu_SetWidth(frame, 100)
-end
-
-function q:SelectModuleDropdown_OnShow(frame)
-	UIDropDownMenu_Initialize(frame, SelectModuleDropdown_Initialize);
-	SelectModuleDropdown_Update(frame);  
 end
 
 function q:AddSegmentButton_initialize(self)
