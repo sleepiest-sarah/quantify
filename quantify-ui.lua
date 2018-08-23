@@ -349,15 +349,12 @@ function q:removeWatchListItem(key,subkey,segment)
   watchlist[concat_key] = nil
 end
 
-function q:toggleWatchlist(watchlist,button)
-  if (watchlist_enabled) then
-    button:SetChecked(false)
-    watchlist_enabled = false
-    watchlist:Hide()
+function q:toggleWatchlist(button,value)
+  watchlist_enabled = value
+  if (value) then
+    QuantifyWatchList:Show()
   else
-    button:SetChecked(true)
-    watchlist_enabled = true
-    watchlist:Show()    
+    QuantifyWatchList:Hide()
   end
 end
 
@@ -392,6 +389,10 @@ function q:test_ui()
   local key = "raw:xp"
   
   print(getReadableKeyValue(key, 0))
+end
+
+function q:initializeUi(frame)
+  QuantifyContainer_Initialize(frame)
 end
 
 local function saveUiState()

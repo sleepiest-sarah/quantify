@@ -160,10 +160,10 @@
 	</Scripts>
   </Frame>
 
-   
+  <Script file="Templates\QuantifyContainer.lua" />
   <Frame name="QuantifyContainer_Frame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" inherits="ViewWindowTemplate" hidden="true">
 		<Size>
-			<AbsDimension x="500" y="350"/>
+			<AbsDimension x="500" y="380"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER">
@@ -176,23 +176,7 @@
 			<AbsInset left="0" right="30" top="0" bottom="45"/>
 		</HitRectInsets>
 		<Frames>
-			<CheckButton name="QuantifyWatchListCheckbox" inherits="OptionsBaseCheckButtonTemplate">
-				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="15" y="-10"/>
-						</Offset>
-					</Anchor>
-				</Anchors>		
-				<Scripts>
-				  <OnLoad>
-					self:SetChecked(false)
-				  </OnLoad>
-				  <OnClick>
-					quantify:toggleWatchlist(QuantifyWatchList,self);
-				  </OnClick>
-				</Scripts>
-			</CheckButton>
+
 			<Button name="QuantifyCloseButton" inherits="UIPanelCloseButton">
 				<Anchors>
 					<Anchor point="TOPRIGHT">
@@ -284,7 +268,7 @@
 				<Anchors>
 				  <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
 					<Offset>
-					  <AbsDimension x="4" y="4"/>
+					  <AbsDimension x="4" y="34"/>
 					</Offset>
 				  </Anchor>
 				</Anchors>
@@ -311,12 +295,38 @@
 
 				</Frames>
 			</Frame>
-			
+			<Frame name="QuantifyBottomBar" setAllPoints="true">
+				<Backdrop bgFile="Interface\FrameGeneral\UI-BACKGROUND-ROCK" tile="true">
+				  <BackgroundInsets>
+					<AbsInset left="4" right="4" top="4" bottom="4" />
+				  </BackgroundInsets>
+				  <TileSize>
+					<AbsValue val="256" />
+				  </TileSize>
+				  <EdgeSize>
+					<AbsValue val="16" />
+				  </EdgeSize>
+				</Backdrop>
+				<Size>
+					<AbsDimension y="30" x="500" />
+				</Size>
+				<Anchors>
+				  <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+					<Offset>
+					  <AbsDimension x="0" y="0"/>
+					</Offset>
+				  </Anchor>
+				</Anchors>
+				<Frames>
+
+				</Frames>
+			</Frame>
 		</Frames>
 		<Scripts>
 		  <OnLoad>
 		    self:RegisterForDrag("LeftButton");
-        QuantifyCloseButton:HookScript("OnClick", quantify.uiCloseButton)
+			QuantifyCloseButton:HookScript("OnClick", quantify.uiCloseButton)
+			quantify:initializeUi(self)
 		  </OnLoad>
 		  <OnDragStart>
 		    self:StartMoving()
