@@ -59,11 +59,12 @@ local function processFaction(id)
 end
 
 local function processFactions()
-  ExpandAllFactionHeaders()
   if (dirty_factions == nil) then
+    ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
       processFaction(i)
-    end    
+    end
+    dirty_factions = {}
   elseif (table.maxn(dirty_factions) >= 1) then
     for _,i in ipairs(dirty_factions) do
       processFaction(i)
