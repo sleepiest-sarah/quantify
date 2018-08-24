@@ -7,6 +7,8 @@ local watchlist_cb
 
 local selected_module,selected_segment
 
+local segment_list
+
 local function CreateWatchlistCheckbox(width)
   width = width or 200
   x = x or 0
@@ -27,7 +29,7 @@ end
 
 local function segmentListComparator(a,b)
   local a_id = string.match(a, "Segment (%d+)")
-  local b_id = string.match(a, "Segment (%d+)")
+  local b_id = string.match(b, "Segment (%d+)")
   if (a == "account" or b == "account") then  --account should always be first
     return a == "account"
   elseif (a_id ~= nil and b_id ~= nil) then   --sort segments according to id
@@ -64,28 +66,28 @@ local function QuantifyModuleLabel_OnClick(self)
   selected_module = self
 end
 
-local function CreateSegmentList()
+function QuantifySegmentList_Refresh(self)
+  self = self or segment_list
+  
+  self:ReleaseChildren()
+  
   local segments = quantify:getSegmentList()
   local keys_t = {}
   table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
   table.sort(keys_t, segmentListComparator)
-  
-  local scrollcontainer = agui:Create("SimpleGroup")
-  scrollcontainer:SetFullWidth(true)
-  scrollcontainer:SetFullHeight(true)
-  scrollcontainer:SetLayout("Fill")
-  
-  local c = agui:Create("ScrollFrame")
-  c:SetLayout("Flow")
-  
-  scrollcontainer:AddChild(c)
-  
   for _,seg in ipairs(keys_t) do
+    print(seg)
     local label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(seg))
     label.segment = seg
     
-    if (seg == "Segment 1") then 
+    if (seg == "Segment 1") then
+      local separator = agui:Create("Label")
+      separator:SetText("---")
+      self:AddChild(separator)
+    end
+    
+    if (seg == "Segment "..table.maxn(q.segments)) then 
       label:SetColor(1,.82,0)
       label:SetFontObject(AchievementPointsFontSmall)
       selected_segment = label
@@ -93,8 +95,23 @@ local function CreateSegmentList()
     
     label:SetCallback("OnClick", QuantifySegmentLabel_OnClick)
     
-    c:AddChild(label)
+    self:AddChild(label) 
   end
+end
+
+local function CreateSegmentList()
+  local scrollcontainer = agui:Create("SimpleGroup")
+  scrollcontainer:SetFullWidth(true)
+  scrollcontainer:SetFullHeight(true)
+  scrollcontainer:SetLayout("Fill")
+  
+  local c = agui:Create("ScrollFrame")
+  c:SetLayout("Flow")
+  segment_list = c
+  
+  scrollcontainer:AddChild(c)
+  
+  QuantifySegmentList_Refresh(c)
   
   return scrollcontainer
 end
@@ -156,6 +173,26 @@ local function WidgetifyContainer(frame)
     return agui:RegisterAsContainer(widget)
 end
 
+function QuantifyNewSegmentButton_OnClick(self)
+  q.AddSegmentButton_OnClick()
+  
+  QuantifySegmentList_Refresh()
+end
+
+local function CreateSegmentControl()
+  local container = agui:Create("SimpleGroup")
+  container:SetLayout("Flow")
+  container:SetFullWidth(true)
+  
+  local new_seg_button = agui:Create("Button")
+  new_seg_button:SetText("New Segment")
+  new_seg_button:SetCallback("OnClick", QuantifyNewSegmentButton_OnClick)
+  
+  container:AddChild(new_seg_button)
+  
+  return container
+end
+
 function QuantifyContainer_Initialize()
   local bottom_bar = WidgetifyContainer(QuantifyBottomBar)
   bottom_bar:SetPadding(10,0)
@@ -167,27 +204,31 @@ function QuantifyContainer_Initialize()
   
   local left_pane = WidgetifyContainer(QuantifyLeftPane)
   left_pane:SetLayout("List")
-  left_pane:SetPadding(0,-10)
+  left_pane:SetPadding(10,-10)
   
   local segmentlist = CreateSegmentList()
   segmentlist:SetHeight(100)
   
   local modulelist = CreateModuleList()
   modulelist:SetHeight(140)
+
   
   local segment_group =  agui:Create("InlineGroup")
-  segment_group:SetFullWidth(true)
+  --segment_group:SetFullWidth(true)
+  segment_group:SetWidth(180)
   segment_group:SetTitle("Segments")
   segment_group:AddChild(segmentlist)
   
   local module_group =  agui:Create("InlineGroup")
-  module_group:SetFullWidth(true)
+  module_group:SetWidth(180)
   module_group:SetTitle("Modules")
   module_group:AddChild(modulelist)
   
+  local segment_control_group = CreateSegmentControl()
   
   
   left_pane:AddChild(segment_group)
+  left_pane:AddChild(segment_control_group)
   left_pane:AddChild(module_group)
   
 end
