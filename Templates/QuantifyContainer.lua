@@ -76,7 +76,6 @@ function QuantifySegmentList_Refresh(self)
   table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
   table.sort(keys_t, segmentListComparator)
   for _,seg in ipairs(keys_t) do
-    print(seg)
     local label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(seg))
     label.segment = seg
@@ -151,28 +150,6 @@ local function CreateModuleList()
   return scrollcontainer  
 end
 
-local function WidgetifyContainer(frame)
-  local inherit_frame = agui:Create("SimpleGroup")
-  
-  local content = CreateFrame("Frame",nil,frame)
-  content:SetPoint("TOPLEFT")
-  content:SetPoint("BOTTOMRIGHT")
-  
-  frame["OnAcquire"] = inherit_frame["OnAcquire"]
-  frame["LayoutFinished"] = inherit_frame["LayoutFinished"]
-  frame["OnWidthSet"] = inherit_frame["OnWidthSet"]
-  frame["OnHeightSet"] = inherit_frame["OnHeightSet"]
-  
-  local widget = {
-      frame = frame,
-      content = content,
-      type = inherit_frame.type,
-      ["SetPadding"] = function(self,x,y) self.content:SetPoint("TOPLEFT",x,y) end
-    }
-    
-    return agui:RegisterAsContainer(widget)
-end
-
 function QuantifyNewSegmentButton_OnClick(self)
   q.AddSegmentButton_OnClick()
   
@@ -191,46 +168,6 @@ local function CreateSegmentControl()
   container:AddChild(new_seg_button)
   
   return container
-end
-
-function QuantifyContainer_Initialize()
-  local bottom_bar = WidgetifyContainer(QuantifyBottomBar)
-  bottom_bar:SetPadding(10,0)
-  bottom_bar:SetLayout("List")
-  
-  watchlist_cb = CreateWatchlistCheckbox(100)
-  
-  bottom_bar:AddChild(watchlist_cb)
-  
-  local left_pane = WidgetifyContainer(QuantifyLeftPane)
-  left_pane:SetLayout("List")
-  left_pane:SetPadding(10,-10)
-  
-  local segmentlist = CreateSegmentList()
-  segmentlist:SetHeight(100)
-  
-  local modulelist = CreateModuleList()
-  modulelist:SetHeight(140)
-
-  
-  local segment_group =  agui:Create("InlineGroup")
-  --segment_group:SetFullWidth(true)
-  segment_group:SetWidth(180)
-  segment_group:SetTitle("Segments")
-  segment_group:AddChild(segmentlist)
-  
-  local module_group =  agui:Create("InlineGroup")
-  module_group:SetWidth(180)
-  module_group:SetTitle("Modules")
-  module_group:AddChild(modulelist)
-  
-  local segment_control_group = CreateSegmentControl()
-  
-  
-  left_pane:AddChild(segment_group)
-  left_pane:AddChild(segment_control_group)
-  left_pane:AddChild(module_group)
-  
 end
 
 function QuantifyWatchListCheckbox_Toggle(value)
@@ -256,4 +193,75 @@ end
 function QuantifyWatchListCheckbox_OnLeave(self)
  LibQTip:Release(self.tooltip)
  self.tooltip = nil
+end
+
+function QuantifyContainer_Initialize()
+  local qcontainer = agui:Create("QuantifyContainerWrapper")
+  qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
+  qcontainer:SetLayout("Fill")
+  
+  local maincontainer = agui:Create("QuantifyContainerWrapper")
+  maincontainer:SetQuantifyFrame(QuantifyMainPane)
+  maincontainer:SetLayout("Fill")
+  
+  local statscontainer = agui:Create("QuantifyContainerWrapper")
+  statscontainer:SetQuantifyFrame(ViewAllStats_Container)
+  statscontainer:SetLayout("Fill")
+  
+  local tabgroup = agui:Create("TabGroup")
+  tabgroup:SetLayout("Fill")
+  tabgroup:SetWidth(470)
+  tabgroup:SetTabs({
+        {value = "all", text = "All"},
+        {value = "summary", text = "Summary"},
+        {value = "raw", text = "Raw"},
+        {value = "rates", text = "Rates"},
+        {value = "derived", text = "Complex"},
+        {value = "graphs", text = "Graphs"},
+        {value = "settings", text = "Settings"}
+      })
+  tabgroup:SelectTab("all")
+  tabgroup:AddChild(statscontainer)
+  
+  
+  maincontainer:AddChild(tabgroup)
+  
+  local bottom_bar = agui:Create("QuantifyContainerWrapper")
+  bottom_bar:SetQuantifyFrame(QuantifyBottomBar)
+  bottom_bar:SetPadding(10,5)
+  bottom_bar:SetLayout("List")
+  
+  watchlist_cb = CreateWatchlistCheckbox(100)
+  
+  bottom_bar:AddChild(watchlist_cb)
+  
+  local left_pane = agui:Create("QuantifyContainerWrapper")
+  left_pane:SetQuantifyFrame(QuantifyLeftPane)
+  left_pane:SetLayout("List")
+  left_pane:SetPadding(10,-10)
+  
+  local segmentlist = CreateSegmentList()
+  segmentlist:SetHeight(100)
+  
+  local modulelist = CreateModuleList()
+  modulelist:SetHeight(140)
+
+  local segment_group =  agui:Create("QuantifyInlineGroup")
+  segment_group:SetBackdropColor(.1,.1,.1,.8)
+  segment_group:SetWidth(180)
+  segment_group:SetTitle("Segments")
+  segment_group:AddChild(segmentlist)
+  
+  local module_group =  agui:Create("QuantifyInlineGroup")
+  module_group:SetWidth(180)
+  module_group:SetTitle("Modules")
+  module_group:AddChild(modulelist)
+  
+  local segment_control_group = CreateSegmentControl()
+  
+  
+  left_pane:AddChild(segment_group)
+  left_pane:AddChild(segment_control_group)
+  left_pane:AddChild(module_group)
+  
 end

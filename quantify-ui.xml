@@ -1,6 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
    <Script file="quantify-ui.lua"/>
    
+   <Include file="Templates\quantify-widgets.xml"/>
+   
    <Frame name="ViewWindowTemplate" virtual="true">
       <Backdrop bgFile="Interface\FrameGeneral\UI-BACKGROUND-ROCK" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
       <BackgroundInsets>
@@ -36,7 +38,7 @@
 		  <Color r=".5" g=".5" b=".b" a=".5"/>
 		</HighlightTexture>
 		<Size>
-		  <AbsDimension x="470" y="30"/>
+		  <AbsDimension x="400" y="30"/>
 		</Size>
 		<Frames>
 		  <Button name="$parentLabel" enableMouse="false">
@@ -46,7 +48,7 @@
 			</HighlightTexture>
 			<ButtonText name="$parentText" wordwrap="true" justifyH="LEFT" >
 				<Size>
-				  <AbsDimension x="470" y="10" />
+				  <AbsDimension x="400" y="10" />
 				</Size>
 			</ButtonText>
 			<Size>
@@ -197,41 +199,53 @@
 					<Anchor point="TOPRIGHT">
 					</Anchor>
 				</Anchors>
-			</Button>	
-			<Frame name="ViewAllStats_Container" setAllPoints="true">
+			</Button>
+			<Frame name="QuantifyMainPane" setAllPoints="true">
 				<Size>
-					<AbsDimension y="300" x="470" />
+					<AbsDimension y="345" x="490" />
 				</Size>
 				<Anchors>
-				  <Anchor point="BOTTOMLEFT" relativeTo="$parent" relativePoint="BOTTOMLEFT">
+				  <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
 					<Offset>
-					  <AbsDimension x="204" y="34"/>
+					  <AbsDimension x="200" y="-10"/>
 					</Offset>
 				  </Anchor>
 				</Anchors>
+				<Frames>
+					<Frame name="ViewAllStats_Container">
+						<Size>
+							<AbsDimension y="300" x="400" />
+						</Size>
+						<Anchors>
+						  <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
+						  </Anchor>
+						</Anchors>
 
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture>
-							<!-- <Color r=".5" g=".75" b=".8" a="0.8" /> -->
-						</Texture>
-					</Layer>
-				</Layers>
-				<Frames>		
-				 <ScrollFrame name="ViewAllStats_Frame" setAllPoints="true" inherits="FauxScrollFrameTemplate">
-					
-					 <Scripts>
-						<OnVerticalScroll>
-						  FauxScrollFrame_OnVerticalScroll(self, offset, quantify.STAT_ROW_HEIGHT, quantify.ViewAllStats_Update);
-						</OnVerticalScroll>
-						<OnLoad>
-						  quantify:FauxScrollFrame_OnLoad(self, quantify.STAT_ROW_HEIGHT, quantify.NUM_STAT_ROWS, quantify.VIEW_STATS_BUTTON_PREFIX, quantify.ViewAllStats_Update);
-						</OnLoad>
-					 </Scripts>
-				  </ScrollFrame>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture>
+									<!-- <Color r=".5" g=".75" b=".8" a="0.8" /> -->
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>		
+						 <ScrollFrame name="ViewAllStats_Frame" setAllPoints="true" inherits="FauxScrollFrameTemplate">
+							
+							 <Scripts>
+								<OnVerticalScroll>
+								  FauxScrollFrame_OnVerticalScroll(self, offset, quantify.STAT_ROW_HEIGHT, quantify.ViewAllStats_Update);
+								</OnVerticalScroll>
+								<OnLoad>
+								  quantify:FauxScrollFrame_OnLoad(self, quantify.STAT_ROW_HEIGHT, quantify.NUM_STAT_ROWS, quantify.VIEW_STATS_BUTTON_PREFIX, quantify.ViewAllStats_Update);
+								</OnLoad>
+							 </Scripts>
+						  </ScrollFrame>
 
+						</Frames>
+					</Frame>
 				</Frames>
 			</Frame>
+
 			<Frame name="QuantifyBottomBar" setAllPoints="true">
 				<Backdrop bgFile="Interface\FrameGeneral\UI-BACKGROUND-ROCK" tile="true">
 				  <BackgroundInsets>
