@@ -11,6 +11,8 @@ local segment_list
 
 local stats_scrollframe
 
+local stats_buttons = {}
+
 local function CreateWatchlistCheckbox(width)
   width = width or 200
   x = x or 0
@@ -54,6 +56,8 @@ local function QuantifySegmentLabel_OnClick(self)
   self:SetFontObject(AchievementPointsFontSmall)
   
   selected_segment = self
+  
+  QuantifyStatsScrollFrame_Refresh()
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
@@ -66,6 +70,8 @@ local function QuantifyModuleLabel_OnClick(self)
   self:SetFontObject(AchievementPointsFontSmall)
   
   selected_module = self
+  
+  QuantifyStatsScrollFrame_Refresh()
 end
 
 function QuantifySegmentList_Refresh(self)
@@ -214,28 +220,49 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
     quantify:ViewAllStats_Update()
   end
   
+  QuantifyStatsScrollFrame_Refresh()
 end
 
 function QuantifyStatsScrollFrame_Refresh(self)
   self = self or stats_scrollframe
   
   if (self) then
-    self:ReleaseChildren()
+    --self:ReleaseChildren()
     
     local list = quantify:getStatsList()
+    local listn = #list
     
-    for i,item in ipairs(list) do
-      local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
-      local wrapper = agui:Create("QuantifyContainerWrapper")
-      wrapper:SetQuantifyFrame(button)
-      wrapper:SetLayout("Fill")
-      wrapper:SetFullWidth(true)
+    local index = 1
+    for _,b in pairs(stats_buttons) do
+      if (index > listn) then
+        b.frame:Hide()
+      end
       
-      
-      QuantifyStatRowTemplate_SetText(button,item)
-      
-      self:AddChild(wrapper)
+      index = index + 1
     end
+    
+    --reuse buttons for performance
+    for i,item in ipairs(list) do
+      local wrapper = stats_buttons["ViewStatsButton"..tostring(i)]
+      if (not wrapper) then
+        local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
+        
+        wrapper = agui:Create("QuantifyContainerWrapper")
+        wrapper:SetQuantifyFrame(button)
+        wrapper:SetLayout("Fill")
+        wrapper:SetFullWidth(true)
+        
+        stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
+        
+        self:AddChild(wrapper)
+      end
+      
+      QuantifyStatRowTemplate_SetText(wrapper.frame,item)
+      
+      wrapper.frame:Show()
+    end
+    
+
   end
 end
 

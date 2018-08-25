@@ -25,51 +25,6 @@ local scroll_frame_initialized = false
 local watchlist_enabled = false
 local watchlist = {}
 
-
-
-function q:FauxScrollFrame_OnLoad(frame, button_height, num_buttons, button_prefix, update_func)
-  for i = 1, num_buttons do
-    local button = CreateFrame("Button", nil, frame:GetParent(), "QuantifyStatRowTemplate")
-    if i == 1 then
-      button:SetPoint("TOP", frame)
-    else
-      button:SetPoint("TOP", _G[button_prefix..tostring(i-1)], "BOTTOM")
-    end
-    _G[button_prefix..tostring(i)] = button
-  end
-  
-  FauxScrollFrame_SetOffset(frame, 0);
-
-  local scrollbar = _G[frame:GetName().."ScrollBar"];
-  scrollbar:SetWidth(9);
-  scrollbar:SetMinMaxValues(0, 100);
-	scrollbar:SetValue(0);
-  
-  update_func()
-end
-
-local function updateFauxScrollFrame(frame, list, num_buttons, button_height, button_prefix)
- 	local numItems = #list
-	
-	local offset = FauxScrollFrame_GetOffset(frame)
-	for line = 1, num_buttons do
-		local lineplusoffset = line + offset
-		local button = _G[button_prefix..tostring(line)]
-		if lineplusoffset > numItems then
-			button:Hide()
-		else
-      QuantifyStatRowTemplate_SetText(button,list[lineplusoffset])
-			button:Show()
-		end
-	end 
-  
-
-  
-  FauxScrollFrame_Update(frame, numItems, num_buttons, button_height, button_prefix,470,500, ViewAllStats_Container, 470, 500, true)
-  
-
-end
-
 local function getReadableKeyValue(k,v,abbr)
   local star_index = string.find(k, "*")
   local star_string
@@ -140,7 +95,7 @@ function q:ViewAllStats_Update()
   end
   
   --updateFauxScrollFrame(ViewAllStats_Frame, ViewAllStats_List, q.NUM_STAT_ROWS, q.STAT_ROW_HEIGHT,q.VIEW_STATS_BUTTON_PREFIX)
-  QuantifyStatsScrollFrame_Refresh()
+  --QuantifyStatsScrollFrame_Refresh()
 end
 
 function q:showUi(bool)
