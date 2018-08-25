@@ -149,12 +149,14 @@ function q:getSegmentList()
 end
 
 --flattens stat table
-function q:getAllStats(segment)
+function q:getAllStats(segment, type)
   local stats = {}
-  for _,group in pairs(segment.stats) do
-    for stattypek,stattype in pairs(group) do
-      for k,v in pairs(stattype) do
-        stats[stattypek..":"..k] = v
+  for _,module in pairs(segment.stats) do
+    for stattype_k,stattype in pairs(module) do
+      if (not type or (type and type == stattype_k)) then
+        for k,v in pairs(stattype) do
+          stats[stattype_k..":"..k] = v
+        end
       end
     end
   end
@@ -191,11 +193,18 @@ function q:convertSavedSegment(segment)
   return cseg
 end
 
-function q:getSingleModuleSegment(key,segment)
+function q:getSingleModuleSegment(key,segment,type)
   local new_seg = q:shallowCopy(segment)
   
   new_seg.stats = {}
-  new_seg.stats[key] = segment.stats[key]
+  new_seg.stats[key] = {}
+  if (type and new_seg.stats[key][type]) then
+    new_seg.stats[key][type] = segment.stats[key][type]
+  else
+    new_seg.stats[key] = segment.stats[key]
+  end
+  
+
   
   return new_seg 
 end

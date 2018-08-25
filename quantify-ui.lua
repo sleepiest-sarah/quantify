@@ -16,6 +16,7 @@ local ViewAllStats_List = {}
 local viewing_segment = nil
 local viewing_segment_key = "Segment 1"
 local viewing_module_key = "All"
+local viewing_module_subkey = "all"
 
 local segment_snapshot = nil
 
@@ -95,10 +96,19 @@ function q:ViewAllStats_Update()
   
   local stats
   if viewing_module_key == "All" then
-    stats = q:getAllStats(viewing_segment)
+    if (viewing_module_subkey == "all" or viewing_module_subkey == nil) then
+      stats = q:getAllStats(viewing_segment)
+    else
+      stats = q:getAllStats(viewing_segment,viewing_module_subkey)
+    end
   else
-    stats = q:getSingleModuleSegment(viewing_module_key,viewing_segment)
-    stats = q:getAllStats(stats)
+    if (viewing_module_subkey == "all" or viewing_module_subkey == nil) then
+      stats = q:getSingleModuleSegment(viewing_module_key,viewing_segment)
+      stats = q:getAllStats(stats)
+    else
+      stats = q:getSingleModuleSegment(viewing_module_key,viewing_segment,viewing_module_subkey)
+      stats = q:getAllStats(stats,viewing_module_subkey)
+    end
   end
   ViewAllStats_List = {}
   
@@ -304,6 +314,10 @@ end
 
 function quantify:uiCloseButton()
   q.quantify_ui_shown = false
+end
+
+function quantify:setViewingSubkey(subkey)
+  viewing_module_subkey = subkey
 end
 
 function q:test_ui()

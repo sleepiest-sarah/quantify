@@ -179,7 +179,7 @@
 			</Anchor>
 		</Anchors>
 		<HitRectInsets>
-			<AbsInset left="-200" right="30" top="0" bottom="-50"/>
+			<AbsInset left="0" right="30" top="0" bottom="0"/>
 		</HitRectInsets>
 		<Frames>
 			<Frame name="QuantifyLeftPane" setAllPoints="true">

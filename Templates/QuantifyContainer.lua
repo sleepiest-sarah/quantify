@@ -195,6 +195,25 @@ function QuantifyWatchListCheckbox_OnLeave(self)
  self.tooltip = nil
 end
 
+function QuantifyTabGroup_OnGroupSelected(self,event,group)
+  local selected = self:GetUserData("selected")
+  if (self:GetUserData(selected)) then
+    self:GetUserData(selected):Hide()
+  end
+  
+  if (self:GetUserData(group)) then
+    self:GetUserData(group):Show()
+  end
+  
+  self:SetUserData("selected", group)
+  
+  if (group == "all" or group == "raw" or group == "session_rates" or group == "derived_stats") then
+    quantify:setViewingSubkey(group)
+    quantify:ViewAllStats_Update()
+  end
+  
+end
+
 function QuantifyContainer_Initialize()
   local qcontainer = agui:Create("QuantifyContainerWrapper")
   qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
@@ -213,13 +232,19 @@ function QuantifyContainer_Initialize()
   tabgroup:SetWidth(470)
   tabgroup:SetTabs({
         {value = "all", text = "All"},
-        {value = "summary", text = "Summary"},
+        --{value = "summary", text = "Summary"},
         {value = "raw", text = "Raw"},
-        {value = "rates", text = "Rates"},
-        {value = "derived", text = "Complex"},
-        {value = "graphs", text = "Graphs"},
-        {value = "settings", text = "Settings"}
+        {value = "session_rates", text = "Rates"},
+        {value = "derived_stats", text = "Complex"},
+        ---{value = "graphs", text = "Graphs"},
+        --{value = "settings", text = "Settings"}
       })
+  tabgroup:SetUserData("all",ViewAllStats_Container)
+  tabgroup:SetUserData("raw",ViewAllStats_Container)
+  tabgroup:SetUserData("session_rates",ViewAllStats_Container)
+  tabgroup:SetUserData("derived_stats",ViewAllStats_Container)
+  tabgroup:SetUserData("selected","all")
+  tabgroup:SetCallback("OnGroupSelected", QuantifyTabGroup_OnGroupSelected)
   tabgroup:SelectTab("all")
   tabgroup:AddChild(statscontainer)
   
