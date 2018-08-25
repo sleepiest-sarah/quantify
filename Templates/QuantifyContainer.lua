@@ -9,6 +9,8 @@ local selected_module,selected_segment
 
 local segment_list
 
+local stats_scrollframe
+
 local function CreateWatchlistCheckbox(width)
   width = width or 200
   x = x or 0
@@ -214,6 +216,29 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
   
 end
 
+function QuantifyStatsScrollFrame_Refresh(self)
+  self = self or stats_scrollframe
+  
+  if (self) then
+    self:ReleaseChildren()
+    
+    local list = quantify:getStatsList()
+    
+    for i,item in ipairs(list) do
+      local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
+      local wrapper = agui:Create("QuantifyContainerWrapper")
+      wrapper:SetQuantifyFrame(button)
+      wrapper:SetLayout("Fill")
+      wrapper:SetFullWidth(true)
+      
+      
+      QuantifyStatRowTemplate_SetText(button,item)
+      
+      self:AddChild(wrapper)
+    end
+  end
+end
+
 function QuantifyContainer_Initialize()
   local qcontainer = agui:Create("QuantifyContainerWrapper")
   qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
@@ -222,10 +247,17 @@ function QuantifyContainer_Initialize()
   local maincontainer = agui:Create("QuantifyContainerWrapper")
   maincontainer:SetQuantifyFrame(QuantifyMainPane)
   maincontainer:SetLayout("Fill")
+  maincontainer:SetWidth("490")
   
-  local statscontainer = agui:Create("QuantifyContainerWrapper")
-  statscontainer:SetQuantifyFrame(ViewAllStats_Container)
-  statscontainer:SetLayout("Fill")
+  local stats_scrollcontainer = agui:Create("SimpleGroup")
+  stats_scrollcontainer:SetFullWidth(true)
+  stats_scrollcontainer:SetFullHeight(true)
+  stats_scrollcontainer:SetLayout("Fill")
+  
+  stats_scrollframe = agui:Create("ScrollFrame")
+  stats_scrollframe:SetLayout("List")
+  
+  stats_scrollcontainer:AddChild(stats_scrollframe)
   
   local tabgroup = agui:Create("TabGroup")
   tabgroup:SetLayout("Fill")
@@ -233,21 +265,20 @@ function QuantifyContainer_Initialize()
   tabgroup:SetTabs({
         {value = "all", text = "All"},
         --{value = "summary", text = "Summary"},
-        {value = "raw", text = "Raw"},
+        {value = "raw", text = "Totals"},
         {value = "session_rates", text = "Rates"},
         {value = "derived_stats", text = "Complex"},
         ---{value = "graphs", text = "Graphs"},
         --{value = "settings", text = "Settings"}
       })
-  tabgroup:SetUserData("all",ViewAllStats_Container)
-  tabgroup:SetUserData("raw",ViewAllStats_Container)
-  tabgroup:SetUserData("session_rates",ViewAllStats_Container)
-  tabgroup:SetUserData("derived_stats",ViewAllStats_Container)
+  tabgroup:SetUserData("all",stats_scrollcontainer.frame)
+  tabgroup:SetUserData("raw",stats_scrollcontainer.frame)
+  tabgroup:SetUserData("session_rates",stats_scrollcontainer.frame)
+  tabgroup:SetUserData("derived_stats",stats_scrollcontainer.frame)
   tabgroup:SetUserData("selected","all")
   tabgroup:SetCallback("OnGroupSelected", QuantifyTabGroup_OnGroupSelected)
   tabgroup:SelectTab("all")
-  tabgroup:AddChild(statscontainer)
-  
+  tabgroup:AddChild(stats_scrollcontainer)
   
   maincontainer:AddChild(tabgroup)
   

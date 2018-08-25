@@ -139,7 +139,8 @@ function q:ViewAllStats_Update()
     table.sort(ViewAllStats_List, function(a,b) return (a.order == b.order and a.label < b.label) or (a.order < b.order) end)
   end
   
-  updateFauxScrollFrame(ViewAllStats_Frame, ViewAllStats_List, q.NUM_STAT_ROWS, q.STAT_ROW_HEIGHT,q.VIEW_STATS_BUTTON_PREFIX)
+  --updateFauxScrollFrame(ViewAllStats_Frame, ViewAllStats_List, q.NUM_STAT_ROWS, q.STAT_ROW_HEIGHT,q.VIEW_STATS_BUTTON_PREFIX)
+  QuantifyStatsScrollFrame_Refresh()
 end
 
 function q:showUi(bool)
@@ -312,12 +313,20 @@ function q:getViewingSegmentKey()
   return viewing_segment_key
 end
 
+function q:getViewingSegment()
+  return viewing_segment
+end
+
 function quantify:uiCloseButton()
   q.quantify_ui_shown = false
 end
 
 function quantify:setViewingSubkey(subkey)
   viewing_module_subkey = subkey
+end
+
+function quantify:getStatsList()
+  return ViewAllStats_List
 end
 
 function q:test_ui()

@@ -212,37 +212,7 @@
 				  </Anchor>
 				</Anchors>
 				<Frames>
-					<Frame name="ViewAllStats_Container">
-						<Size>
-							<AbsDimension y="300" x="400" />
-						</Size>
-						<Anchors>
-						  <Anchor point="TOPLEFT" relativeTo="$parent" relativePoint="TOPLEFT">
-						  </Anchor>
-						</Anchors>
 
-						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture>
-									<!-- <Color r=".5" g=".75" b=".8" a="0.8" /> -->
-								</Texture>
-							</Layer>
-						</Layers>
-						<Frames>		
-						 <ScrollFrame name="ViewAllStats_Frame" setAllPoints="true" inherits="FauxScrollFrameTemplate">
-							
-							 <Scripts>
-								<OnVerticalScroll>
-								  FauxScrollFrame_OnVerticalScroll(self, offset, quantify.STAT_ROW_HEIGHT, quantify.ViewAllStats_Update);
-								</OnVerticalScroll>
-								<OnLoad>
-								  quantify:FauxScrollFrame_OnLoad(self, quantify.STAT_ROW_HEIGHT, quantify.NUM_STAT_ROWS, quantify.VIEW_STATS_BUTTON_PREFIX, quantify.ViewAllStats_Update);
-								</OnLoad>
-							 </Scripts>
-						  </ScrollFrame>
-
-						</Frames>
-					</Frame>
 				</Frames>
 			</Frame>
 
