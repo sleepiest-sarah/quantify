@@ -169,7 +169,10 @@ function q:updateUi(watchlist)
     end
     segment_snapshot = q:createSegmentSnapshot(q.current_segment)
     
-    viewing_segment = q:convertSavedSegment(qDb[viewing_segment_key])
+    local total_seg = qDb[viewing_segment_key]
+    if (total_seg) then
+      viewing_segment = q:convertSavedSegment(total_seg)
+    end
   end
   
   q:ViewAllStats_Update()
@@ -253,7 +256,7 @@ function q:viewingTotalSegment()
   
   if (not res and watchlist_enabled) then
     for k,item in pairs(watchlist) do
-      res = string.find(item.segment, "Segment %d+") == true
+      res = string.find(item.segment, "Segment %d+") == nil
       if (res) then
         break
       end
@@ -291,6 +294,18 @@ end
 
 function q:initializeUi()
   QuantifyContainer_Initialize()
+end
+
+function q:copyToClipboard()
+  print("copy")
+end
+
+function q:shareStat()
+  print("share")
+end
+
+function q:resetStat()
+  print("reset")
 end
 
 local function saveUiState()

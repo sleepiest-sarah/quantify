@@ -4,6 +4,7 @@
 <Script file="QuantifyLayout.lua" />
 <Script file="QuantifyContainerWrapper.lua"/>
 <Script file="QuantifyInlineGroup.lua"/>
+<Script file="QuantifyStatContextMenu.lua"/>
 
 </Ui>
 

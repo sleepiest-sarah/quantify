@@ -18,12 +18,28 @@ function QuantifyStatRowTemplate_SetText(self,item)
   QuantifyStatRowTemplate_SetValue(self,item.value)
 end
 
-function QuantifyStatRowTemplate_OnDoubleClick(self)
-  quantify:addWatchListItem(self.dict_key,self.subkey)
+function QuantifyStatRowTemplate_OnDoubleClick(self, button)
+  if (button == "LeftButton") then
+    quantify:addWatchListItem(self.dict_key,self.subkey)
+  end
 end
 
-function QuantifyWatchListRowTemplate_OnDoubleClick(self)
-  quantify:removeWatchListItem(self.dict_key,self.subkey,self.segment)
+function QuantifyWatchListRowTemplate_OnDoubleClick(self, button)
+  if (button == "LeftButton") then
+    quantify:removeWatchListItem(self.dict_key,self.subkey,self.segment)
+  end
+end
+
+function QuantifyStatRowTemplate_OnClick(self, button)
+  if (button == "RightButton") then
+    QuantifyStatContextMenu_Toggle()
+  end
+end
+
+function QuantifyWatchListRowTemplate_OnClick(self, button)
+  if (button == "RightButton") then
+    QuantifyStatContextMenu_Toggle()
+  end
 end
 
 function QuantifyWatchListRowTemplate_OnEnter(self)
