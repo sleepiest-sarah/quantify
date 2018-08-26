@@ -57,7 +57,7 @@ local function QuantifySegmentLabel_OnClick(self)
   
   selected_segment = self
   
-  QuantifyStatsScrollFrame_Refresh()
+  QuantifyStatsScrollFrame_Refresh(true)
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
@@ -71,7 +71,7 @@ local function QuantifyModuleLabel_OnClick(self)
   
   selected_module = self
   
-  QuantifyStatsScrollFrame_Refresh()
+  QuantifyStatsScrollFrame_Refresh(true)
 end
 
 function QuantifySegmentList_Refresh(self)
@@ -220,26 +220,17 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
     quantify:ViewAllStats_Update()
   end
   
-  QuantifyStatsScrollFrame_Refresh()
+  QuantifyStatsScrollFrame_Refresh(true)
 end
 
-function QuantifyStatsScrollFrame_Refresh(self)
-  self = self or stats_scrollframe
+function QuantifyStatsScrollFrame_Refresh(redoLayout)
+  local self = stats_scrollframe
   
   if (self) then
     --self:ReleaseChildren()
     
     local list = quantify:getStatsList()
     local listn = #list
-    
-    local index = 1
-    for _,b in pairs(stats_buttons) do
-      if (index > listn) then
-        b.frame:Hide()
-      end
-      
-      index = index + 1
-    end
     
     --reuse buttons for performance
     for i,item in ipairs(list) do
@@ -252,6 +243,8 @@ function QuantifyStatsScrollFrame_Refresh(self)
         wrapper:SetLayout("Fill")
         wrapper:SetFullWidth(true)
         
+        wrapper.i = i
+        
         stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
         
         self:AddChild(wrapper)
@@ -261,8 +254,20 @@ function QuantifyStatsScrollFrame_Refresh(self)
       
       wrapper.frame:Show()
     end
-    
 
+    local index = 1
+    for _,b in pairs(stats_buttons) do
+      if (b.i > listn) then
+        b.frame:Hide()
+      end
+      
+      index = index + 1
+    end
+
+    if (redoLayout) then
+      self:DoLayout()
+    end
+    
   end
 end
 
@@ -278,11 +283,11 @@ function QuantifyContainer_Initialize()
   
   local stats_scrollcontainer = agui:Create("SimpleGroup")
   stats_scrollcontainer:SetFullWidth(true)
-  stats_scrollcontainer:SetFullHeight(true)
+  --stats_scrollcontainer:SetFullHeight(true)
   stats_scrollcontainer:SetLayout("Fill")
   
   stats_scrollframe = agui:Create("ScrollFrame")
-  stats_scrollframe:SetLayout("List")
+  stats_scrollframe:SetLayout("qList")
   
   stats_scrollcontainer:AddChild(stats_scrollframe)
   
@@ -346,5 +351,15 @@ function QuantifyContainer_Initialize()
   left_pane:AddChild(segment_group)
   left_pane:AddChild(segment_control_group)
   left_pane:AddChild(module_group)
+  
+  
+--  local watchlist_frame = agui:Create("Window")
+--  watchlist_frame:SetLayout("Fill")
+  
+--  local watchlist_container = agui:Create("QuantifyContainerWrapper")
+--  watchlist_container:SetQuantifyFrame(QuantifyWatchList)
+--  watchlist_container:SetLayout("Fill")
+  
+--  watchlist_frame:AddChild(watchlist_container)
   
 end

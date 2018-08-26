@@ -107,10 +107,10 @@ local function petBattleClose()
   pet_battle = GetTime()
 end
 
-local function playerLevelUp(event, ...)
-  if (UnitLevel("player") ~= previous_level) then
+local function playerLevelUp(event, newLevel)
+  if (newLevel ~= previous_level) then
     session.levels_gained = session.levels_gained + 1
-    previous_level = UnitLevel("player")
+    previous_level = newLevel
   end
 end
 

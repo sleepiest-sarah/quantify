@@ -27,12 +27,14 @@ function QuantifyWatchListRowTemplate_OnDoubleClick(self)
 end
 
 function QuantifyWatchListRowTemplate_OnEnter(self)
- local tooltip = LibQTip:Acquire("LabelTooltip", 2, "LEFT", "LEFT")
+ local tooltip = LibQTip:Acquire("LabelTooltip", 3, "LEFT", "CENTER", "RIGHT")
  self.tooltip = tooltip 
  
- tooltip:AddHeader('Segment', 'Label')
+ --tooltip:AddHeader('Segment', 'Stat', 'Value')
  
- tooltip:AddLine(self:GetParent().segment, self:GetText())
+ local label,value = self:GetChildren()
+ 
+ tooltip:AddLine(self.segment, label:GetText(), value:GetText())
  
  tooltip:SmartAnchorTo(self)
  
