@@ -122,6 +122,8 @@ local function initArmorWeaponSkills()
       if (subtext == nil and (weapon == "Axes" or weapon == "Maces" or weapon == "Swords")) then  --for classes that can wield both varieties
         s.player_weapon_skills["One-Handed "..weapon] = "One-Handed "..weapon
         s.player_weapon_skills["Two-Handed "..weapon] = "Two-Handed "..weapon
+      elseif (weapon == "Fist" and subtext == "Weapons") then                                     --fist weapons are formatted differently than other dual wield weapon types
+        s.player_weapon_skills["Fist Weapons"] = "Fist Weapons"
       else
         s.player_weapon_skills[weapon_string] = weapon_string
       end

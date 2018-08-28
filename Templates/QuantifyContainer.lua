@@ -362,5 +362,5 @@ function QuantifyContainer_Initialize()
   
 --  watchlist_frame:AddChild(watchlist_container)
   
-  QuantifyStatContextMenu_Create()
+  QuantifyContextMenu_Initialize()
 end

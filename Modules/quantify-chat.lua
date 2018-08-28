@@ -8,9 +8,10 @@ quantify_chat.MODULE_KEY = "chat"
 
 quantify_chat.CHANNEL_CHAT_PREFIX = "channel_sent_*"
 quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
-quantify_chat.MAX_CLOUD_WORDS = 5
+quantify_chat.MAX_CLOUD_WORDS = 10
 
-quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an", "or", "you","is","was"}
+quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an", "or", "you","is","was",
+                                "could", "did", "they", "are", "doing", "from"}
 
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}

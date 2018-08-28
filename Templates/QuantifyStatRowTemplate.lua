@@ -14,6 +14,8 @@ function QuantifyStatRowTemplate_SetText(self,item)
   self.dict_key = item.dict_key
   self.subkey = item.subkey
   self.segment = item.segment
+  self.label = item.label
+  self.value = item.value
   QuantifyStatRowTemplate_SetLabel(self,item.label)
   QuantifyStatRowTemplate_SetValue(self,item.value)
 end
@@ -32,13 +34,13 @@ end
 
 function QuantifyStatRowTemplate_OnClick(self, button)
   if (button == "RightButton") then
-    QuantifyStatContextMenu_Toggle()
+    QuantifyStatContextMenu_Toggle("stat", self)
   end
 end
 
 function QuantifyWatchListRowTemplate_OnClick(self, button)
   if (button == "RightButton") then
-    QuantifyStatContextMenu_Toggle()
+    QuantifyStatContextMenu_Toggle("watchlist", self)
   end
 end
 

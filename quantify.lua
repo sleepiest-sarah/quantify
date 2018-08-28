@@ -3,6 +3,8 @@ local sframe = CreateFrame("FRAME")
 local event_map = {}
 local next_frame_callbacks = {}
 
+local qevent_map = {}
+
 --alias namespace
 local q = quantify
 
@@ -30,6 +32,22 @@ end
 
 function quantify:registerNextFrame(callback, ...)
   table.insert(next_frame_callbacks, {callback = callback, args = {...}})
+end
+
+function quantify:registerQEvent(event,func)
+  if (qevent_map[event] == nil) then
+    qevent_map[event] = {}
+  end
+    
+  table.insert(qevent_map[event], func)  
+end
+
+function quantify:triggerQEvent(event, ...)
+  if (qevent_map[event] ~= nil) then
+    for _, f in pairs(qevent_map[event]) do
+      f(event, ...)
+    end
+  end  
 end
 
 function q:updateTotals(segment)

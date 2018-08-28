@@ -80,7 +80,7 @@ function q:ViewAllStats_Update()
         readable_key = string.gsub(readable_key,"*",star_string)
       end
       local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
-      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500), dict_key = k, subkey = star_string})
+      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500), dict_key = k, subkey = star_string, segment = viewing_segment_key})
     else  --just use the raw key and value if the text hasn't been initialized yet
       if (type(v) ~= "table") then
         --table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
@@ -108,10 +108,6 @@ end
 
 function q:toggleUi()
   q:showUi(not q.quantify_ui_shown)
-end
-
-local function SelectSegmentDropdown_Update(self)
-  SelectSegmentDropdownSelected:SetText(q:capitalizeString(viewing_segment_key))
 end
 
 function q:setViewingSegment(text)
@@ -228,6 +224,14 @@ function q:updateWatchlist(frame)
   QuantifyWatchList_Update(frame)
 end
 
+function q:addWatchlistItemMenu(menu)
+  q:addWatchListItem(menu.userdata.dict_key, menu.userdata.subkey)
+end
+
+function q:removeWatchlistItemMenu(menu)
+  q:removeWatchListItem(menu.userdata.dict_key, menu.userdata.subkey, menu.userdata.segment)
+end
+
 function q:addWatchListItem(key, subkey)
   local concat_key = subkey and viewing_segment_key..key..subkey or viewing_segment_key..key
   watchlist[concat_key] = {key = key, subkey = subkey, segment = viewing_segment_key}
@@ -296,8 +300,9 @@ function q:initializeUi()
   QuantifyContainer_Initialize()
 end
 
-function q:copyToClipboard()
-  print("copy")
+function q:copyToClipboard(menu)
+  local window = QuantifyEditWindow_Create(nil, "("..menu.userdata.segment..") "..menu.userdata.label.."\t"..menu.userdata.value, true)
+  QuantifyEditWindow_Show(window)
 end
 
 function q:shareStat()
@@ -306,6 +311,42 @@ end
 
 function q:resetStat()
   print("reset")
+end
+
+function quantify:getSavedWatchlists()
+  local res = {}
+  if (qDbOptions.saved_watchlists ~= nil) then
+    res = qDbOptions.saved_watchlists
+  end
+  
+  return res
+end
+
+function quantify:saveWatchlist(self)
+  local window = QuantifyEditWindow_Create(quantify.saveWatchlistConfirm, self.watchlist_key or "", false, self.userdata)
+  QuantifyEditWindow_Show(window)
+end 
+
+function quantify:saveWatchlistConfirm(text, userdata)
+  if (qDbOptions.saved_watchlists == nil) then
+    qDbOptions.saved_watchlists = {}
+  end
+  
+  qDbOptions.saved_watchlists[text] = q:deepcopy(watchlist)
+end
+
+function quantify:deleteSavedWatchlist(self)
+  if (self.watchlist_key) then
+    qDbOptions.saved_watchlists[self.watchlist_key] = nil
+  end
+end
+
+function quantify:loadWatchlist(self,key)
+  self.watchlist_key = key
+  
+  if (qDbOptions.saved_watchlists ~= nil and qDbOptions.saved_watchlists[key] ~= nil) then
+    watchlist = q:deepcopy(qDbOptions.saved_watchlists[key])
+  end
 end
 
 local function saveUiState()

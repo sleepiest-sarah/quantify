@@ -68,7 +68,7 @@ function Item:isILevelUpgrade()
   
   local this_ilevel = self:getEffectiveILevel()
   local current1_ilevel = current1 and current1:getEffectiveILevel() or nil
-  local current2_ilevel = current2 and current1:getEffectiveILevel() or nil
+  local current2_ilevel = current2 and current2:getEffectiveILevel() or nil
   
   return ((current1_ilevel and this_ilevel > current1_ilevel) or (current2_ilevel and this_ilevel > current2_ilevel))
 end
