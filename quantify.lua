@@ -106,21 +106,21 @@ local function init(event, ...)
   local addon = ...
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
     print(quantify.LOADED_TEXT)
-    if (qDb == nil) then
+    
+    if (qDb ~= nil) then
+      q:runMigrations()
+    elseif (qDb == nil) then
       qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
     elseif (qDb[q.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
-    else
-      q:runMigrations()
     end
+    
     
     if (qDbOptions == nil) then
       qDbOptions = {profile = {minimap = {hide = false}}}
     end
     
-    if (qDbOptions.version == nil) then
-      qDbOptions.version = GetAddOnMetadata("quantify", "Version")
-    end
+    qDbOptions.version = GetAddOnMetadata("quantify", "Version")
     
     local addon = LibStub("AceAddon-3.0"):NewAddon("quantify")
     local bunnyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("quantify", {
