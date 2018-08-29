@@ -132,11 +132,20 @@ quantify.STATS = {
   --currency
   ["raw:quest_money"] = {text = "Money from Quests", abbr = "Quest Money", units = "money"},
   ["session_rates:quest_money"] = {text = "Quest Money Per Hour", abbr = "QMpH", units = "money/hour"},
+  ["raw:auction_money"] = {text = "Money from Auction House", abbr = "AH Money", units = "money"},
+  ["raw:auction_money_spent"] = {text = "Money Spent at Auction House", abbr = "AH Spent", units = "money"},
+  ["derived_stats:pct_money_quest"] = {text = "% Money Earned: Quest", units = "percentage", order = 845},
+  ["derived_stats:pct_money_auction"] = {text = "% Money Earned: Auctions", units = "percentage", order = 845},
+  ["derived_stats:pct_money_loot"] = {text = "% Money Earned: Loot", units = "percentage", order = 845},  
   
   
   --loot
   ["raw:upgrade_received_*"] = {text = "iLvl Upgrades: *", units = "integer", order = 150},
   ["session_rates:upgrade_received_*"] = {text = "iLvl Upgrades Per Day: *", units = "integer", order = 160},
+  ["raw:overall_ilevel_upgrades"] = {text = "Total iLvl Upgrades", units = "integer", order = 140},
+  ["derived_stats:pct_armor_class_*"] = {text = "% Armor Class Looted: *", units = "percentage", order = 870},
+  ["derived_stats:pct_loot_quality_*"] = {text = "% * Loot", units = "percentage", order = 825},
+  
   
   --time
   ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},

@@ -25,7 +25,7 @@ ql.LEGION = 6
 ql.BFA = 7
 
 function quantify_loot.Session:new(o)
-  o = o or {total_items_looted = 0, gear_loot = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0}
+  o = o or {total_items_looted = 0, gear_loot = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0, overall_ilevel_upgrades = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -58,6 +58,7 @@ local function processItem(item,amount)
     session.gear_loot = session.gear_loot + amount
   
     if (item:isEquippable() and item:isILevelUpgrade()) then
+      session.overall_ilevel_upgrades = session.overall_ilevel_upgrades + 1
       local k = ql.UPGRADE_PREFIX..quantify_state:getPlayerSpecClass()
       if (session[k] == nil) then
         session[k] = 0
@@ -94,27 +95,27 @@ local function processItem(item,amount)
   --item quality
   if (item.itemRarity == ql.POOR) then
     session.poor_loot = session.poor_loot + amount
-    if (item.expacId == ql.BFA) then
+    if (item.expacID == ql.BFA) then
       session.bfa_poor_loot = session.bfa_poor_loot + amount
     end
   elseif (item.itemRarity == ql.UNCOMMON) then
     session.uncommon_loot = session.uncommon_loot + amount
-    if (item.expacId == ql.BFA) then
+    if (item.expacID == ql.BFA) then
       session.bfa_uncommon_loot = session.bfa_uncommon_loot + amount
     end
   elseif (item.itemRarity == ql.COMMON) then
     session.common_loot = session.common_loot + amount
-    if (item.expacId == ql.BFA) then
+    if (item.expacID == ql.BFA) then
       session.bfa_common_loot = session.bfa_common_loot + amount
     end
   elseif (item.itemRarity == ql.RARE) then
     session.rare_loot = session.rare_loot + amount
-    if (item.expacId == ql.BFA) then
+    if (item.expacID == ql.BFA) then
       session.bfa_rare_loot = session.bfa_rare_loot + amount
     end
   elseif (item.itemRarity == ql.EPIC) then
     session.epic_loot = session.epic_loot + amount
-    if (item.expacId == ql.BFA) then
+    if (item.expacID == ql.BFA) then
       session.bfa_epic_loot = session.bfa_epic_loot + amount
     end
   end
@@ -164,6 +165,22 @@ function quantify_loot:calculateDerivedStats(segment)
   table.foreach(segment.stats.loot.raw,function(k,v) if (string.find(k,ql.UPGRADE_PREFIX)) then rates_to_calc[k] = v end end)
   
   segment.stats.loot.session_rates =  q:calculateSegmentRates(segment, rates_to_calc, 86400)
+  
+  local derived = {}
+  local sum = segment.stats.loot.raw.poor_loot + segment.stats.loot.raw.uncommon_loot + segment.stats.loot.raw.common_loot + segment.stats.loot.raw.rare_loot + segment.stats.loot.raw.epic_loot
+  derived["pct_loot_quality_*poor"] = (segment.stats.loot.raw.poor_loot / sum) * 100
+  derived["pct_loot_quality_*common"] = (segment.stats.loot.raw.common_loot / sum) * 100
+  derived["pct_loot_quality_*uncommon"] = (segment.stats.loot.raw.uncommon_loot / sum) * 100
+  derived["pct_loot_quality_*rare"] = (segment.stats.loot.raw.rare_loot / sum) * 100
+  derived["pct_loot_quality_*epic"] = (segment.stats.loot.raw.epic_loot / sum) * 100
+  
+  sum = segment.stats.loot.raw.cloth_gear_loot + segment.stats.loot.raw.leather_gear_loot + segment.stats.loot.raw.mail_gear_loot + segment.stats.loot.raw.plate_gear_loot
+  derived["pct_armor_class_*cloth"] = (segment.stats.loot.raw.cloth_gear_loot / sum) * 100
+  derived["pct_armor_class_*leather"] = (segment.stats.loot.raw.leather_gear_loot / sum) * 100
+  derived["pct_armor_class_*mail"] = (segment.stats.loot.raw.mail_gear_loot / sum) * 100
+  derived["pct_armor_class_*plate"] = (segment.stats.loot.raw.plate_gear_loot / sum) * 100
+  
+  segment.stats.loot.derived_stats = derived
 end
 
 function quantify_loot:updateStats(segment)
