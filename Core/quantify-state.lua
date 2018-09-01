@@ -20,12 +20,13 @@ quantify_state.state = {
     player_mounted = false,
     player_has_azerite_item = false,
     azerite_item_table = nil,
-    player_armor_skills = {},
-    player_weapon_skills = {},
+    player_armor_skills = nil,
+    player_weapon_skills = nil,
     player_class = nil,
     player_spec = nil,
     player_indoors = nil,
-    player_outdoors = nil
+    player_outdoors = nil,
+    player_can_gain_xp = true
 }
 
 local s = quantify_state.state
@@ -85,6 +86,13 @@ local function playerControlGained()
 end
 
 local function initArmorWeaponSkills()
+  if (s.player_armor_skills ~= nil) then
+    return
+  end
+  
+  s.player_armor_skills = {}
+  s.player_weapon_skills = {}
+  
   local _, _, _, _, _, _, armorSpellId = GetSpellInfo("Armor Skills")
   local _, _, _, _, _, _, weaponSpellId = GetSpellInfo("Weapon Skills")
   
@@ -138,15 +146,13 @@ local function checkClassSpec()
   if (spec_i) then
     _,s.player_spec = GetSpecializationInfo(spec_i)
   end
+  
+  initArmorWeaponSkills()
 end
 
 local function playerLogin()
   s.current_player_name = GetUnitName("player", false)
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
-  
-  initArmorWeaponSkills()
-  
-  checkClassSpec()
 end
 
 local function checkAzeriteItem(event, unit)
@@ -163,9 +169,16 @@ local function playerEnteringWorld()
   
   checkAzeriteItem()
   
+  initArmorWeaponSkills()
+  
+  checkClassSpec()
+  
   s.player_mounted = IsMounted()
   s.player_indoors = IsIndoors()
   s.player_outdoors = IsOutdoors()
+  
+  
+  s.player_can_gain_xp = not (UnitXP("player") == 0 or IsXPUserDisabled())
 end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload
@@ -279,4 +292,8 @@ end
 
 function quantify_state:IsOutdoors()
   return s.player_outdoors
+end
+
+function quantify_state:CanPlayerGainXp()
+  return s.player_can_gain_xp
 end

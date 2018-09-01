@@ -121,7 +121,7 @@ local function mailbox(event)
     mailbox_open = false
     local _,numitems = GetInboxNumItems()
     for i=1,numitems do
-      local _, _, sender, subject, money, CODAmount, _, _, _, _, _, _, _ = GetInboxHeaderInfo(index)
+      local _, _, sender, subject, money, CODAmount, _, _, _, _, _, _, _ = GetInboxHeaderInfo(i)
       if (money > 0) then
         local item = {}
         item.money = money

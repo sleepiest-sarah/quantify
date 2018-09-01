@@ -44,16 +44,16 @@ quantify.STATS = {
   ["raw:num_brez_accepted"] = {text = "Battle Rezes Accepted", units = "integer"},
   ["raw:num_corpse_runs"] = {text = "Corpse Runs", units = "integer"},
   ["raw:overall_raid_boss_kills"] = {text = "Raid Boss Kills", units = "integer"},
-  ["raw:legion_dungeon_boss_kills"] = {text = "Legion Dungeon Boss Kills", units = "integer"},
+  --["raw:legion_dungeon_boss_kills"] = {text = "Legion Dungeon Boss Kills", units = "integer"},
   ["raw:player_raid_deaths"] = {text = "Players Deaths in Raids", units = "integer"},
   ["raw:player_dungeon_deaths"] = {text = "Player Deaths in Dungeons", units = "integer"},
-  ["raw:legion_raid_boss_kills"] = {text = "Legion Raid Boss Kills", units = "integer"},
-  ["raw:legion_dungeon_boss_wipes"] = {text = "Legion Dungeon Boss Wipes", units = "integer"},
+  --["raw:legion_raid_boss_kills"] = {text = "Legion Raid Boss Kills", units = "integer"},
+  --["raw:legion_dungeon_boss_wipes"] = {text = "Legion Dungeon Boss Wipes", units = "integer"},
   ["raw:overall_dungeon_boss_wipes"] = {text = "Dungeon Boss Wipes", units = "integer"},
   ["raw:overall_dungeon_boss_kills"] = {text = "Dungeon Boss Kills", units = "integer"},
   ["raw:dungeon_boss_kill_*"] = {text = "Boss Kills: *", units = "integer"},
   ["raw:overall_raid_boss_wipes"] = {text = "Raid Boss Wipes", units = "integer"},
-  ["raw:legion_raid_boss_wipes"] = {text = "Legion Raid Boss Wipes", units = "integer"},
+  --["raw:legion_raid_boss_wipes"] = {text = "Legion Raid Boss Wipes", units = "integer"},
   ["raw:dungeon_boss_wipe_*"] = {text = "Dungeon Boss Wipes: *", units = "integer"},
   ["raw:raid_boss_wipe_*"] = {text = "Raid Boss Wipes: *", units = "integer"},
   ["raw:raid_boss_kill_*"] = {text = "Raid Boss Kills: *", units = "integer"},
@@ -129,6 +129,10 @@ quantify.STATS = {
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345},  
   ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
+  --combat
+  ["derived_stats:kd_ratio"] = {text = "Kill-to-Death Ratio", units = "decimal"},
+  
+  
   --currency
   ["raw:quest_money"] = {text = "Money from Quests", abbr = "Quest Money", units = "money"},
   ["session_rates:quest_money"] = {text = "Quest Money Per Hour", abbr = "QMpH", units = "money/hour"},
@@ -137,6 +141,16 @@ quantify.STATS = {
   ["derived_stats:pct_money_quest"] = {text = "% Money Earned: Quest", units = "percentage", order = 845},
   ["derived_stats:pct_money_auction"] = {text = "% Money Earned: Auctions", units = "percentage", order = 845},
   ["derived_stats:pct_money_loot"] = {text = "% Money Earned: Loot", units = "percentage", order = 845},  
+  
+  --instances
+  ["raw:bfa_total_dungeon_completed"] = {text = "Total BFA Dungeons Completed", units = "integer"},
+  ["derived_stats:most_kills_*"] = {text = "Most Boss Kills: *", units = "integer", order = 872}, 
+  ["derived_stats:most_player_deaths_*"] = {text = "Most Player Deaths: *", units = "integer", order = 874}, 
+  ["derived_stats:most_wipes_*"] = {text = "Most Boss Wipes: *", units = "integer", order = 873}, 
+  ["derived_stats:most_completed_dungeons_*"] = {text = "Most Completed Dungeons: *", units = "integer", order = 870}, 
+  ["derived_stats:highest_kdr_*"] = {text = "Highest Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 871}, 
+  ["derived_stats:party_member_completed_dungeons_*"] = {text = "Completed Dungeons: *", units = "integer", order = 910}, 
+  ["derived_stats:party_member_kdr_*"] = {text = "Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 911}, 
   
   
   --loot
@@ -161,4 +175,10 @@ quantify.STATS = {
   --xp
   ["raw:pet_battle_xp"] = {text = "Total XP from Pet Battles", abbr="Pet Battle XP", units = "integer"},
   ["session_rates:pet_battle_xp"] = {text = "Pet Battle XP Per Hour", abbr="Pet Battle xp/hr", units = "integer/hour"},  
+  ["derived_stats:rested_xp_time_saved"] = {text = "Time Saved from Rested XP", units = "time"},
+  ["derived_stats:pct_xp_kill"] = {text = "% XP: Kills", units = "percentage", order = 820},
+  ["derived_stats:pct_xp_pet_battle"] = {text = "% XP: Pet Battles", units = "percentage", order = 820},
+  ["derived_stats:pct_xp_quest"] = {text = "% XP: Quests", units = "percentage", order = 820},
+  ["derived_stats:pct_xp_other"] = {text = "% XP: Other", units = "percentage", order = 820},
+  
 }

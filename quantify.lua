@@ -107,11 +107,15 @@ local function init(event, ...)
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
     print(quantify.LOADED_TEXT)
     
+    print(UnitXP("player"), IsXPUserDisabled())
+    
     if (qDb ~= nil) then
       q:runMigrations()
-    elseif (qDb == nil) then
+    else
       qDb = {account = q.TotalSegment:new(), [q.TotalSegment:characterKey()] = q.TotalSegment:new()}
-    elseif (qDb[q.TotalSegment:characterKey()] == nil) then
+    end
+    
+    if (qDb[quantify.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
     end
     

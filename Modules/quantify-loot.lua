@@ -44,10 +44,6 @@ local function init()
   session = q.current_segment.stats[ql.MODULE_KEY].raw
 end
 
-local function confirmLootRoll(event, rollId, roll)
-  
-end
-
 local function processItem(item,amount) 
   if (item.isCraftingReagent) then
     return
@@ -57,6 +53,7 @@ local function processItem(item,amount)
   if (item.itemType == "Armor" or item.itemType == "Weapon") then
     session.gear_loot = session.gear_loot + amount
   
+    --print(item:isEquippable(),item:isILevelUpgrade())
     if (item:isEquippable() and item:isILevelUpgrade()) then
       session.overall_ilevel_upgrades = session.overall_ilevel_upgrades + 1
       local k = ql.UPGRADE_PREFIX..quantify_state:getPlayerSpecClass()
@@ -197,12 +194,11 @@ init()
 
 table.insert(quantify.modules, quantify_loot)
   
-q:registerEvent("CONFIRM_LOOT_ROLL", confirmLootRoll)
 q:registerEvent("CHAT_MSG_LOOT", chatMsgLoot)
 q:registerEvent("GET_ITEM_INFO_RECEIVED", getItemInfoReceived)
 q:registerEvent("QUEST_LOOT_RECEIVED", questLootReceived)
 
 function ql:tests()
-  local axe = q.Item:new("Sezahjin's Chopper")
+  local axe = q.Item:new("Yeti-Rager's Cloak")
   processItem(axe,1)
 end

@@ -107,11 +107,18 @@ local function combatLog()
 end
 
 function quantify_combat:calculateDerivedStats(segment)
-
+  local derived = {}
+  
+  local raw = segment.stats.combat.raw
+  
+  local deaths = raw.num_deaths == 0 and 1 or raw.num_deaths
+  derived.kd_ratio = raw.player_kills / deaths
+  
+  segment.stats.combat.derived_stats = derived
 end
 
 function quantify_combat:updateStats(segment)
-
+  quantify_combat:calculateDerivedStats(segment)
 end
  
 function quantify_combat:newSegment(previous_seg,new_seg)

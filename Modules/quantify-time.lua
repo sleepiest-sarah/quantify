@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0, time_sub_max_level = 0, time_rested = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -21,12 +21,14 @@ local mount_start = nil
 local fishing_start = nil
 local outdoors_start = nil
 local indoors_start = nil
+local rested_start = nil
 
 local in_combat = false
 local isAfk = false
 local is_mounted = false
 local is_outdoors = false
 local is_indoors = false
+local is_rested = false
 
 local function init()
   q.current_segment.stats.time = {}
@@ -113,9 +115,26 @@ local function zoneChanged()
   is_indoors = IsIndoors()
 end
 
+local function updateExhaustion()
+  if (GetXPExhaustion() and not is_rested) then
+    is_rested = true
+    rested_start = GetTime()
+  elseif (is_rested) then
+    session.time_rested = session.time_rested + (GetTime() - rested_start)
+    rested_start = GetTime()
+  end
+  is_rested = GetXPExhaustion() ~= nil
+end
+
 local function playerEnteringWorld()
   playerMount()
   zoneChanged()
+  updateExhaustion()
+  
+  if (quantify_state:CanPlayerGainXp()) then
+    session.time_sub_max_level = session.play_time
+  end
+  
 end
 
 function quantify_time:calculateDerivedStats(segment)
@@ -160,10 +179,22 @@ function quantify_time:updateStats(segment)
       indoors_start = GetTime()
     end
     
+    if is_rested then
+      updateExhaustion()
+      rested_start = GetTime()
+    end
+    
     if q.current_segment.start_time ~= nil then
       session.play_time = GetTime() - q.current_segment.start_time
     end
+    
+    if (quantify_state:CanPlayerGainXp()) then
+      session.time_sub_max_level = session.play_time
+    end
+    
   end
+  
+
     
   quantify_time:calculateDerivedStats(segment)
 end
@@ -190,5 +221,6 @@ quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED", zoneChanged)
+quantify:registerEvent("UPDATE_EXHAUSTION", updateExhaustion)
   
   

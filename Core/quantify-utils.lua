@@ -41,13 +41,12 @@ function q:printSegment(segment)
   end
 end
 
-function q:calculateSegmentRates(segment, segment_stats, period)
+function q:calculateSegmentRates(segment, segment_stats, period, duration)
   period = period or 3600
   
-  local duration
-  if (segment:duration() ~= nil) then
+  if (segment ~= nil and segment:duration() ~= nil) then
     duration = segment:duration()
-  else
+  elseif (segment ~= nil) then
     local start = segment.start_time or GetTime()
     local endt = segment.end_time or GetTime()
     duration = endt - start
@@ -333,12 +332,15 @@ function q:isNan(n)
   return n ~= n
 end
 
-function q:getKeyForMaxValue(t)
+function q:getKeyForMaxValue(t,subkey)
   local max = -math.huge
   local max_key = nil
   
   for k,v in pairs(t) do
-    if (v > max) then
+    if (subkey and v[subkey] > max) then
+      max_key = k
+      max = v[subkey]
+    elseif (v > max) then
       max_key = k
       max = v
     end

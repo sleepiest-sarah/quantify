@@ -20,6 +20,26 @@ local function correctBnAccountNames()
   end
 end
 
+local function setTimeSubMax(event)
+  if (event == nil) then
+    q:registerEvent("PLAYER_ENTERING_WORLD",setTimeSubMax)
+    return
+  else
+    q:unregisterEvent("PLAYER_ENTERING_WORLD", setTimeSubMax)
+  end
+  
+  if (qDb[q.TotalSegment:characterKey()] ~= nil and qDb[q.TotalSegment:characterKey()].stats.time ~= nil) then
+    if (not (UnitXP("player") == 0 or IsXPUserDisabled())) then
+      qDb[quantify.TotalSegment:characterKey()].stats.time.time_sub_max_level = qDb[q.TotalSegment:characterKey()].stats.time.play_time
+    end
+  end
+  
+  if (qDb[q.TotalSegment:characterKey()] ~= nil and qDb[q.TotalSegment:characterKey()].stats.time ~= nil) then
+    local xp = qDb[quantify.TotalSegment:characterKey()].stats.xp
+    qDb[quantify.TotalSegment:characterKey()].stats.time.time_rested =  math.floor((xp.rested_xp * 2 / xp.kill_xp) * qDb[q.TotalSegment:characterKey()].stats.time.time_sub_max_level)
+  end
+end
+
 local function isPreReleaseVersion(v)
   return string.find(v, "alpha") or string.find(v, "beta")
 end
@@ -30,7 +50,17 @@ function q:runMigrations()
   --always run all migrations if the current version or data is an alpha or beta release
   if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(installed_version)) then
     correctBnAccountNames()
-  elseif (qDbOptions.version < "1.0") then
-    correctBnAccountNames()
+    setTimeSubMax()
+  else
+    
+    if (qDbOptions.version < "1.0") then
+      correctBnAccountNames()
+    end
+      
+    if (qDbOptions.version < "1.1") then
+      setTimeSubMax()    
+    end
+    
   end
+  
 end
