@@ -5,6 +5,7 @@ local session
 local player_kill = 0
 local player_quest = 0
 local pet_battle = 0
+local gathering = 0
 
 local previous_xp = nil
 local previous_level = nil
@@ -18,7 +19,7 @@ quantify_exp.Session = {}
 quantify_exp.MODULE_KEY = "xp"
 
 function quantify_exp.Session:new(o)
-  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0, pet_battle_xp = 0}
+  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0, pet_battle_xp = 0,                gathering_xp = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -52,10 +53,12 @@ local function playerExpUpdate(event, ...)
     session.pct_levels_gained = session.pct_levels_gained + xp_pct
     
     local curtime = GetTime()
-    if (curtime - player_kill > quantify.EVENT_WINDOW) and (curtime - player_quest > quantify.EVENT_WINDOW and (curtime - pet_battle > quantify.EVENT_WINDOW)) then
-      session.other_xp = session.other_xp + xp_gain
-    elseif (curtime - pet_battle < quantify.EVENT_WINDOW) then
+    if (curtime - pet_battle < quantify.EVENT_WINDOW) then
       session.pet_battle_xp = session.pet_battle_xp + xp_gain
+    elseif (curtime - gathering < quantify.EVENT_WINDOW) then
+      session.gathering_xp = session.gathering_xp + xp_gain
+    elseif ((curtime - player_kill > quantify.EVENT_WINDOW) and (curtime - player_quest > quantify.EVENT_WINDOW)) then
+      session.other_xp = session.other_xp + xp_gain
     end
     
     previous_xp = current_xp
@@ -114,6 +117,15 @@ local function playerLevelUp(event, newLevel)
   end
 end
 
+local function chatMsgOpening(event, msg)
+  local mining = string.match(msg, "You perform (Mining)") 
+  local herbing = string.match(msg, "You perform (Herb Gathering)")
+  
+  if (mining or herbing) then
+    gathering = GetTime()
+  end
+end
+
 local function playerLogin(event, ...)
   previous_xp = UnitXP("player")
   previous_max_xp = UnitXPMax("player")
@@ -167,6 +179,7 @@ function quantify_exp:calculateDerivedStats(segment)
   segment.stats.xp.derived_stats.pct_xp_pet_battle = (raw.pet_battle_xp / raw.xp) * 100
   segment.stats.xp.derived_stats.pct_xp_quest = (raw.quest_xp / raw.xp) * 100
   segment.stats.xp.derived_stats.pct_xp_other = (raw.other_xp / raw.xp) * 100
+  segment.stats.xp.derived_stats.pct_xp_gathering = (raw.gathering_xp / raw.xp) * 100
 end
 
 function quantify_exp:updateStats(segment)
@@ -193,3 +206,4 @@ quantify:registerEvent("PLAYER_LOGIN", playerLogin)
 quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PET_BATTLE_CLOSE", petBattleClose)
+quantify:registerEvent("CHAT_MSG_OPENING", chatMsgOpening)

@@ -107,8 +107,6 @@ local function init(event, ...)
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
     print(quantify.LOADED_TEXT)
     
-    print(UnitXP("player"), IsXPUserDisabled())
-    
     if (qDb ~= nil) then
       q:runMigrations()
     else

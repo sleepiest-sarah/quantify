@@ -141,16 +141,26 @@ quantify.STATS = {
   ["derived_stats:pct_money_quest"] = {text = "% Money Earned: Quest", units = "percentage", order = 845},
   ["derived_stats:pct_money_auction"] = {text = "% Money Earned: Auctions", units = "percentage", order = 845},
   ["derived_stats:pct_money_loot"] = {text = "% Money Earned: Loot", units = "percentage", order = 845},  
+  ["raw:vendor_money"] = {text = "Money from Vendor Sales", abbr = "Vendor Sales", units = "money"},
+  ["raw:vendor_money_spent"] = {text = "Money Spent at Vendors", abbr = "Vendor Spent", units = "money"},
+  ["derived_stats:pct_money_vendor"] = {text = "% Money Earned: Vendor", units = "percentage", order = 845},
   
   --instances
   ["raw:bfa_total_dungeon_completed"] = {text = "Total BFA Dungeons Completed", units = "integer"},
   ["derived_stats:most_kills_*"] = {text = "Most Boss Kills: *", units = "integer", order = 872}, 
-  ["derived_stats:most_player_deaths_*"] = {text = "Most Player Deaths: *", units = "integer", order = 874}, 
+  ["derived_stats:most_player_deaths_*"] = {text = "Most Party Deaths: *", units = "integer", order = 874}, 
   ["derived_stats:most_wipes_*"] = {text = "Most Boss Wipes: *", units = "integer", order = 873}, 
   ["derived_stats:most_completed_dungeons_*"] = {text = "Most Completed Dungeons: *", units = "integer", order = 870}, 
   ["derived_stats:highest_kdr_*"] = {text = "Highest Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 871}, 
   ["derived_stats:party_member_completed_dungeons_*"] = {text = "Completed Dungeons: *", units = "integer", order = 910}, 
   ["derived_stats:party_member_kdr_*"] = {text = "Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 911}, 
+  ["derived_stats:highest_dungeon_kdr_*"] = {text = "Highest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 865}, 
+  ["derived_stats:lowest_dungeon_kdr_*"] = {text = "Lowest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 866}, 
+  ["derived_stats:most_dungeon_wipes_*"] = {text = "Most Dungeon Wipes: *", units = "integer", order = 867}, 
+  ["derived_stats:dungeon_kdr_*"] = {text = "Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 980}, 
+  ["derived_stats: dungeon_ddr_*"] = {text = "Dungeon Average Deaths Per Run: *", units = "decimal", order = 981}, 
+ 
+  
   
   
   --loot
@@ -180,5 +190,8 @@ quantify.STATS = {
   ["derived_stats:pct_xp_pet_battle"] = {text = "% XP: Pet Battles", units = "percentage", order = 820},
   ["derived_stats:pct_xp_quest"] = {text = "% XP: Quests", units = "percentage", order = 820},
   ["derived_stats:pct_xp_other"] = {text = "% XP: Other", units = "percentage", order = 820},
+  ["raw:gathering_xp"] = {text = "Total XP from Gathering", abbr="Gathering XP", units = "integer"},
+  ["session_rates:gathering_xp"] = {text = "Gathering XP Per Hour", abbr="Gathering xp/hr", units = "integer/hour"},  
+  ["derived_stats:pct_xp_gathering"] = {text = "% XP: Gathering", units = "percentage"},
   
 }

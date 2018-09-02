@@ -340,13 +340,30 @@ function q:getKeyForMaxValue(t,subkey)
     if (subkey and v[subkey] > max) then
       max_key = k
       max = v[subkey]
-    elseif (v > max) then
+    elseif (not subkey and v > max) then
       max_key = k
       max = v
     end
   end
   
   return max_key
+end
+
+function q:getKeyForMinValue(t,subkey)
+  local min = math.huge
+  local min_key = nil
+  
+  for k,v in pairs(t) do
+    if (subkey and v[subkey] < min) then
+      min_key = k
+      min = v[subkey]
+    elseif (not subkey and v < min) then
+      min_key = k
+      min = v
+    end
+  end
+  
+  return min_key
 end
 
 function q:length(t)

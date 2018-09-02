@@ -44,4 +44,4 @@ quantify.BFA_DUNGEON_IDS = {1877,1862,1763,1754,1762,1864,1822,1594,1841,1771}
 quantify.BFA_RAID_IDS = {1861}
 --quantify.BFA_RAID_IDS = {1031}
 quantify.BFA_END_BOSSES = {"Yazma", "Harlan Sweete", "Dazar, The First King", "Vol'zith the Whisperer", "Viq'Goth", "Avatar of Sethraliss", "Mogul Razdunk", "Unbound Abomination", "Overseer Korgus", "Gorak Tul"}
-quantify.BFA_END_BOSS_IDS = {2108,2117,2087}
+quantify.BFA_END_BOSS_IDS = {2108,2117,2087,2127,2123}

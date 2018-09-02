@@ -9,6 +9,7 @@ quantify_instances.RAW_DUNGEON_BOSS_KILL_PREFIX = "dungeon_boss_kill_*"
 quantify_instances.RAW_RAID_BOSS_KILL_PREFIX = "raid_boss_kill_*"
 quantify_instances.RAW_DUNGEON_BOSS_WIPE_PREFIX = "dungeon_boss_wipe_*"
 quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX = "raid_boss_wipe_*"
+quantify_instances.RAW_DUNGEON_DEATHS_PREFIX = "dungeon_deaths_*"
 quantify_instances.BFA_DUNGEON_TIME_PREFIX = "bfa_dungeon_time_*"
 quantify_instances.BFA_DUNGEON_COMPLETED_PREFIX = "bfa_dungeon_completed_*"
 
@@ -20,6 +21,7 @@ function quantify_instances.Session:new(o)
 end
 
 local session
+local qi = quantify_instances
 
 local function init()
   q.current_segment.stats[quantify_instances.MODULE_KEY] = {}
@@ -41,7 +43,7 @@ end
 local function updatePartyStats(kill, wipe, player_death, dungeon)
   local num_members = GetNumGroupMembers()
   
-  for i=1,num_members do
+  for i=1,num_members-1 do
     local mate = GetUnitName("party"..i, true)
     if (session.party_members[mate] == nil) then
       session.party_members[mate] = {dungeons_completed = 0, kills = 0, wipes = 0, player_deaths = 0}
@@ -118,16 +120,28 @@ local function playerDead(event, ...)
       session.player_raid_deaths = session.player_raid_deaths + 1
     elseif (quantify_state:getInstanceType() == "party") then
       session.player_dungeon_deaths = session.player_dungeon_deaths + 1
+    end
+  end
+end
+
+local function combatLog()
+  local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
+  
+  if (event == "UNIT_DIED" and quantify_state:isPlayerInBfaDungeon()) then
+    local affiliation = bit.band(destFlags, 0xf)
+    if (affiliation == 1 or affiliation == 2 or affiliation == 4) then --self,party,raid
       updatePartyStats(0,0,1,0)
+      
+      incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())
     end
   end
 end
 
 local function bossKill(event, encounterId, encounterName)
-  print(event, encounterId, encounterName)
+  --print(event, encounterId, encounterName)
   
-  print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
-  print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
+  --print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
+  --print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
   if ((q:contains(q.BFA_END_BOSS_IDS, encounterId) or q:contains(q.BFA_END_BOSSES, encounterName)) and quantify_state:getInstanceStartTime() ~= nil) then
     session.bfa_total_dungeon_completed = session.bfa_total_dungeon_completed + 1
     
@@ -144,7 +158,19 @@ local function bossKill(event, encounterId, encounterName)
 end
 
 local function getTopKda(party)
+  local max_kda = -math.huge
+  local max_key = nil
   
+  for k,v in pairs(party) do
+    local wipes = v.wipes == 0 and 1 or v.wipes
+    local kda = v.kills / wipes
+    if (kda > max_kda) then
+      max_kda = kda
+      max_key = k
+    end
+  end
+  
+  return max_key
 end
 
 function quantify_instances:calculateDerivedStats(segment)
@@ -187,13 +213,66 @@ function quantify_instances:calculateDerivedStats(segment)
       if (party_keys[i] ~= nil) then
         local key = party_keys[i]
         wipes = party[key].wipes == 0 and 1 or party[key].wipes
+        local dungeons = party[key].dungeons_completed == 0 and 1 or party[key].dungeons_completed
         derived["party_member_completed_dungeons_*"..key] = party[key].dungeons_completed
         derived["party_member_kdr_*"..key] = party[key].kills / wipes
+        derived["party_deaths_per_dungeon_*"..key] = party[key].player_deaths / dungeons
       end
+    end
+  end
+    
+  --combine dungeon stats and calculate kdr
+  local dungeon_stats = {}
+  local kill_prefix = string.gsub(qi.RAW_DUNGEON_BOSS_KILL_PREFIX, "%*", "%%*")
+  local wipe_prefix = string.gsub(qi.RAW_DUNGEON_BOSS_WIPE_PREFIX, "%*", "%%*")
+  local death_prefix = string.gsub(qi.RAW_DUNGEON_DEATHS_PREFIX, "%*", "%%*")
+  for k,v in pairs(segment.stats.instances.raw) do
+      local _,kill_end = string.find(k, kill_prefix)
+      local _,wipe_end = string.find(k, wipe_prefix)
+      local _,death_end = string.find(k, death_prefix)
+    if (kill_end or wipe_end or death_end) then
+      
+      local prefix_end = kill_end or wipe_end or death_end
+      
+      local dungeon_key = string.sub(k, prefix_end + 1)
+        
+      if (dungeon_stats[dungeon_key] == nil) then
+        dungeon_stats[dungeon_key] = {kills = 0, wipes = 0, kdr = 0, deaths = 0}
+      end
+      
+      if (wipe_end) then
+        dungeon_stats[dungeon_key].wipes = v
+      elseif (kill_end) then
+        dungeon_stats[dungeon_key].kills = v
+      elseif (death_end) then
+        dungeon_stats[dungeon_key].deaths = v
+      end
+      
+      dungeon_stats[dungeon_key].kdr = dungeon_stats[dungeon_key].wipes == 0 and dungeon_stats[dungeon_key].kills or (dungeon_stats[dungeon_key].kills / dungeon_stats[dungeon_key].wipes)
     end
     
   end
   
+  if (q:length(dungeon_stats) > 0) then
+  
+    --dungeon superlatives
+    local highest_dungeon_kdr = q:getKeyForMaxValue(dungeon_stats,"kdr")
+    local most_dungeon_wipes = q:getKeyForMaxValue(dungeon_stats,"wipes")
+    local lowest_dungeon_kdr = q:getKeyForMinValue(dungeon_stats,"kdr")
+    
+    derived["highest_dungeon_kdr_*"..highest_dungeon_kdr] = dungeon_stats[highest_dungeon_kdr].kdr
+    derived["lowest_dungeon_kdr_*"..lowest_dungeon_kdr] = dungeon_stats[lowest_dungeon_kdr].kdr
+    derived["most_dungeon_wipes_*"..most_dungeon_wipes] = dungeon_stats[most_dungeon_wipes].wipes
+    
+    --dungeon kdr
+    for k,v in pairs(dungeon_stats) do
+      derived["dungeon_kdr_*"..k] = v.kdr
+      if (segment.stats.instances.raw.bfa_dungeon_time[k] ~= nil) then
+        derived["dungeon_ddr_*"..k] = v.deaths / segment.stats.instances.raw.bfa_dungeon_time[k].n
+      end
+    end
+  end
+    
   segment.stats.instances.derived_stats = derived
 end
 
@@ -214,3 +293,4 @@ table.insert(quantify.modules, quantify_instances)
 q:registerEvent("ENCOUNTER_END", encounterEnd)
 q:registerEvent("PLAYER_DEAD", playerDead)
 q:registerEvent("BOSS_KILL", bossKill)
+q:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)

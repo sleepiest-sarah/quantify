@@ -12,7 +12,7 @@ qc.CURRENCY_GAINED_PREFIX = "currency_gained_*"
 qc.CURRENCY_LOST_PREFIX = "currency_lost_*"
 
 function quantify_currency.Session:new(o)
-  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0}
+  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -26,6 +26,7 @@ local mailbox_open = false
 local mailbox_items = nil
 
 local auction_open = false
+local vendor_open = false
 
 local function init()
   q.current_segment.stats.currency = {}
@@ -43,6 +44,14 @@ local function playerMoney()
   
   if (auction_open and delta_money < 0) then
     session.auction_money_spent = session.auction_money_spent + math.abs(delta_money)
+  end
+  
+  if (vendor_open) then
+    if (delta_money > 0) then
+      session.vendor_money = session.vendor_money + delta_money
+    else
+      session.vendor_money_spent = session.vendor_money_spent + math.abs(delta_money)
+    end
   end
   
   if (mailbox_items ~= nil) then
@@ -142,6 +151,14 @@ local function auctionhouse(event)
   end
 end
 
+local function merchant(event) 
+  if (event == "MERCHANT_SHOW") then
+    vendor_open = true
+  elseif (event == "MERCHANT_CLOSED") then
+    vendor_open = false
+  end
+end
+
 function quantify_currency:calculateDerivedStats(segment)
   local raw = segment.stats.currency.raw
   
@@ -151,6 +168,7 @@ function quantify_currency:calculateDerivedStats(segment)
   derived.pct_money_quest  = (raw.quest_money / raw.total_money_gained) * 100
   derived.pct_money_auction = (raw.auction_money / raw.total_money_gained) * 100
   derived.pct_money_loot = (raw.money_looted / raw.total_money_gained) * 100
+  derived.pct_money_vendor = (raw.vendor_money / raw.total_money_gained) * 100
   
   segment.stats.currency.derived_stats = derived
 end
@@ -180,3 +198,5 @@ quantify:registerEvent("MAIL_INBOX_UPDATE", mailbox)
 quantify:registerEvent("UPDATE_PENDING_MAIL", mailbox)
 quantify:registerEvent("AUCTION_HOUSE_SHOW", auctionhouse)
 quantify:registerEvent("AUCTION_HOUSE_CLOSED", auctionhouse)
+quantify:registerEvent("MERCHANT_SHOW", merchant)
+quantify:registerEvent("MERCHANT_CLOSED", merchant)
