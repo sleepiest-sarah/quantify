@@ -154,6 +154,8 @@ quantify.STATS = {
   ["derived_stats:highest_kdr_*"] = {text = "Highest Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 871}, 
   ["derived_stats:party_member_completed_dungeons_*"] = {text = "Completed Dungeons: *", units = "integer", order = 910}, 
   ["derived_stats:party_member_kdr_*"] = {text = "Boss Kill-to-Wipe Ratio: *", units = "decimal", order = 911}, 
+  ["derived_stats:party_deaths_per_dungeon_*"] = {text = "Average Detahs Per Run: *", units = "decimal", order = 912}, 
+  
   ["derived_stats:highest_dungeon_kdr_*"] = {text = "Highest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 865}, 
   ["derived_stats:lowest_dungeon_kdr_*"] = {text = "Lowest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 866}, 
   ["derived_stats:most_dungeon_wipes_*"] = {text = "Most Dungeon Wipes: *", units = "integer", order = 867}, 
