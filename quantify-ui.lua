@@ -309,6 +309,7 @@ end
 
 function q:copyToClipboard(menu)
   local window = QuantifyEditWindow_Create(nil, "("..menu.userdata.segment..") "..menu.userdata.label.."\t"..menu.userdata.value, true)
+  window.button_group:Release()
   QuantifyEditWindow_Show(window)
 end
 
@@ -339,7 +340,9 @@ function quantify:saveWatchlistConfirm(text, userdata)
     qDbOptions.saved_watchlists = {}
   end
   
-  qDbOptions.saved_watchlists[text] = q:deepcopy(watchlist)
+  if (text ~= nil and text ~= "") then
+    qDbOptions.saved_watchlists[text] = q:deepcopy(watchlist)
+  end
 end
 
 function quantify:deleteSavedWatchlist(self)
