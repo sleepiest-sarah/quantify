@@ -3,6 +3,8 @@ local q = quantify
 
 local LibQTip = LibStub('LibQTip-1.0')
 
+local PRE_INITIALIZED_BUTTONS = 400
+
 local watchlist_cb
 
 local selected_module,selected_segment
@@ -223,6 +225,26 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
   QuantifyStatsScrollFrame_Refresh(true)
 end
 
+local function createStatRow(self,i)
+  local wrapper = stats_buttons["ViewStatsButton"..tostring(i)]
+  if (not wrapper) then
+    local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
+    
+    wrapper = agui:Create("QuantifyContainerWrapper")
+    wrapper:SetQuantifyFrame(button)
+    wrapper:SetLayout("Fill")
+    wrapper:SetFullWidth(true)
+    
+    wrapper.i = i
+    
+    stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
+    
+    self:AddChild(wrapper)
+  end
+  
+  return wrapper
+end
+
 function QuantifyStatsScrollFrame_Refresh(redoLayout)
   local self = stats_scrollframe
   
@@ -234,21 +256,7 @@ function QuantifyStatsScrollFrame_Refresh(redoLayout)
     
     --reuse buttons for performance
     for i,item in ipairs(list) do
-      local wrapper = stats_buttons["ViewStatsButton"..tostring(i)]
-      if (not wrapper) then
-        local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
-        
-        wrapper = agui:Create("QuantifyContainerWrapper")
-        wrapper:SetQuantifyFrame(button)
-        wrapper:SetLayout("Fill")
-        wrapper:SetFullWidth(true)
-        
-        wrapper.i = i
-        
-        stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
-        
-        self:AddChild(wrapper)
-      end
+      local wrapper = createStatRow(self,i)
       
       QuantifyStatRowTemplate_SetText(wrapper.frame,item)
       
@@ -288,6 +296,11 @@ function QuantifyContainer_Initialize()
   
   stats_scrollframe = agui:Create("ScrollFrame")
   stats_scrollframe:SetLayout("qList")
+  
+  --create some buttons ahead of time for performance
+  for i=1,PRE_INITIALIZED_BUTTONS do
+    createStatRow(stats_scrollframe,i)
+  end
   
   stats_scrollcontainer:AddChild(stats_scrollframe)
   

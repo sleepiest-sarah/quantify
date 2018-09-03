@@ -208,15 +208,22 @@ function q:updateWatchlist(frame)
       local keynogroup = string.sub(item.key,string.len(group) + 2)
       
       local concat_key_no_group = item.subkey and keynogroup..item.subkey or keynogroup
+      local found = false
       for _,mod in pairs(seg.stats) do
         if (mod[group] ~= nil) then
           for k,v in pairs(mod[group]) do
             if (k == concat_key_no_group) then
+              found = true
               local readable_key, readable_value = getReadableKeyValue(group..":"..k,v, true)
               QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
             end
           end
         end
+      end
+      
+      if (not found) then
+        local readable_key, readable_value = getReadableKeyValue(group..":"..concat_key_no_group,0, true)
+        QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
       end
     end
   end

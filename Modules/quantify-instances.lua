@@ -129,7 +129,8 @@ local function combatLog()
   
   if (event == "UNIT_DIED" and quantify_state:isPlayerInBfaDungeon()) then
     local affiliation = bit.band(destFlags, 0xf)
-    if (affiliation == 1 or affiliation == 2 or affiliation == 4) then --self,party,raid
+    local type_controller = bit.band(destFlags, 0xf00)
+    if (type_controller == 0x500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player andd self/party/raid
       updatePartyStats(0,0,1,0)
       
       incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())
@@ -138,10 +139,10 @@ local function combatLog()
 end
 
 local function bossKill(event, encounterId, encounterName)
-  --print(event, encounterId, encounterName)
+  print(event, encounterId, encounterName)
   
-  --print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
-  --print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
+  print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
+  print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
   if ((q:contains(q.BFA_END_BOSS_IDS, encounterId) or q:contains(q.BFA_END_BOSSES, encounterName)) and quantify_state:getInstanceStartTime() ~= nil) then
     session.bfa_total_dungeon_completed = session.bfa_total_dungeon_completed + 1
     

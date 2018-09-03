@@ -25,6 +25,10 @@ function QuantifyEditWindow_Create(func, text, highlight, ...)
   end
   
   window.editbox = editbox
+  
+  local okay_button = agui:Create("Button")
+  local cancel_button = agui:Create("Button")
+  
   window:AddChild(editbox)
   
   return window
