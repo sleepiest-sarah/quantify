@@ -130,7 +130,7 @@ local function combatLog()
   if (event == "UNIT_DIED" and quantify_state:isPlayerInBfaDungeon()) then
     local affiliation = bit.band(destFlags, 0xf)
     local type_controller = bit.band(destFlags, 0xf00)
-    if (type_controller == 0x500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player andd self/party/raid
+    if (type_controller == 0x500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
       updatePartyStats(0,0,1,0)
       
       incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())

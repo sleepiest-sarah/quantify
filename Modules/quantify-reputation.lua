@@ -9,6 +9,8 @@ quantify_reputation.FACTION_CHANGE_DELTA_PREFIX = "faction_delta_*"
 quantify_reputation.FACTION_TIME_NEUTRAL_PREFIX = "faction_time_neutral_*"
 quantify_reputation.FACTION_TIME_EXALTED_PREFIX = "faction_time_exalted_*"
 quantify_reputation.FACTION_STANDING_REMAINING_EXALTED_PREFIX = "faction_remaining_exalted_*"
+quantify_reputation.FACTION_STANDING_REMAINING_NEXT_RANK = "faction_remaining_*"
+quantify_reputation.FACTION_STANDING_REMAINING_TIME = "faction_remaining_time_*"
 
 local qr = quantify_reputation
 
@@ -25,6 +27,10 @@ local dirty_factions
 qr.factions = {}
 
 qr.TOTAL_EXALTED_REP = 42000
+qr.TOTAL_REVERED_REP = 21000
+qr.TOTAL_HONORED_REP = 9000
+qr.TOTAL_FRIENDLY_REP = 3000
+
 
 local function init()
   q.current_segment.stats[qr.MODULE_KEY] = {}
@@ -66,7 +72,7 @@ local function processFactions()
     end
     dirty_factions = {}
   elseif (table.maxn(dirty_factions) >= 1) then
-    for _,i in ipairs(dirty_factions) do
+    for i,_ in ipairs(dirty_factions) do
       processFaction(i)
     end
   end
@@ -138,6 +144,7 @@ function quantify_reputation:calculateDerivedStats(segment)
           
           
           if (not faction.atWarWith and faction.standingId >= q.Faction.NEUTRAL and faction.standingId < q.Faction.EXALTED) then
+            
             --rep until exalted
             local remaining_rep = qr.TOTAL_EXALTED_REP - faction.barValue
             derived[qr.FACTION_STANDING_REMAINING_EXALTED_PREFIX..faction_key] = remaining_rep
@@ -145,6 +152,19 @@ function quantify_reputation:calculateDerivedStats(segment)
             --time until exalted
             derived[qr.FACTION_TIME_EXALTED_PREFIX..faction_key] = (remaining_rep / r) * 86400
 
+            if (faction.standingId == q.Faction.NEUTRAL) then
+              remaining_rep = qr.TOTAL_FRIENDLY_REP - faction.barValue
+              derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
+              derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
+            elseif (faction.standingId == q.Faction.FRIENDLY) then
+              remaining_rep = qr.TOTAL_HONORED_REP - faction.barValue
+              derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
+              derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
+            elseif (faction.standingId == q.Faction.HONORED) then
+              remaining_rep = qr.TOTAL_REVERED_REP - faction.barValue
+              derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
+              derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
+            end
           end
         end
       end

@@ -51,6 +51,9 @@ local function safelayoutcall(object, func, ...)
 	layoutrecursionblock = nil
 end
 
+--same as ace flow but allows padding for rows and between controls in row
+--set padding on content with rowpadding and contentpadding
+--control.content.rowpadding = 10 and control.content.itempadding = 3
 agui:RegisterLayout("qFlow",
 	function(content, children)
 		if layoutrecursionblock then return end

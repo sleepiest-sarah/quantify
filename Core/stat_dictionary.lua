@@ -172,6 +172,10 @@ quantify.STATS = {
   ["derived_stats:pct_armor_class_*"] = {text = "% Armor Class Looted: *", units = "percentage", order = 870},
   ["derived_stats:pct_loot_quality_*"] = {text = "% * Loot", units = "percentage", order = 825},
   
+  --reputation
+  ["derived_stats:faction_remaining_*"] = {text = "Remaining Rep to Next Rank: *", units = "integer", order = 300},
+  ["derived_stats:faction_remaining_time_*"] = {text = "Time Until Next Rank: *", units = "time", order = 300},
+  
   
   --time
   ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
