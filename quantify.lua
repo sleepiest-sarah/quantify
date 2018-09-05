@@ -14,7 +14,8 @@ q.player_login_time = nil
 q.segments = {q.Segment:new()}
 q.current_segment = q.segments[1]
 
-
+local last_totals_update = 0
+local TOTALS_UPDATE_WINDOW = 300
 
 function sframe:OnEvent(event, ...)
   for _,c in pairs(next_frame_callbacks) do
@@ -27,6 +28,10 @@ function sframe:OnEvent(event, ...)
     for _, f in pairs(event_map[event]) do
       f(event, ...)
     end
+  end
+  
+  if (GetTime() - last_totals_update > TOTALS_UPDATE_WINDOW) then
+    q:updateTotals(q.current_segment)
   end
 end
 
@@ -77,6 +82,8 @@ function q:updateTotals(segment)
     q:addTables(qDb[q.TotalSegment:characterKey()].stats[k], statgroup.raw)
 
   end
+
+  last_totals_update = GetTime()
 end
 
 function quantify:registerEvent(event, func)
@@ -215,7 +222,7 @@ end
 
 quantify:registerEvent("ADDON_LOADED", init)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
-quantify:registerEvent("PLAYER_LOGOUT", logout)
+quantify:registerEvent("PLAYER_LEAVING_WORLD", logout)
 
 sframe:SetScript("OnEvent", sframe.OnEvent)
 SlashCmdList["quantify"] = qtySlashCmd

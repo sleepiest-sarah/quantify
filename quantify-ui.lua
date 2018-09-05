@@ -374,5 +374,5 @@ local function loadUiState()
   end
 end
 
-quantify:registerEvent("PLAYER_LOGOUT",saveUiState)
+quantify:registerEvent("PLAYER_LEAVING_WORLD",saveUiState)
 quantify:registerEvent("PLAYER_LOGIN",loadUiState)
