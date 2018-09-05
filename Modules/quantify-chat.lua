@@ -139,6 +139,7 @@ local function chatMsg(event, ...)
   local player_no_realm = quantify_state:getPlayerName()
   for word in string.gmatch(msg, "([^%s]+)") do
     word = string.lower(word)
+    word = string.gsub(word, "(%p+)$", "") --strip any punctuation at the end of the word
     if (quantify_chat.filtered_words[word] == nil) then
       if (author == player or event == "CHAT_MSG_BN_WHISPER_INFORM") then
         if (session.word_cloud[word] == nil) then
