@@ -66,6 +66,8 @@ function q:updateTotals(segment)
     duration = GetTime() - start_time
   end
   
+  segment.total_start_time = GetTime()
+  
   qDb.account.time = qDb.account.time + duration
   qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
   

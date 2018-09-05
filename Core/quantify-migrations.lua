@@ -40,6 +40,21 @@ local function setTimeSubMax(event)
   end
 end
 
+local function sanityCheckTimes()
+  for seg_k,seg in pairs(qDb) do
+    if (type(seg) == "table" and seg.stats ~= nil and seg.stats.time ~= nil and seg.stats.time.play_time ~= nil) then
+      local play_time = seg.stats.time.play_time
+      seg.time = play_time
+      for k,v in pairs(seg.stats.time) do
+        if (v > play_time) then
+          seg.stats.time[k] = play_time
+        end
+      end
+    end
+  end 
+end
+  
+
 local function isPreReleaseVersion(v)
   return string.find(v, "alpha") or string.find(v, "beta")
 end
@@ -48,9 +63,10 @@ function q:runMigrations()
   local installed_version = GetAddOnMetadata("quantify", "Version")
   
   --always run all migrations if the current version or data is an alpha or beta release
-  if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(installed_version)) then
+  if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(qDbOptions.version)) then
     correctBnAccountNames()
     setTimeSubMax()
+    sanityCheckTimes()
   else
     
     if (qDbOptions.version < "1.0") then
@@ -59,6 +75,7 @@ function q:runMigrations()
       
     if (qDbOptions.version < "1.1") then
       setTimeSubMax()    
+      sanityCheckTimes()
     end
     
   end

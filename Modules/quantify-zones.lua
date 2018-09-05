@@ -47,7 +47,7 @@ end
 
 function quantify_zones:calculateDerivedStats(segment)
   local derived_stats = {}
-  local total_time = segment:duration()
+  local total_time = segment.stats.time.raw.play_time
   if (total_time ~= nil) then
     for k,v in pairs(segment.stats.zones.raw) do
       if (string.sub(k,1,string.len(quantify_zones.RAW_ZONE_PREFIX)) == quantify_zones.RAW_ZONE_PREFIX) then
