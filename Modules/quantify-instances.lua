@@ -23,6 +23,8 @@ end
 local session
 local qi = quantify_instances
 
+local dead_time = 0
+
 local function init()
   q.current_segment.stats[quantify_instances.MODULE_KEY] = {}
   q.current_segment.stats[quantify_instances.MODULE_KEY].raw = quantify_instances.Session:new()
@@ -115,12 +117,14 @@ local function encounterEnd(event, ...)
 end
 
 local function playerDead(event, ...)
-  if (quantify_state:isPlayerInInstance()) then
+  if (quantify_state:isPlayerInInstance() and (GetTime() - dead_time > quantify.EVENT_WINDOW)) then
     if (quantify_state:getInstanceType() == "raid") then
       session.player_raid_deaths = session.player_raid_deaths + 1
     elseif (quantify_state:getInstanceType() == "party") then
       session.player_dungeon_deaths = session.player_dungeon_deaths + 1
     end
+    
+    dead_time = GetTime()
   end
 end
 
@@ -129,8 +133,8 @@ local function combatLog()
   
   if (event == "UNIT_DIED" and quantify_state:isPlayerInBfaDungeon()) then
     local affiliation = bit.band(destFlags, 0xf)
-    local type_controller = bit.band(destFlags, 0xf00)
-    if (type_controller == 0x500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
+    local type_controller = bit.band(destFlags, 0xff00)
+    if (type_controller == 0x0500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
       updatePartyStats(0,0,1,0)
       
       incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())
@@ -238,7 +242,7 @@ function quantify_instances:calculateDerivedStats(segment)
       local dungeon_key = string.sub(k, prefix_end + 1)
         
       if (dungeon_stats[dungeon_key] == nil) then
-        dungeon_stats[dungeon_key] = {kills = 0, wipes = 0, kdr = 0, deaths = 0}
+        dungeon_stats[dungeon_key] = {kills = 0, wipes = 0, kdr = 0, deaths = 0, ddr = 0}
       end
       
       if (wipe_end) then
@@ -250,6 +254,10 @@ function quantify_instances:calculateDerivedStats(segment)
       end
       
       dungeon_stats[dungeon_key].kdr = dungeon_stats[dungeon_key].wipes == 0 and dungeon_stats[dungeon_key].kills or (dungeon_stats[dungeon_key].kills / dungeon_stats[dungeon_key].wipes)
+      
+      if (segment.stats.instances.raw.bfa_dungeon_time[dungeon_key] ~= nil) then
+        dungeon_stats[dungeon_key].ddr = dungeon_stats[dungeon_key].deaths / segment.stats.instances.raw.bfa_dungeon_time[dungeon_key].n
+      end
     end
     
   end
@@ -260,17 +268,19 @@ function quantify_instances:calculateDerivedStats(segment)
     local highest_dungeon_kdr = q:getKeyForMaxValue(dungeon_stats,"kdr")
     local most_dungeon_wipes = q:getKeyForMaxValue(dungeon_stats,"wipes")
     local lowest_dungeon_kdr = q:getKeyForMinValue(dungeon_stats,"kdr")
+    local highest_dungeon_ddr = q:getKeyForMaxValue(dungeon_stats,"ddr")
+    local lowest_dungeon_ddr = q:getKeyForMinValue(dungeon_stats,"ddr")
     
     derived["highest_dungeon_kdr_*"..highest_dungeon_kdr] = dungeon_stats[highest_dungeon_kdr].kdr
     derived["lowest_dungeon_kdr_*"..lowest_dungeon_kdr] = dungeon_stats[lowest_dungeon_kdr].kdr
+    derived["highest_dungeon_ddr_*"..highest_dungeon_ddr] = dungeon_stats[highest_dungeon_ddr].ddr
+    derived["lowest_dungeon_ddr_*"..lowest_dungeon_ddr] = dungeon_stats[lowest_dungeon_ddr].ddr    
     derived["most_dungeon_wipes_*"..most_dungeon_wipes] = dungeon_stats[most_dungeon_wipes].wipes
     
     --dungeon kdr
     for k,v in pairs(dungeon_stats) do
       derived["dungeon_kdr_*"..k] = v.kdr
-      if (segment.stats.instances.raw.bfa_dungeon_time[k] ~= nil) then
-        derived["dungeon_ddr_*"..k] = v.deaths / segment.stats.instances.raw.bfa_dungeon_time[k].n
-      end
+      derived["dungeon_ddr_*"..k] = v.ddr
     end
   end
     
