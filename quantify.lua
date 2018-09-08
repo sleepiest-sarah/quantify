@@ -5,6 +5,8 @@ local next_frame_callbacks = {}
 
 local qevent_map = {}
 
+local segment_snapshot = nil
+
 --alias namespace
 local q = quantify
 
@@ -55,7 +57,21 @@ function quantify:triggerQEvent(event, ...)
   end  
 end
 
-function q:updateTotals(segment)
+function q:updateTotals(in_segment)
+    
+  local segment = in_segment
+  if (segment_snapshot) then
+    for k, statgroup in pairs(segment.stats) do
+        if (segment_snapshot.stats[k] == nil) then
+          segment_snapshot.stats[k] = {}
+          segment_snapshot.stats[k].raw = {}
+        end
+        segment_snapshot.stats[k].raw = q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
+    end
+    
+    segment = segment_snapshot
+  end
+  
   local duration
   local start_time = segment.total_start_time or segment.start_time
   if (start_time == nil and segment.end_time == nil) then
@@ -86,6 +102,8 @@ function q:updateTotals(segment)
   end
 
   last_totals_update = GetTime()
+  
+  segment_snapshot = q:createSegmentSnapshot(in_segment)
 end
 
 function quantify:registerEvent(event, func)

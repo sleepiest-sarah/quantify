@@ -18,8 +18,6 @@ local viewing_segment_key = "Segment 1"
 local viewing_module_key = "All"
 local viewing_module_subkey = "all"
 
-local segment_snapshot = nil
-
 local scroll_frame_initialized = false
 
 local watchlist_enabled = false
@@ -152,19 +150,7 @@ function q:updateUi(watchlist)
   end
   
   if (q.viewingTotalSegment()) then
-    if (segment_snapshot == nil) then
-      q:updateTotals(q.current_segment)
-    else
-      for k, statgroup in pairs(q.current_segment.stats) do
-        if (segment_snapshot.stats[k] == nil) then
-          segment_snapshot.stats[k] = {}
-          segment_snapshot.stats[k].raw = {}
-        end
-        segment_snapshot.stats[k].raw = q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
-      end
-      q:updateTotals(segment_snapshot)
-    end
-    segment_snapshot = q:createSegmentSnapshot(q.current_segment)
+    q:updateTotals(q.current_segment)
     
     local total_seg = qDb[viewing_segment_key]
     if (total_seg) then
