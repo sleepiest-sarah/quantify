@@ -170,8 +170,10 @@ function quantify_exp:calculateDerivedStats(segment)
   segment.stats.xp.derived_stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
   
   if (quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
-    local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
-    segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
+    local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
+    if (success) then
+      segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
+    end
   end
   
   local raw = segment.stats.xp.raw

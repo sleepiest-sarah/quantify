@@ -342,6 +342,8 @@ function quantify:saveWatchlistConfirm(text, userdata)
   
   if (text ~= nil and text ~= "") then
     qDbOptions.saved_watchlists[text] = q:deepcopy(watchlist)
+    
+    self.watchlist_key = text
   end
 end
 

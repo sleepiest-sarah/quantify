@@ -139,10 +139,10 @@ local function combatLog()
 end
 
 local function bossKill(event, encounterId, encounterName)
-  print(event, encounterId, encounterName)
+  --print(event, encounterId, encounterName)
   
-  print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
-  print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
+  --print(q:contains(q.BFA_END_BOSS_IDS, encounterId),quantify_state:isPlayerInBfaDungeon(),quantify_state:getInstanceStartTime() ~= nil)
+  --print(quantify_state.state.instance_map_id, quantify_state.state.instance_name, quantify_state.state.instance_type)
   if ((q:contains(q.BFA_END_BOSS_IDS, encounterId) or q:contains(q.BFA_END_BOSSES, encounterName)) and quantify_state:getInstanceStartTime() ~= nil) then
     session.bfa_total_dungeon_completed = session.bfa_total_dungeon_completed + 1
     

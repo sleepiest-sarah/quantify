@@ -134,7 +134,9 @@ local function mailbox(event)
       if (money > 0) then
         local item = {}
         item.money = money
-        item.isAuction = string.find(sender, "Auction House") ~= nil and string.find(subject, "Auction successful") ~= nil
+        if (sender and subject) then
+          item.isAuction = string.find(sender, "Auction House") ~= nil and string.find(subject, "Auction successful") ~= nil
+        end
         item.sender = sender
         
         table.insert(mailbox_items, item)

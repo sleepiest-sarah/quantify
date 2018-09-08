@@ -41,7 +41,7 @@ local function init()
 end
 
 local function processFaction(id)
-  local faction = q.Faction:new(GetFactionInfo(id))
+  local faction = q.Faction:new(GetFactionInfoByID(id))
   if (faction.name and not faction.isHeader or faction.hasRep) then
     qr.factions[faction.name] = faction
     if (faction.standingId == q.Faction.HATED) then
@@ -68,13 +68,18 @@ local function processFactions()
   if (dirty_factions == nil) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
-      processFaction(i)
+      local name, _, _, _, _, _, _, _, _,
+    _, _, _, _, factionID = GetFactionInfo(i)
+      if (factionID) then
+        processFaction(factionID)
+      end
     end
     dirty_factions = {}
   elseif (table.maxn(dirty_factions) >= 1) then
-    for i,_ in ipairs(dirty_factions) do
-      processFaction(i)
+    for i,id in ipairs(dirty_factions) do
+      processFaction(id)
     end
+    dirty_factions = {}
   end
 end
 
