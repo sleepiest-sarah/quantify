@@ -172,10 +172,10 @@ function quantify_loot:calculateDerivedStats(segment)
   derived["pct_loot_quality_*epic"] = (segment.stats.loot.raw.epic_loot / sum) * 100
   
   sum = segment.stats.loot.raw.cloth_gear_loot + segment.stats.loot.raw.leather_gear_loot + segment.stats.loot.raw.mail_gear_loot + segment.stats.loot.raw.plate_gear_loot
-  derived["pct_armor_class_*cloth"] = (segment.stats.loot.raw.cloth_gear_loot / sum) * 100
-  derived["pct_armor_class_*leather"] = (segment.stats.loot.raw.leather_gear_loot / sum) * 100
-  derived["pct_armor_class_*mail"] = (segment.stats.loot.raw.mail_gear_loot / sum) * 100
-  derived["pct_armor_class_*plate"] = (segment.stats.loot.raw.plate_gear_loot / sum) * 100
+  derived["pct_armor_class_*Cloth"] = (segment.stats.loot.raw.cloth_gear_loot / sum) * 100
+  derived["pct_armor_class_*Leather"] = (segment.stats.loot.raw.leather_gear_loot / sum) * 100
+  derived["pct_armor_class_*Mail"] = (segment.stats.loot.raw.mail_gear_loot / sum) * 100
+  derived["pct_armor_class_*Plate"] = (segment.stats.loot.raw.plate_gear_loot / sum) * 100
   
   segment.stats.loot.derived_stats = derived
 end

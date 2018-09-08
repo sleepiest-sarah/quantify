@@ -68,8 +68,7 @@ local function processFactions()
   if (dirty_factions == nil) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
-      local name, _, _, _, _, _, _, _, _,
-    _, _, _, _, factionID = GetFactionInfo(i)
+      local name, _, _, _, _, _, _, _, _,_, _, _, _, factionID = GetFactionInfo(i)
       if (factionID) then
         processFaction(factionID)
       end

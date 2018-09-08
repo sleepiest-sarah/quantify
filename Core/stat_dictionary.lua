@@ -11,7 +11,7 @@ quantify.STATS = {
   ["raw:scenario_xp"] = {text = "Total XP from Scenarios", units="integer"},
   ["session_rates:kill_xp"] = {text = "Kill XP Per Hour", units = "integer/hour"},
   ["session_rates:rested_xp"] = {text = "Bonus Rested XP Per Hour", units = "integer/hour"},
-  ["derived_stats:time_to_level"] = {text = "Est. Time to Next Level", units = "time"},
+  ["derived_stats:time_to_level"] = {text = "Est. Time to Next Level", units = "time", exclude_total = true},
   ["session_rates:levels_gained"] = {text = "Total Levels Earned Per Hour", units = "integer/hour"},
   ["session_rates:xp"] = {text = "Total XP Per Hour", units = "integer/hour"},
   ["session_rates:other_xp"] = {text = "Misc. XP Per Hour", units = "integer/hour"},
@@ -118,15 +118,15 @@ quantify.STATS = {
   --["tally:honored"] = {text = "Honored Factions", units = "integer", order = 804},
   --["tally:revered"] = {text = "Revered Factions", units = "integer", order = 803},
   --["tally:exalted"] = {text = "Exalted Factions", units = "integer", order = 802},
-  ["derived_stats:faction_time_neutral_*"] = {text = "*: Time until Neutral", units = "time", order = 300},
-  ["derived_stats:faction_time_exalted_*"] = {text = "*: Time until Exalted", units = "time", order = 300},
-  ["derived_stats:faction_remaining_exalted_*"] = {text = "*: Remaining Rep until Exalted", units = "integer", order = 300},
+  ["derived_stats:faction_time_neutral_*"] = {text = "*: Time until Neutral", units = "time", order = 300, exclude_total = true},
+  ["derived_stats:faction_time_exalted_*"] = {text = "*: Time until Exalted", units = "time", order = 300, exclude_total = true},
+  ["derived_stats:faction_remaining_exalted_*"] = {text = "*: Remaining Rep until Exalted", units = "integer", order = 300, exclude_total = true},
   ["session_rates:faction_delta_*"] = {text = "*: Rep. Gained Per Day", units = "integer/day", order = 300},
   ["raw:time_mounted"] = {text = "Total Time Mounted", units = "time", order = 650},
   ["derived_stats:pct_time_mounted"] = {text = "% Play Time: Mounted", units = "percentage", order = 660},
   ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344},
   ["raw:azerite_xp"] = {text = "Azerite XP Gained", units = "integer", order = 343},
-  ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345},  
+  ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345, exclude_total = true},  
   ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
   --combat

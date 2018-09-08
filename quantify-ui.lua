@@ -74,7 +74,8 @@ function q:ViewAllStats_Update()
       star_string = string.sub(k,star_index + 1)
       k = string.sub(k,1,star_index) 
     end
-    if (q.STATS[k] ~= nil) then
+    
+    if (q.STATS[k] ~= nil and not (q:viewingTotalSegment() and q.STATS[k].exclude_total)) then
       local readable_key = q.STATS[k].text
       if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
         readable_key = string.gsub(readable_key,"*",star_string)

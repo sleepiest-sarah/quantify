@@ -78,6 +78,9 @@ function q:runMigrations()
       sanityCheckTimes()
     end
     
+    if (qDbOptions.version < "1.2") then
+    end
+    
   end
   
 end
