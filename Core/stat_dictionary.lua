@@ -158,8 +158,8 @@ quantify.STATS = {
   
   ["derived_stats:highest_dungeon_kdr_*"] = {text = "Highest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 865}, 
   ["derived_stats:lowest_dungeon_kdr_*"] = {text = "Lowest Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 866}, 
-  ["derived_stats:highest_dungeon_kdr_*"] = {text = "Highest Dungeon Deaths-to-Completion Ratio: *", units = "decimal", order = 867}, 
-  ["derived_stats:lowest_dungeon_kdr_*"] = {text = "Lowest Dungeon Deaths-to-Completion Ratio: *", units = "decimal", order = 868}, 
+  ["derived_stats:highest_dungeon_ddr_*"] = {text = "Highest Dungeon Deaths-to-Completion Ratio: *", units = "decimal", order = 867}, 
+  ["derived_stats:lowest_dungeon_ddr_*"] = {text = "Lowest Dungeon Deaths-to-Completion Ratio: *", units = "decimal", order = 868}, 
   ["derived_stats:most_dungeon_wipes_*"] = {text = "Most Dungeon Wipes: *", units = "integer", order = 869}, 
   ["derived_stats:dungeon_kdr_*"] = {text = "Dungeon Kill-to-Wipe Ratio: *", units = "decimal", order = 980}, 
   ["derived_stats:dungeon_ddr_*"] = {text = "Dungeon Average Deaths Per Run: *", units = "decimal", order = 981}, 
