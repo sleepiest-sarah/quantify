@@ -255,9 +255,8 @@ function quantify_instances:calculateDerivedStats(segment)
       
       dungeon_stats[dungeon_key].kdr = dungeon_stats[dungeon_key].wipes == 0 and dungeon_stats[dungeon_key].kills or (dungeon_stats[dungeon_key].kills / dungeon_stats[dungeon_key].wipes)
       
-      if (segment.stats.instances.raw.bfa_dungeon_time[dungeon_key] ~= nil) then
-        dungeon_stats[dungeon_key].ddr = dungeon_stats[dungeon_key].deaths / segment.stats.instances.raw.bfa_dungeon_time[dungeon_key].n
-      end
+      local n = segment.stats.instances.raw.bfa_dungeon_time[dungeon_key] and segment.stats.instances.raw.bfa_dungeon_time[dungeon_key].n or 1
+      dungeon_stats[dungeon_key].ddr = dungeon_stats[dungeon_key].deaths / n
     end
     
   end
