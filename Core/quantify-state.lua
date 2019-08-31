@@ -142,9 +142,11 @@ end
 local function checkClassSpec()
   s.player_class = UnitClass("player")
   
-  --local spec_i = GetSpecialization()
-  if (spec_i) then
-    _,s.player_spec = GetSpecializationInfo(spec_i)
+  if (q.isRetail) then
+    local spec_i = GetSpecialization()
+    if (spec_i) then
+      _,s.player_spec = GetSpecializationInfo(spec_i)
+    end
   end
   
   initArmorWeaponSkills()
@@ -167,7 +169,9 @@ end
 local function playerEnteringWorld()
   zoneChangedNewArea()
   
-  --checkAzeriteItem()
+  if (q.isRetail) then
+    checkAzeriteItem()
+  end
   
   initArmorWeaponSkills()
   
@@ -178,7 +182,7 @@ local function playerEnteringWorld()
   s.player_outdoors = IsOutdoors()
   
   
-  s.player_can_gain_xp = not (UnitXP("player") == 0 or IsXPUserDisabled())
+  s.player_can_gain_xp = not (UnitXP("player") == 0 or (q.isRetail and IsXPUserDisabled()))
 end
   
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)   --this event does not fire on /reload
@@ -191,10 +195,14 @@ quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControlGained)
 quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
---quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
---quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)
+
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChangedNewArea)
 quantify:registerEvent("ZONE_CHANGED", zoneChangedNewArea)
+
+if (q.isRetail) then
+  quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
+  quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)  
+end
 
 
 --getters

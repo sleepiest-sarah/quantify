@@ -437,3 +437,12 @@ function q:getBnAccountNameFromChatString(str)
   
   return bn_name
 end
+
+function q:doesStatApplyToVersion(key)
+  local stat = q.STATS[key]
+  
+  if (stat) then
+    return not stat.version or (q.isRetail and stat.version == "retail") or (q.isClassic and stat.version == "classic")
+  end
+  
+end

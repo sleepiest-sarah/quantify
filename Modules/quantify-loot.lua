@@ -196,7 +196,10 @@ table.insert(quantify.modules, quantify_loot)
   
 q:registerEvent("CHAT_MSG_LOOT", chatMsgLoot)
 q:registerEvent("GET_ITEM_INFO_RECEIVED", getItemInfoReceived)
---q:registerEvent("QUEST_LOOT_RECEIVED", questLootReceived)
+
+if (q.isRetail) then
+  q:registerEvent("QUEST_LOOT_RECEIVED", questLootReceived)
+end
 
 function ql:tests()
   local axe = q.Item:new("Yeti-Rager's Cloak")

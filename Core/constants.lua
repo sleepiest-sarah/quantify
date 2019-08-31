@@ -13,8 +13,15 @@ quantify.LOADED_TEXT =
 quantify loaded :)
   use /qty or /quantify to see options
   
-This addon is still very much a work-in-progress. I'll be updating frequently. For issues, bugs, suggestions, or anything else please feel free to contact me.
-  Discord: Aeroxis#2344 Twitch: therealaeroxis
+This is the first release for WoW Classic. Nothing new yet, but more stats and features are on the way. Thank you for your support!
+
+Tips
+  1) Double-click to add/remove stats to/from the watchlist
+  2) Right click the watchlist to save presets
+  3) Watchlist stats can be mixed and matched between the current, account, and character view.
+
+For issues, bugs, suggestions, or anything else please feel free to contact me.
+  Discord: Aeroxis#2344 Twitch: quitesleepysarah
 ]]
 
 quantify.HELP_TEXT =

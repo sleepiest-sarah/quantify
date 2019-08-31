@@ -73,17 +73,19 @@ function q:ViewAllStats_Update()
       k = string.sub(k,1,star_index) 
     end
     
-    if (q.STATS[k] ~= nil and not (q:viewingTotalSegment() and q.STATS[k].exclude_total)) then
+    if (q.STATS[k] ~= nil and q:doesStatApplyToVersion(k) and not (q:viewingTotalSegmentUi() and q.STATS[k].exclude_total)) then
       local readable_key = q.STATS[k].text
       if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
         readable_key = string.gsub(readable_key,"*",star_string)
       end
       local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
-      table.insert(ViewAllStats_List, {label =  readable_key, value = tostring(readable_value), order = (q.STATS[k].order or 500), dict_key = k, subkey = star_string, segment = viewing_segment_key})
-    else  --just use the raw key and value if the text hasn't been initialized yet
-      if (type(v) ~= "table") then
-        --table.insert(ViewAllStats_List, string.gsub(k,":","-")..":"..tostring(v))
-      end
+      table.insert(ViewAllStats_List, 
+                  {label =  readable_key
+                    , value = tostring(readable_value)
+                    , order = (q.STATS[k].order or 500)
+                    , dict_key = k
+                    , subkey = star_string
+                    , segment =  viewing_segment_key})
     end
   end
   
@@ -245,13 +247,20 @@ function q:toggleWatchlist(button,value)
   end
 end
 
+--mainly for filtering stat lists in UI
+function q:viewingTotalSegmentUi()
+  if (q.quantify_ui_shown) then
+    return string.find(viewing_segment_key, "Segment %d+") == nil
+  end
+end
+
+--mainly for checking whether to live update certain stats
 function q:viewingTotalSegment()
   local res = nil
   
-  if (q.quantify_ui_shown) then
-    res = string.find(viewing_segment_key, "Segment %d+") == nil
-  end
+  res = q:viewingTotalSegmentUi()
   
+
   if (not res and watchlist_enabled) then
     for k,item in pairs(watchlist) do
       res = string.find(item.segment, "Segment %d+") == nil

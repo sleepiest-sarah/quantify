@@ -151,6 +151,11 @@ local function init(event, ...)
     
     qDbOptions.version = GetAddOnMetadata("quantify", "Version")
     
+    local clientVersion,_,_,tocVersion = GetBuildInfo()
+    qDbOptions.clientVersion = clientVersion
+    q.isClassic = tocVersion < 80000
+    q.isRetail = not q.isClassic --just for more readable checks
+    
     local addon = LibStub("AceAddon-3.0"):NewAddon("quantify")
     local bunnyLDB = LibStub("LibDataBroker-1.1"):NewDataObject("quantify", {
       type = "data source",

@@ -1,7 +1,6 @@
 local log = quantify.log
 local session
 
-
 local player_kill = 0
 local player_quest = 0
 local pet_battle = 0
@@ -12,6 +11,8 @@ local previous_level = nil
 local previous_max_xp = nil
 
 local previous_max_azerite_xp
+
+local q = quantify
 
 quantify_exp = {}
 quantify_exp.Session = {}
@@ -169,7 +170,7 @@ function quantify_exp:calculateDerivedStats(segment)
 
   segment.stats.xp.derived_stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
   
-  if (quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
+  if (q.isRetail and quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
     local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
     if (success) then
       segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
@@ -202,10 +203,13 @@ table.insert(quantify.modules, quantify_exp)
 quantify:registerEvent("PLAYER_XP_UPDATE", playerExpUpdate)
 quantify:registerEvent("CHAT_MSG_COMBAT_XP_GAIN", playerMsgCombatXpGain)
 quantify:registerEvent("QUEST_TURNED_IN", playerQuestTurnedIn)
---quantify:registerEvent("SCENARIO_COMPLETED", playerScenarioCompleted)
 quantify:registerEvent("PLAYER_LEVEL_UP", playerLevelUp)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
---quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
---quantify:registerEvent("PET_BATTLE_CLOSE", petBattleClose)
 quantify:registerEvent("CHAT_MSG_OPENING", chatMsgOpening)
+
+if (q.isRetail) then
+  quantify:registerEvent("SCENARIO_COMPLETED", playerScenarioCompleted)
+  quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
+  quantify:registerEvent("PET_BATTLE_CLOSE", petBattleClose)  
+end
