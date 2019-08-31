@@ -142,7 +142,7 @@ end
 local function checkClassSpec()
   s.player_class = UnitClass("player")
   
-  local spec_i = GetSpecialization()
+  --local spec_i = GetSpecialization()
   if (spec_i) then
     _,s.player_spec = GetSpecializationInfo(spec_i)
   end
@@ -167,7 +167,7 @@ end
 local function playerEnteringWorld()
   zoneChangedNewArea()
   
-  checkAzeriteItem()
+  --checkAzeriteItem()
   
   initArmorWeaponSkills()
   
@@ -191,8 +191,8 @@ quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControlGained)
 quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
-quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
-quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)
+--quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
+--quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChangedNewArea)
 quantify:registerEvent("ZONE_CHANGED", zoneChangedNewArea)
 
