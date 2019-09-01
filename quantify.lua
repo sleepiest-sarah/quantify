@@ -58,7 +58,7 @@ function quantify:triggerQEvent(event, ...)
 end
 
 function q:updateTotals(in_segment)
-    
+
   local segment = in_segment
   if (segment_snapshot) then
     for k, statgroup in pairs(segment.stats) do
@@ -195,6 +195,7 @@ function q:createNewSegment()
   end
   
   q:updateTotals(q.current_segment)
+  segment_snapshot = nil
   
   q.current_segment = new_segment
   

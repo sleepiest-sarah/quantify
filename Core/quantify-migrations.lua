@@ -29,7 +29,7 @@ local function setTimeSubMax(event)
   end
   
   if (qDb[q.TotalSegment:characterKey()] ~= nil and qDb[q.TotalSegment:characterKey()].stats.time ~= nil) then
-    if (not (UnitXP("player") == 0 or IsXPUserDisabled())) then
+    if (not (UnitXP("player") == 0 or pcall(IsXPUserDisabled))) then
       qDb[quantify.TotalSegment:characterKey()].stats.time.time_sub_max_level = qDb[q.TotalSegment:characterKey()].stats.time.play_time
     end
   end

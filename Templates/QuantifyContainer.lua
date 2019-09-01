@@ -40,8 +40,8 @@ local function segmentListComparator(a,b)
     return a == "account"
   elseif (a_id ~= nil and b_id ~= nil) then   --sort segments according to id
     return a_id < b_id
-  elseif (a_id ~= nil and b_id == nil) then   --segments should be last
-    return false
+  elseif ((a_id ~= nil and b_id == nil) or (a_id == nil and b_id ~= nil)) then   --segments should be last
+    return a_id == nil
   else                                        --sort character names alphabetically
     return a < b
   end

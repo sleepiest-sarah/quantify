@@ -8,7 +8,7 @@ quantify.STATS = {
   ["raw:xp"] = { text = "Total XP", units = "integer"},
   ["session_rates:quest_xp"] = { text = "Quest XP Per Hour", units = "integer/hour"},
   ["raw:pct_levels_gained"] = {text = "Total Fractional Levels Earned", units="decimal"},
-  ["raw:scenario_xp"] = {text = "Total XP from Scenarios", units="integer"},
+  ["raw:scenario_xp"] = {text = "Total XP from Scenarios", units="integer", version="retail"},
   ["session_rates:kill_xp"] = {text = "Kill XP Per Hour", units = "integer/hour"},
   ["session_rates:rested_xp"] = {text = "Bonus Rested XP Per Hour", units = "integer/hour"},
   ["derived_stats:time_to_level"] = {text = "Est. Time to Next Level", units = "time", exclude_total = true},
@@ -189,6 +189,7 @@ quantify.STATS = {
   
   --tradeskill
   ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
+  ["raw:classic_trade_good_*"] = {text = "* Gathered", units = "integer", order = 650, version="classic"},
   
   --xp
   ["raw:pet_battle_xp"] = {text = "Total XP from Pet Battles", abbr="Pet Battle XP", units = "integer", version="retail"},

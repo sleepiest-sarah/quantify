@@ -1,13 +1,16 @@
 quantify_tradeskill = {}
 
+local qt = quantify_tradeskill
+
 local q = quantify
 
-quantify_tradeskill.Session = {}
+qt.Session = {}
 
-quantify_tradeskill.MODULE_KEY = "tradeskill"
-quantify_tradeskill.BFA_TRADE_GOOD_PREFIX = "bfa_trade_good_*"
+qt.MODULE_KEY = "tradeskill"
+qt.BFA_TRADE_GOOD_PREFIX = "bfa_trade_good_*"
+qt.CLASSIC_TRADE_GOOD_PREFIX = "classic_trade_good_*"
 
-local qt = quantify_tradeskill
+
 
 function quantify_tradeskill.Session:new(o)
   o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, cooking_looted = 0}
@@ -39,7 +42,7 @@ function qt:processItem(item,amount)
     elseif (item.itemSubType == "Jewelcrafting") then
       session.jewelcrafting_looted = session.jewelcrafting_looted + amount
     elseif (item.itemSubType == "Leather") then
-      session.leather_looted = session.leather_looted + amount
+      session.leather_looted = session.leather_looted + amountw
     elseif (item.itemSubType == "Meat") then
       session.meat_looted = session.meat_looted + amount
     elseif (item.itemSubType == "Metal & Stone") then
@@ -49,12 +52,20 @@ function qt:processItem(item,amount)
     end
   end
   
-  if (item.isCraftingReagent and item.expacID == quantify_loot.BFA) then
-    local key = qt.BFA_TRADE_GOOD_PREFIX..item.itemName
-    if (session[key] == nil) then
-      session[key] = 0
+  if (item.isCraftingReagent) then
+    local key = nil
+    if (item.expacId == quantify_loot.BFA) then
+      key = qt.BFA_TRADE_GOOD_PREFIX..item.itemName
+    elseif (item.expacId == quantify_loot.CLASSIC and q.isClassic) then
+      key = qt.CLASSIC_TRADE_GOOD_PREFIX..item.itemName
     end
-    session[key] = session[key] + amount
+    
+    if (key) then
+      if (session[key] == nil) then
+        session[key] = 0
+      end
+      session[key] = session[key] + amount
+    end
   end
     
 end

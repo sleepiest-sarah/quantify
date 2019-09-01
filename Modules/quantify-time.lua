@@ -101,6 +101,7 @@ local function zoneChanged()
   if (is_outdoors) then
     local duration = GetTime() - outdoors_start
     session.time_outdoors = session.time_outdoors + duration
+    outdoors_start = GetTime()
   elseif (IsOutdoors() and not is_outdoors) then
     outdoors_start = GetTime()
   end
@@ -109,6 +110,7 @@ local function zoneChanged()
   if (is_indoors) then
     local duration = GetTime() - indoors_start
     session.time_indoors = session.time_indoors + duration
+    indoors_start = GetTime()
   elseif (IsIndoors() and not is_indoors) then
     indoors_start = GetTime()
   end

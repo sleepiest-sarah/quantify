@@ -300,7 +300,7 @@ function q:getFormattedUnit(n,units,abbr)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
   elseif (units == "money") then 
-    if (abbr) then
+    if (abbr and q.isRetail) then
       local copper = math.floor(n) % 100
       n = n - copper
     end
@@ -310,7 +310,7 @@ function q:getFormattedUnit(n,units,abbr)
       res = "-"..res
     end
   elseif (units == "money/hour") then
-    if (abbr) then
+    if (abbr and q.isRetail) then
       local copper = math.floor(n) % 100
       n = n - copper
     end

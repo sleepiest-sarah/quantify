@@ -23,6 +23,7 @@ ql.CATA = 4
 ql.WOD = 5
 ql.LEGION = 6
 ql.BFA = 7
+ql.CLASSIC = 254
 
 function quantify_loot.Session:new(o)
   o = o or {total_items_looted = 0, gear_loot = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0, overall_ilevel_upgrades = 0}
