@@ -1,6 +1,10 @@
 local q = quantify
 
 function q:printTable(t)
+  if (not t) then
+    return
+  end
+  
   for k,v in pairs(t) do
     if (type(v) == "table") then
       print(string.format("%s:", k))
@@ -123,7 +127,7 @@ function q:deepcopy(orig)
         for orig_key, orig_value in next, orig, nil do
             copy[q:deepcopy(orig_key)] = q:deepcopy(orig_value)
         end
-        --setmetatable(copy, q:deepcopy(getmetatable(orig)))
+        setmetatable(copy, q:shallowCopy(getmetatable(orig)))
     else -- number, string, boolean, etc
         copy = orig
     end
@@ -444,5 +448,19 @@ function q:doesStatApplyToVersion(key)
   if (stat) then
     return not stat.version or (q.isRetail and stat.version == "retail") or (q.isClassic and stat.version == "classic")
   end
+end
+
+function q:getSegmentId(segmentLabel)
+  local id = string.match(segmentLabel, "Segment (%d+)")
+  return tonumber(id)
+end
+
+function q:getGroupConcatKey(key,subkey)
+  local group = string.sub(key, 1, string.find(key, ":") - 1)
+      
+  local keynogroup = string.sub(key,string.len(group) + 2)
+      
+  local concat_key_no_group = subkey and keynogroup..subkey or keynogroup
   
+  return group,concat_key_no_group
 end

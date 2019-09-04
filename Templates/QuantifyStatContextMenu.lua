@@ -39,17 +39,18 @@ function QuantifyStatContextMenu_Load(self)
     }
     
   local reset = {
-      text = "Reset",
+      text = "Reset Stat",
       value = "reset",
       notCheckable = true,
-      func = quantify.resetStat
+      arg1 = self,
+      func = quantify.resetStatMenu
     }
 
   
   UIDropDownMenu_AddButton(add)
   UIDropDownMenu_AddButton(copy)
   --UIDropDownMenu_AddButton(share)
-  --UIDropDownMenu_AddButton(reset)
+  UIDropDownMenu_AddButton(reset)
 end
 
 local function createSaveWatchListMenu(self)
@@ -141,10 +142,11 @@ function QuantifyWatchlistContextMenu_Load(self,level)
       }
       
     local reset = {
-        text = "Reset",
+        text = "Reset Stat",
         value = "reset",
         notCheckable = true,
-        func = quantify.resetStat
+        arg1 = self,
+        func = quantify.resetStatMenu
       }
     
     UIDropDownMenu_AddButton(remove)
@@ -152,7 +154,7 @@ function QuantifyWatchlistContextMenu_Load(self,level)
     UIDropDownMenu_AddButton(load)
     UIDropDownMenu_AddButton(save)
     --UIDropDownMenu_AddButton(share)
-    --UIDropDownMenu_AddButton(reset)
+    UIDropDownMenu_AddButton(reset)
   elseif (level == 2 and UIDROPDOWNMENU_MENU_VALUE == "save") then
     createSaveWatchListMenu(self)
   elseif (level == 2 and UIDROPDOWNMENU_MENU_VALUE == "load") then

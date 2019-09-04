@@ -313,8 +313,23 @@ function q:shareStat()
   print("share")
 end
 
-function q:resetStat()
-  print("reset")
+function q:resetStat(userdata)
+  local id = q:getSegmentId(userdata.segment)
+  local seg = id and q.segments[id]
+  if (seg) then
+    seg:resetStat(userdata.dict_key,userdata.subkey)
+  else
+    q.TotalSegment:resetStat(qDb[userdata.segment],userdata.dict_key, userdata.subkey)
+  end
+end
+
+function q:resetStatMenu(menu)
+  local window = QuantifyConfirmWindow_Create(q.resetStat, q.RESET_STAT_WARNING, menu.userdata)
+  QuantifyConfirmWindow_Show(window)
+end
+
+function q:freezeStat(menu)
+  
 end
 
 function quantify:getSavedWatchlists()

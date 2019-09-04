@@ -70,23 +70,31 @@ local function resurrectRequest()
   rez_request = true
 end
 
-local function playerControl(event)
-
+local function playerAura(event, unit)
   
-  if (quantify_state:isPlayerInCombat()) then
-    if (event == "PLAYER_CONTROL_LOST") then
-      combat_cc = true
-      cc_start_time = GetTime()
-    elseif (event == "PLAYER_CONTROL_GAINED") then
-      local duration = GetTime() - cc_start_time
-      if (combat_cc and duration < CC_WINDOW) then
-        session.time_crowd_controlled = session.time_crowd_controlled + duration
-      end
+  if (unit == "player") then
+    
+    local buff = {UnitBuff("player", 1)}
+    local debuff = {UnitDebuff("player", 1)}
+    --q:printTable(buff)
+    --q:printTable(debuff)
+  
+    if (quantify_state:isPlayerInCombat()) then
       
+      if (event == "PLAYER_CONTROL_LOST") then
+        combat_cc = true
+        cc_start_time = GetTime()
+      elseif (event == "PLAYER_CONTROL_GAINED") then
+        local duration = GetTime() - cc_start_time
+        if (combat_cc and duration < CC_WINDOW) then
+          session.time_crowd_controlled = session.time_crowd_controlled + duration
+        end
+        
+        combat_cc = false
+      end
+    else
       combat_cc = false
     end
-  else
-    combat_cc = false
   end
   
 end
@@ -127,7 +135,7 @@ function quantify_combat:newSegment(previous_seg,new_seg)
   
 end
 
-init()
+init() 
 
 table.insert(quantify.modules, quantify_combat)
   
@@ -136,6 +144,6 @@ quantify:registerEvent("PLAYER_ALIVE", playerAlive)
 quantify:registerEvent("PLAYER_UNGHOST", playerUnghost)
 quantify:registerEvent("CONFIRM_XP_LOSS", playerSpiritHealer)
 quantify:registerEvent("RESURRECT_REQUEST", resurrectRequest)
-quantify:registerEvent("PLAYER_CONTROL_GAINED", playerControl)
-quantify:registerEvent("PLAYER_CONTROL_LOST", playerControl)
+quantify:registerEvent("UNIT_AURA", playerAura)
+quantify:registerEvent("LOSS_OF_CONTROL_ADDED", playerAura)
 quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)

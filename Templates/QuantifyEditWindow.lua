@@ -82,5 +82,5 @@ function QuantifyEditWindowCancel_OnClick(self)
 end
 
 function QuantifyEditWindow_OnClose(self)
-  self:Release()
+  --self:Release()
 end

@@ -57,6 +57,10 @@ function quantify:triggerQEvent(event, ...)
   end  
 end
 
+function q:getSnapshotSegment()
+  return segment_snapshot
+end
+
 function q:updateTotals(in_segment)
 
   local segment = in_segment
@@ -216,7 +220,7 @@ local function qtySlashCmd(msg, editbox)
     end
     q:printModule(args, q.current_segment)
   elseif (cmd == "segment" and args =="new") then
-    createNewSegment()
+    q:createNewSegment()
     print("Created new segment", table.maxn(q.segments))
   elseif (cmd == "segment" and tonumber(args) ~= nil) then
     q:printSegment(q.segments[tonumber(args)])

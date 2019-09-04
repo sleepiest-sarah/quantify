@@ -6,6 +6,7 @@
 <Script file="QuantifyInlineGroup.lua"/>
 <Script file="QuantifyStatContextMenu.lua"/>
 <Script file="QuantifyEditWindow.lua" />
+<Script file="QuantifyConfirmWindow.lua" />
 
 </Ui>
 

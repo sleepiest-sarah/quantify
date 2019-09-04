@@ -43,6 +43,13 @@ debug options
   /qty clear <segment>  -- clear all saved data for <segment>
 ]]
 
+quantify.RESET_STAT_WARNING = 
+[[
+This is an advanced feature intended to allow repairing single stats without clearing an entire segment. Some statistic types such as overall play time, percentages, and superlatives can not be reset in this manner. Using this tool could cause percentages and other related statistics to appear incorrect. To reset all statistics, delete your quantify SavedVariable files or type "/qty debug" in the chat window to see options for resetting segments. 
+
+As always please feel free to contact me or submit an issue if you are resetting stats due to a bug or other issue.
+]]
+
 
 quantify.LEGION_DUNGEON_IDS = {1501, 1677, 1571, 1466, 1456, 1477, 1492, 1458, 1651, 1753, 1516, 1493, 1544}
 quantify.LEGION_RAID_IDS = {1520,1648,1530,1676,1712}
