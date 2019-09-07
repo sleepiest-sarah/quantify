@@ -82,14 +82,7 @@ quantify.STATS = {
   ["raw:bfa_raid_boss_wipes"] = {text = "BFA Raid Boss Wipes", units = "integer", order = 200, version="retail"},
   ["raw:total_items_looted"] = {text = "Total Items Looted", units = "integer", order = 150},
   ["raw:gear_loot"] = {text = "Gear Looted", units = "integer", order = 580},
-  ["raw:cloth_looted"] = {text = "Cloth Gathered", units = "integer", order = 801},
-  ["raw:tradeskill_looted"] = {text = "Tradeskill Items Looted", units = "integer", order = 800},
-  ["raw:enchanting_looted"] = {text = "Enchanting Items Gathered", units = "integer", order = 801},
-  ["raw:herb_looted"] = {text = "Herbs Gathered", units = "integer", order = 801},
-  ["raw:jewelcrafting_looted"] = {text = "Jewelcrafting Items Gathered", units = "integer", order = 801},
-  ["raw:meat_looted"] = {text = "Meat Gathered", units = "integer", order = 801},
-  ["raw:leather_looted"] = {text = "Leather Gathered", units = "integer", order = 801},
-  ["raw:metal_looted"] = {text = "Ore Gathered", units = "integer", order = 801},
+
   ["raw:junk_looted"] = {text = "Junk Items Looted", units = "integer", order = 450},
   ["raw:poor_loot"] = {text = "Greys Looted", units = "integer", order = 600},
   ["raw:common_loot"] = {text = "Common Items Looted", units = "integer", order = 601},
@@ -106,8 +99,8 @@ quantify.STATS = {
   ["raw:mail_gear_loot"] = {text = "Mail Pieces Looted", units = "integer", order = 752},
   ["raw:plate_gear_loot"] = {text = "Plate Gear Looted", units = "integer", order = 753},
   ["raw:bfa_trade_good_*"] = {text = "* Gathered", units = "integer", order = 650, version="retail"},
-  ["derived_stats:bfa_dungeon_time_*"] = {text = "Avg Completion Time: *", units = "time", order = 250, version="retail"},
-  ["derived_stats:bfa_dungeon_completed_*"] = {text = "Total Completions: *", units = "integer", order = 250, version="retail"},
+  ["derived_stats:bfa_dungeon_time_*"] = {text = "Avg Completion Time: *", units = "time", order = 250},
+  ["derived_stats:bfa_dungeon_completed_*"] = {text = "Total Completions: *", units = "integer", order = 250},
   ["raw:group_xp"] = {text = "Bonus Group XP", units = "integer"},
   ["session_rates:group_xp"] = {text = "Bonus Group XP Per Hour", units = "integer/hour"},
   --["tally:hated"] = {text = "Hated Factions", units = "integer", order = 810},
@@ -124,14 +117,13 @@ quantify.STATS = {
   ["session_rates:faction_delta_*"] = {text = "*: Rep. Gained Per Day", units = "integer/day", order = 300},
   ["raw:time_mounted"] = {text = "Total Time Mounted", units = "time", order = 650},
   ["derived_stats:pct_time_mounted"] = {text = "% Play Time: Mounted", units = "percentage", order = 660},
-  ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344, version="retail", version="retail"},
+  ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344, version="retail"},
   ["raw:azerite_xp"] = {text = "Azerite XP Gained", units = "integer", order = 343, version="retail"},
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345, exclude_total = true, version="retail"},  
   ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
   --combat
   ["derived_stats:kd_ratio"] = {text = "Kill-to-Death Ratio", units = "decimal"},
-  
   
   --currency
   ["raw:quest_money"] = {text = "Money from Quests", abbr = "Quest Money", units = "money"},
@@ -146,7 +138,7 @@ quantify.STATS = {
   ["derived_stats:pct_money_vendor"] = {text = "% Money Earned: Vendor", units = "percentage", order = 845},
   
   --instances
-  ["raw:bfa_total_dungeon_completed"] = {text = "Total BFA Dungeons Completed", units = "integer"},
+  ["raw:bfa_total_dungeon_completed"] = {text = "Total BFA Dungeons Completed", units = "integer", version="retail"},
   ["derived_stats:most_kills_*"] = {text = "Most Boss Kills: *", units = "integer", order = 872}, 
   ["derived_stats:most_player_deaths_*"] = {text = "Most Party Deaths: *", units = "integer", order = 874}, 
   ["derived_stats:most_wipes_*"] = {text = "Most Boss Wipes: *", units = "integer", order = 873}, 
@@ -180,16 +172,25 @@ quantify.STATS = {
   
   
   --time
-  ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850},
-  ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852},
+  ["raw:time_fishing"] = {text = "Total Time Fishing", units = "time", order = 850, version="retail"},
+  ["derived_stats:pct_time_fishing"] = {text = "% Play Time: Fishing", units = "percentage", order = 852, version="retail"},
   ["raw:time_indoors"] = {text = "Total Time Indoors", units = "time", abbr="Indoors", order = 855},
   ["derived_stats:pct_time_indoors"] = {text = "% Play Time: Indoors", abbr = "Indoors", units = "percentage", order = 857},
   ["raw:time_outdoors"] = {text = "Total Time Outdoors", units = "time", abbr="Outdoors", order = 858},
   ["derived_stats:pct_time_outdoors"] = {text = "% Play Time: Outdoors", abbr = "Outdoors", units = "percentage", order = 859},
   
   --tradeskill
-  ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801},
-  ["raw:classic_trade_good_*"] = {text = "* Gathered", units = "integer", order = 650, version="classic"},
+  ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:classic_trade_good_*"] = {text = "* Gathered", units = "integer", order = 999, version="classic"},
+  ["raw:cloth_looted"] = {text = "Cloth Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:tradeskill_looted"] = {text = "Tradeskill Items Looted", units = "integer", order = 800},
+  ["raw:enchanting_looted"] = {text = "Enchanting Items Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:herb_looted"] = {text = "Herbs Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:jewelcrafting_looted"] = {text = "Jewelcrafting Items Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:meat_looted"] = {text = "Meat Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:leather_looted"] = {text = "Leather Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:metal_looted"] = {text = "Ore Gathered", units = "integer", order = 801, version = "retail"},
+  ["raw:classic_fish_looted"] = {text = "Fish Caught", units = "integer", order = 801, version = "classic"},
   
   --xp
   ["raw:pet_battle_xp"] = {text = "Total XP from Pet Battles", abbr="Pet Battle XP", units = "integer", version="retail"},

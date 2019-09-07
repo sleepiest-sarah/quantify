@@ -60,3 +60,6 @@ quantify.BFA_RAID_IDS = {1861}
 --quantify.BFA_RAID_IDS = {1031}
 quantify.BFA_END_BOSSES = {"Yazma", "Lord Harlan Sweete", "Dazar, The First King", "Vol'zith the Whisperer", "Viq'Goth", "Avatar of Sethraliss", "Mogul Razdunk", "Unbound Abomination", "Overseer Korgus", "Gorak Tul"}
 quantify.BFA_END_BOSS_IDS = {2108,2117,2087,2127,2123,2096}
+quantify.CLASSIC_DUNGEON_IDS = {48, 230, 229, 429, 90, 349, 389, 129, 47, 1001, 1004, 1007, 33, 329, 36, 34, 109, 70, 43, 209}
+quantify.CLASSIC_RAID_IDS = {469, 409, 509, 531}
+quantify.CLASSIC_END_BOSSES = {"Aku'mai", "Emperor Dagran Thaurissan", "Overlord Wyrmthalak", "Bazzalan", "Edwin VanCleef", "Mutanus the Devourer", "Archmage Arugal", "Bazil Thredd", "Mekgineer Thermaplugg", "Charlga Razorflank", "High Inquisitor Whitemane", "Amnennar the Coldbringer", "Archaedas", "Gahz'rilla", "Princess Theradras", "Shade of Eranikus", "King Gordok", "Darkmaster Gandling", "Baron Rivendare"}

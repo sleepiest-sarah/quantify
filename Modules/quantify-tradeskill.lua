@@ -13,7 +13,7 @@ qt.CLASSIC_TRADE_GOOD_PREFIX = "classic_trade_good_*"
 
 
 function quantify_tradeskill.Session:new(o)
-  o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, cooking_looted = 0}
+  o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, cooking_looted = 0, classic_fish_looted = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -31,7 +31,8 @@ end
 function qt:processItem(item,amount) 
   --q:printTable(item)
   
-  if (item.itemType == "Tradeskill") then
+  --Tradeskill item type and subtypes are not in Classic
+  if (item.itemType == "Tradeskill" or item.itemType == "Trade Goods") then
     session.tradeskill_looted = session.tradeskill_looted + amount  
     if (item.itemSubType == "Cloth") then
       session.cloth_looted = session.cloth_looted + amount
@@ -52,11 +53,16 @@ function qt:processItem(item,amount)
     end
   end
   
-  if (item.isCraftingReagent) then
+  if (item.itemType == "Consumable" and q.isClassic and string.find(item.itemName, "Raw")) then
+    session.classic_fish_looted = session.classic_fish_looted + amount
+    session.tradeskill_looted = session.tradeskill_looted + amount  
+  end
+  
+  if (item.isCraftingReagent or (q.isClassic and item.itemType == "Trade Goods")) then
     local key = nil
-    if (item.expacId == quantify_loot.BFA) then
+    if (item.expacID == quantify_loot.BFA) then
       key = qt.BFA_TRADE_GOOD_PREFIX..item.itemName
-    elseif (item.expacId == quantify_loot.CLASSIC and q.isClassic) then
+    elseif (item.expacID == quantify_loot.CLASSIC) then
       key = qt.CLASSIC_TRADE_GOOD_PREFIX..item.itemName
     end
     

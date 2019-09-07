@@ -84,8 +84,9 @@ end
 
 local function combatLog()
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
+
   
-  if (event == "SPELL_CAST_SUCCESS" and sourceGUID == UnitGUID("player") and spellName == "Fishing") then
+  if ((event == "SPELL_CAST_SUCCESS" or event == "SPELL_CREATE") and sourceGUID == UnitGUID("player") and spellName == "Fishing") then
     fishing_start = GetTime()
   elseif (event == "SPELL_AURA_REMOVED" and sourceGUID == UnitGUID("player") and spellName == "Fishing") then
     if (fishing_start ~= nil) then
@@ -219,10 +220,13 @@ quantify:registerEvent("PLAYER_REGEN_ENABLED", playerRegenEnabled)
 quantify:registerEvent("CHAT_MSG_SYSTEM", playerAfk)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
-quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED", zoneChanged)
 quantify:registerEvent("UPDATE_EXHAUSTION", updateExhaustion)
+
+if (q.isRetail) then
+  quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+end
   
   

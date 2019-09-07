@@ -246,6 +246,15 @@ function quantify_state:isPlayerInBfaDungeon()
   return q:contains(quantify.BFA_DUNGEON_IDS,s.instance_map_id)  
 end
 
+
+function quantify_state:isPlayerInClassicRaid()
+  return q:contains(quantify.CLASSIC_RAID_IDS,s.instance_map_id)
+end
+
+function quantify_state:isPlayerInClassicDungeon()
+  return q:contains(quantify.CLASSIC_DUNGEON_IDS,s.instance_map_id)  
+end
+
 function quantify_state:getInstanceName()
   return s.instance_name
 end

@@ -123,7 +123,7 @@ local function getItemInfoReceived(event, itemId)
   if (item_queue[itemId] ~= nil) then
     local item = q.Item:new(itemId)
     processItem(item,item_queue[itemId].amount)
-    quantify_tradeskill:processItem(item,amount)
+    quantify_tradeskill:processItem(item,item_queue[itemId].amount)
     item_queue[itemId] = nil
   end
 end

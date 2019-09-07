@@ -98,6 +98,14 @@ local function encounterEnd(event, ...)
     end    
   end
   
+  if q.isClassic and quantify_state:isPlayerInClassicDungeon() then
+    if (success == 1) then
+      updatePartyStats(1,0,0,0)
+    else
+      updatePartyStats(0,1,0,0)
+    end    
+  end 
+  
   local instance_name = quantify_state:getInstanceName()
   if (success == 1 and quantify_state:getInstanceType() == "party") then
     incrementPrefix(quantify_instances.RAW_DUNGEON_BOSS_KILL_PREFIX,instance_name,quantify_state:getInstanceDifficulty())
@@ -131,7 +139,7 @@ end
 local function combatLog()
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
   
-  if (event == "UNIT_DIED" and quantify_state:isPlayerInBfaDungeon()) then
+  if (event == "UNIT_DIED" and (quantify_state:isPlayerInBfaDungeon() or (q.isClassic and q.isPlayerInClassicDungeon()))) then
     local affiliation = bit.band(destFlags, 0xf)
     local type_controller = bit.band(destFlags, 0xff00)
     if (type_controller == 0x0500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
@@ -150,6 +158,18 @@ local function bossKill(event, encounterId, encounterName)
   if ((q:contains(q.BFA_END_BOSS_IDS, encounterId) or q:contains(q.BFA_END_BOSSES, encounterName)) and quantify_state:getInstanceStartTime() ~= nil) then
     session.bfa_total_dungeon_completed = session.bfa_total_dungeon_completed + 1
     
+    local key = quantify_state:getInstanceName().."-"..quantify_state:getInstanceDifficulty()
+    if (session.bfa_dungeon_time[key] == nil) then
+      session.bfa_dungeon_time[key] = {n = 0, time = 0}
+    end
+    session.bfa_dungeon_time[key].n = session.bfa_dungeon_time[key].n + 1
+    session.bfa_dungeon_time[key].time = session.bfa_dungeon_time[key].time + (GetTime() - quantify_state:getInstanceStartTime())
+    
+    updatePartyStats(0,0,0,1)
+  end
+  
+  --not sure if this will work for classic so just moving it down here and we'll see
+  if (q.isClassic and q:contains(q.CLASSIC_END_BOSSES, encounterName) and quantify_state:getInstanceStartTime() ~= nil) then
     local key = quantify_state:getInstanceName().."-"..quantify_state:getInstanceDifficulty()
     if (session.bfa_dungeon_time[key] == nil) then
       session.bfa_dungeon_time[key] = {n = 0, time = 0}
