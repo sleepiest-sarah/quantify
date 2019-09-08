@@ -139,7 +139,7 @@ end
 local function combatLog()
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
   
-  if (event == "UNIT_DIED" and (quantify_state:isPlayerInBfaDungeon() or (q.isClassic and q.isPlayerInClassicDungeon()))) then
+  if (event == "UNIT_DIED" and (quantify_state:isPlayerInBfaDungeon() or (q.isClassic and quantify_state.isPlayerInClassicDungeon()))) then
     local affiliation = bit.band(destFlags, 0xf)
     local type_controller = bit.band(destFlags, 0xff00)
     if (type_controller == 0x0500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
