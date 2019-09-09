@@ -1,7 +1,7 @@
 ## Interface: 11302
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: 1.1a-classic
+## Version: 1.1b-classic
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml

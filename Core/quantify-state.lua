@@ -142,7 +142,7 @@ end
 local function checkClassSpec()
   s.player_class = UnitClass("player")
   
-  if (q.isRetail) then
+  if (q.isRetail) then  --is there some way to get this info in classic?
     local spec_i = GetSpecialization()
     if (spec_i) then
       _,s.player_spec = GetSpecializationInfo(spec_i)
@@ -300,7 +300,11 @@ function quantify_state:canPlayerEquipType(equip_type)
 end
 
 function quantify_state:getPlayerSpecClass()
-  return s.player_spec.." "..s.player_class
+  if (s.player_spec) then --this will always be null in Classic
+    return s.player_spec.." "..s.player_class
+  else
+    return s.player_class
+  end
 end
 
 function quantify_state:IsIndoors()
