@@ -304,7 +304,7 @@ function q:getFormattedUnit(n,units,abbr)
   elseif (units == "percentage") then
     res = tostring(math.floor(n)).."%"
   elseif (units == "money") then 
-    if (abbr and q.isRetail) then
+    if (abbr and (n > 10000 or q.isRetail)) then  --remove copper in Retail or if it's more than 1g
       local copper = math.floor(n) % 100
       n = n - copper
     end
@@ -314,7 +314,7 @@ function q:getFormattedUnit(n,units,abbr)
       res = "-"..res
     end
   elseif (units == "money/hour") then
-    if (abbr and q.isRetail) then
+    if (abbr and (n > 10000 or q.isRetail)) then  --remove copper in Retail or if it's more than 1g
       local copper = math.floor(n) % 100
       n = n - copper
     end
