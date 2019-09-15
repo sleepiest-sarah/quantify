@@ -2,6 +2,7 @@ local sframe = CreateFrame("FRAME")
 
 local event_map = {}
 local next_frame_callbacks = {}
+local timer_callbacks = {}
 
 local qevent_map = {}
 
@@ -20,11 +21,29 @@ local last_totals_update = 0
 local TOTALS_UPDATE_WINDOW = 300
 
 function sframe:OnEvent(event, ...)
-  for _,c in pairs(next_frame_callbacks) do
+
+  local fired = {}                            --I think there is a better way to do this but this should stop the next_frame_callbacks table from getting cleared before the callback fires
+  for id,c in pairs(next_frame_callbacks) do
+    table.insert(fired,id)
     c.callback(unpack(c.args))
   end
   
-  next_frame_callbacks = {}
+  for _,id in pairs(fired) do
+    next_frame_callbacks[id] = nil
+  end
+  
+  local exhausted = {}
+  for id,c in pairs(timer_callbacks) do
+    if (GetTime() - c.start > c.seconds) then
+      table.insert(exhausted,id)            --remove after loop so iterator isn't affected
+      c.callback(unpack(c.args))
+    end
+  end
+  
+  --remove expired timeres
+  for _,id in pairs(exhausted) do
+    timer_callbacks[id] = nil
+  end
   
   if (event_map[event] ~= nil) then
     for _, f in pairs(event_map[event]) do
@@ -38,7 +57,13 @@ function sframe:OnEvent(event, ...)
 end
 
 function quantify:registerNextFrame(callback, ...)
-  table.insert(next_frame_callbacks, {callback = callback, args = {...}})
+  local uuid = q:generateUUID()
+  next_frame_callbacks[uuid] = {callback = callback, args = {...}}
+end
+
+function quantify:registerTimer(callback, seconds, ...)
+  local uuid = q:generateUUID()  --for random access deletes
+  timer_callbacks[uuid] = {callback = callback, seconds = seconds, args = {...}, start = GetTime()}
 end
 
 function quantify:registerQEvent(event,func)
@@ -155,9 +180,11 @@ local function init(event, ...)
     
     qDbOptions.version = GetAddOnMetadata("quantify", "Version")
     
+    local classicDebugMode = GetAddOnMetadata("quantify", "X-Classic")
+    
     local clientVersion,_,_,tocVersion = GetBuildInfo()
     qDbOptions.clientVersion = clientVersion
-    q.isClassic = tocVersion < 80000
+    q.isClassic = tocVersion < 80000 or classicDebugMode
     q.isRetail = not q.isClassic --just for more readable checks
     
     local addon = LibStub("AceAddon-3.0"):NewAddon("quantify")
@@ -232,6 +259,9 @@ local function qtySlashCmd(msg, editbox)
     quantify.logging_enabled = args == "1"
   elseif (cmd == "debug") then
     print(quantify.DEBUG_OPTIONS)
+  elseif (cmd == "classic") then
+    quantify.isClassic = 1
+    quantify.isRetail = 0
   elseif (cmd == "clear" and args ~= nil) then
     if (args == "all") then
       qDb = nil

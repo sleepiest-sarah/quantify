@@ -133,6 +133,14 @@ function Item:getItemsInEquivalentSlot()
   return unpack(equipped_items)
 end
 
+function Item:getLocalizedInvTypeString()
+  local loc = _G[self.itemEquipLoc]
+  if (not loc and self.itemEquipLoc == "INVTYPE_RANGEDRIGHT") then
+    loc = _G["INVTYPE_RANGED"]
+  end
+  return loc
+end
+
 Item.INVTYPE_AMMO = {0}
 Item.INVTYPE_HEAD	=	{1}
 Item.INVTYPE_NECK	=	{2}

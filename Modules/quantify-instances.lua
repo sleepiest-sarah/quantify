@@ -25,10 +25,21 @@ local qi = quantify_instances
 
 local dead_time = 0
 
+local engaged_boss = nil
+
 local function init()
   q.current_segment.stats[quantify_instances.MODULE_KEY] = {}
   q.current_segment.stats[quantify_instances.MODULE_KEY].raw = quantify_instances.Session:new()
   session = q.current_segment.stats[quantify_instances.MODULE_KEY].raw
+end
+
+local function getUnitGroupPrefix()
+  return IsInRaid() and "raid" or "party"
+end
+
+local function isFinalClassicBoss(boss)
+  local dungeon = quantify_state:getCurrentClassicDungeon()
+  return dungeon and dungeon.bosses[boss] and dungeon.bosses[boss].final
 end
 
 local function incrementPrefix(prefix, instance, difficulty)
@@ -45,8 +56,10 @@ end
 local function updatePartyStats(kill, wipe, player_death, dungeon)
   local num_members = GetNumGroupMembers()
   
+  local grouptype = getUnitGroupPrefix()
+  
   for i=1,num_members-1 do
-    local mate = GetUnitName("party"..i, true)
+    local mate = GetUnitName(grouptype..i, true)
     if (session.party_members[mate] == nil) then
       session.party_members[mate] = {dungeons_completed = 0, kills = 0, wipes = 0, player_deaths = 0}
     end
@@ -121,7 +134,6 @@ local function encounterEnd(event, ...)
     session.overall_raid_boss_wipes = session.overall_raid_boss_wipes + 1
   end
   
-
 end
 
 local function playerDead(event, ...)
@@ -133,20 +145,6 @@ local function playerDead(event, ...)
     end
     
     dead_time = GetTime()
-  end
-end
-
-local function combatLog()
-  local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
-  
-  if (event == "UNIT_DIED" and (quantify_state:isPlayerInBfaDungeon() or (q.isClassic and quantify_state.isPlayerInClassicDungeon()))) then
-    local affiliation = bit.band(destFlags, 0xf)
-    local type_controller = bit.band(destFlags, 0xff00)
-    if (type_controller == 0x0500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
-      updatePartyStats(0,0,1,0)
-      
-      incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())
-    end
   end
 end
 
@@ -168,8 +166,7 @@ local function bossKill(event, encounterId, encounterName)
     updatePartyStats(0,0,0,1)
   end
   
-  --not sure if this will work for classic so just moving it down here and we'll see
-  if (q.isClassic and q:contains(q.CLASSIC_END_BOSSES, encounterName) and quantify_state:getInstanceStartTime() ~= nil) then
+  if (q.isClassic and isFinalClassicBoss(encounterName) and quantify_state:getInstanceStartTime() ~= nil) then
     local key = quantify_state:getInstanceName().."-"..quantify_state:getInstanceDifficulty()
     if (session.bfa_dungeon_time[key] == nil) then
       session.bfa_dungeon_time[key] = {n = 0, time = 0}
@@ -180,6 +177,74 @@ local function bossKill(event, encounterId, encounterName)
     updatePartyStats(0,0,0,1)
   end
   
+end
+
+local function updatePartyStatus()
+  local num_members = GetNumGroupMembers()
+  local grouptype = getUnitGroupPrefix()
+  
+  local party = {}
+  local wipe = UnitIsDeadOrGhost("player")
+  for i=1,num_members-1 do
+    party[i] = not UnitIsDeadOrGhost(grouptype..i)
+    wipe = wipe and not party[i]                              --will set wipe to false if any members are alive
+  end
+  
+  if (wipe) then
+    encounterEnd(nil, nil, nil, nil, nil, 0)
+    engaged_boss = nil
+    party = nil
+  end
+
+end
+
+local function playerRegen(event)
+  
+  if (event == "PLAYER_REGEN_DISABLED" and engaged_boss) then
+    encounterEnd(nil, nil, nil, nil, nil, 0)
+    engaged_boss = nil
+  end
+  
+end
+
+local function combatLog()
+  local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = CombatLogGetCurrentEventInfo()
+  
+  local dungeon = quantify_state:getCurrentClassicDungeon()
+  if (dungeon and quantify_state:isPlayerInCombat() and (dungeon.bosses[sourceName] or dungeon.bosses[destName])) then
+    local boss = sourceName or destName
+    if (boss ~= engaged_boss) then
+      engaged_boss = boss
+      updatePartyStatus()
+    end
+  end
+  
+  
+  if (event == "UNIT_DIED" and (quantify_state:isPlayerInBfaDungeon() or (q.isClassic and quantify_state:isPlayerInClassicDungeon()))) then
+    local affiliation = bit.band(destFlags, 0xf)
+    local type_controller = bit.band(destFlags, 0xff00)
+
+    if (type_controller == 0x0500 and (affiliation == 1 or affiliation == 2 or affiliation == 4)) then --player-controlled player and self/party/raid
+      updatePartyStats(0,0,1,0)
+      
+      incrementPrefix(qi.RAW_DUNGEON_DEATHS_PREFIX, quantify_state:getInstanceName(),quantify_state:getInstanceDifficulty())
+      
+      if (engaged_boss) then
+        updatePartyStatus()
+      end
+    end
+    
+    if (q.isClassic and bit.band(destFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) > 0) then
+      
+      if (dungeon) then
+        if (dungeon.bosses[destName]) then
+          bossKill(nil, nil, destName)
+          encounterEnd(nil, nil, nil, nil, nil, 1)
+          engaged_boss = nil
+        end
+      end
+    end
+  end
 end
 
 local function getTopKda(party)
@@ -320,7 +385,13 @@ init()
 
 table.insert(quantify.modules, quantify_instances)
   
-q:registerEvent("ENCOUNTER_END", encounterEnd)
+
 q:registerEvent("PLAYER_DEAD", playerDead)
-q:registerEvent("BOSS_KILL", bossKill)
+q:registerEvent("PLAYER_REGEN_DISABLED", playerRegen)
+q:registerEvent("PLAYER_REGEN_ENABLED", playerRegen)
 q:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+
+if (q.isRetail) then
+  q:registerEvent("BOSS_KILL", bossKill)
+  q:registerEvent("ENCOUNTER_END", encounterEnd)
+end

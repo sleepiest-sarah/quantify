@@ -3,7 +3,7 @@ local q = quantify
 
 local LibQTip = LibStub('LibQTip-1.0')
 
-local PRE_INITIALIZED_BUTTONS = 400
+local PRE_INITIALIZED_BUTTONS = 350
 
 local watchlist_cb
 

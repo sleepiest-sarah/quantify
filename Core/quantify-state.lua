@@ -263,6 +263,10 @@ function quantify_state:getInstanceType()
   return s.instance_type
 end
 
+function quantify_state:getCurrentClassicDungeon()
+  return q.CLASSIC_DUNGEONS[s.instance_map_id]
+end
+
 function quantify_state:playerHasControl()
   return s.player_control
 end

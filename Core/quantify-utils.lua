@@ -7,10 +7,10 @@ function q:printTable(t)
   
   for k,v in pairs(t) do
     if (type(v) == "table") then
-      print(string.format("%s:", k))
+      print(string.format("%s:", tostring(k)))
       q:printTable(v)
     else
-      print(string.format("%s: %s", k, tostring(v)))
+      print(string.format("%s: %s", tostring(k), tostring(v)))
     end
   end
 end
@@ -463,4 +463,12 @@ function q:getGroupConcatKey(key,subkey)
   local concat_key_no_group = subkey and keynogroup..subkey or keynogroup
   
   return group,concat_key_no_group
+end
+
+function q:generateUUID()
+  local template ='xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+  return string.gsub(template, '[xy]', function (c)
+      local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
+      return string.format('%x', v)
+  end)
 end

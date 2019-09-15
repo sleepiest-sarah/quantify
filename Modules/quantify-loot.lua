@@ -83,7 +83,7 @@ local function processItem(item,amount)
   
   --item slots
   if (item.itemEquipLoc ~= nil and item.itemEquipLoc ~= "") then
-    local key = ql.INV_TYPE_PREFIX.._G[item.itemEquipLoc]
+    local key = ql.INV_TYPE_PREFIX..item:getLocalizedInvTypeString()
     if (session[key] == nil) then
       session[key] = 0
     end
@@ -203,6 +203,7 @@ if (q.isRetail) then
 end
 
 function ql:tests()
-  local axe = q.Item:new("Yeti-Rager's Cloak")
+  local axe = q.Item:new(13039)
+  q:printTable(axe)
   processItem(axe,1)
 end

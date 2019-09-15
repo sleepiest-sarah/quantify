@@ -1,13 +1,14 @@
 ## Interface: 11302
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: 1.1b-classic
+## Version: 1.1c-classic
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml
 
 Core\constants.lua
 Core\stat_dictionary.lua
+Core\instance_dictionary.lua
 
 Core\quantify-prototypes.lua
 Core\quantify-utils.lua
