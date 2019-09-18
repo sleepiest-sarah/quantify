@@ -212,7 +212,7 @@ local function combatLog()
   
   local dungeon = quantify_state:getCurrentClassicDungeon()
   if (dungeon and quantify_state:isPlayerInCombat() and (dungeon.bosses[sourceName] or dungeon.bosses[destName])) then
-    local boss = sourceName or destName
+    local boss = (dungeon.bosses[sourceName] and sourceName) or destName 
     if (boss ~= engaged_boss) then
       engaged_boss = boss
       updatePartyStatus()

@@ -9,10 +9,11 @@ quantify_currency.MODULE_KEY = "currency"
 
 local qc = quantify_currency
 qc.CURRENCY_GAINED_PREFIX = "currency_gained_*"
-qc.CURRENCY_LOST_PREFIX = "currency_lost_*"
+qc.CURRENCY_LOST_PREFIX = "currency_lost_*" 
+qc.PICKPOCKET_THRESHOLD_TIME = 2
 
 function quantify_currency.Session:new(o)
-  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0}
+  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0, money_pickpocketed = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -27,6 +28,8 @@ local mailbox_items = nil
 
 local auction_open = false
 local vendor_open = false
+
+local pickpocket_time = 0
 
 local function init()
   q.current_segment.stats.currency = {}
@@ -91,7 +94,12 @@ local function playerLootMoney(event, msg)
   else
     money_string = string.match(msg, "You loot ([%w, ]+)")
     if (money_string ~= nil) then
-      session.money_looted = session.money_looted + q:getCoppersFromText(money_string)
+      local copper = q:getCoppersFromText(money_string)
+      session.money_looted = session.money_looted + copper
+      
+      if (GetTime() - pickpocket_time < qc.PICKPOCKET_THRESHOLD_TIME) then
+        session.money_pickpocketed = session.money_pickpocketed + copper
+      end
     end
   end
 end
@@ -113,10 +121,18 @@ end
 local function playerQuestTurnedIn(event, ...)
   local questid, xp, money = unpack({...})
   
-  if (money ~= nil) then
+  if (money and money > 0) then
     session.quest_money = session.quest_money + money
   end
   
+end
+
+local function combatLog()
+  local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
+  
+  if ((event == "SPELL_CAST_SUCCESS" or event == "SPELL_CREATE") and sourceGUID == UnitGUID("player") and spellName == "Pick Pocket") then
+    pickpocket_time = GetTime()
+  end
 end
 
 local function mailbox(event)
@@ -202,3 +218,4 @@ quantify:registerEvent("AUCTION_HOUSE_SHOW", auctionhouse)
 quantify:registerEvent("AUCTION_HOUSE_CLOSED", auctionhouse)
 quantify:registerEvent("MERCHANT_SHOW", merchant)
 quantify:registerEvent("MERCHANT_CLOSED", merchant)
+quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
