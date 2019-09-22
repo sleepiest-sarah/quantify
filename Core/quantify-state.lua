@@ -322,3 +322,7 @@ end
 function quantify_state:CanPlayerGainXp()
   return s.player_can_gain_xp
 end
+
+function quantify_state:CanPlayerJump()
+  return not IsSubmerged() and not IsFalling() and (q.isClassic or (q.isRetail and not IsFlying()))
+end

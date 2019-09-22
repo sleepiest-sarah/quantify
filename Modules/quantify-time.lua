@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0, time_sub_max_level = 0, time_rested = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0, time_sub_max_level = 0, time_rested = 0, air_time = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -22,6 +22,7 @@ local fishing_start = nil
 local outdoors_start = nil
 local indoors_start = nil
 local rested_start = nil
+local falling_start = nil
 
 local in_combat = false
 local isAfk = false
@@ -29,6 +30,7 @@ local is_mounted = false
 local is_outdoors = false
 local is_indoors = false
 local is_rested = false
+local is_falling = false
 
 local function init()
   q.current_segment.stats.time = {}
@@ -79,8 +81,6 @@ local function playerMount(...)
     q:registerNextFrame(playerMount)
   end
 end
-
-
 
 local function combatLog()
   local timestamp, event, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, spellId, spellName, spellSchool = CombatLogGetCurrentEventInfo()
@@ -140,6 +140,27 @@ local function playerEnteringWorld()
   
 end
 
+local function airTime()
+  if (is_falling) then
+    local duration = GetTime() - falling_start
+    session.air_time = session.air_time + duration
+    falling_start = GetTime()
+  elseif (IsFalling() and not is_falling) then
+    falling_start = GetTime()
+  end
+  is_falling = IsFalling()
+  
+  if (is_falling) then
+    q:registerNextFrame(airTime)
+  end
+end
+
+local function jump()
+  if (quantify_state:CanPlayerJump()) then
+    q:registerNextFrame(airTime)
+  end
+end
+
 function quantify_time:calculateDerivedStats(segment)
   local derived_stats = {}
   
@@ -150,6 +171,7 @@ function quantify_time:calculateDerivedStats(segment)
   derived_stats.pct_time_fishing = (raw.time_fishing / raw.play_time) * 100
   derived_stats.pct_time_indoors = (raw.time_indoors / raw.play_time) * 100
   derived_stats.pct_time_outdoors = (raw.time_outdoors / raw.play_time) * 100
+  derived_stats.pct_time_jump = (raw.air_time / raw.play_time) * 100
   segment.stats.time.derived_stats = derived_stats
 end
 
@@ -224,6 +246,8 @@ quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChanged)
 quantify:registerEvent("ZONE_CHANGED", zoneChanged)
 quantify:registerEvent("UPDATE_EXHAUSTION", updateExhaustion)
+
+q:hookSecureFunc("JumpOrAscendStart", jump)
 
 if (q.isRetail) then
   quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)

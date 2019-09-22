@@ -1,10 +1,15 @@
 local sframe = CreateFrame("FRAME")
 
 local event_map = {}
+local secure_hooks = {}
 local next_frame_callbacks = {}
 local timer_callbacks = {}
 
+local next_frame_queued = false
+local timer_running = false
+
 local qevent_map = {}
+
 
 local segment_snapshot = nil
 
@@ -21,17 +26,48 @@ local last_totals_update = 0
 local TOTALS_UPDATE_WINDOW = 300
 
 function sframe:OnEvent(event, ...)
+  
 
-  local fired = {}                            --I think there is a better way to do this but this should stop the next_frame_callbacks table from getting cleared before the callback fires
+  
+  if (event_map[event] ~= nil) then
+    for _, f in pairs(event_map[event]) do
+      f(event, ...)
+    end
+  end
+  
+  if (GetTime() - last_totals_update > TOTALS_UPDATE_WINDOW) then
+    q:updateTotals(q.current_segment)
+  end
+end
+
+local function nextFrame()
+  next_frame_queued = false
+  
+  local callbacks = {}
+  
+  --add currently registered callbacks to local list so callbacks can register new next frame callbacks without being affected by this function
   for id,c in pairs(next_frame_callbacks) do
-    table.insert(fired,id)
+    callbacks[id] = c
+  end
+  
+  next_frame_callbacks = {}
+  
+  for id,c in pairs(callbacks) do
     c.callback(unpack(c.args))
   end
+end
+
+function quantify:registerNextFrame(callback, ...)
+  local uuid = q:generateUUID()
+  next_frame_callbacks[uuid] = {callback = callback, args = {...}}
   
-  for _,id in pairs(fired) do
-    next_frame_callbacks[id] = nil
+  if (not next_frame_queued) then
+    next_frame_queued = true
+    C_Timer.After(0, nextFrame)
   end
-  
+end
+
+local function timerFired()
   local exhausted = {}
   for id,c in pairs(timer_callbacks) do
     if (GetTime() - c.start > c.seconds) then
@@ -45,25 +81,15 @@ function sframe:OnEvent(event, ...)
     timer_callbacks[id] = nil
   end
   
-  if (event_map[event] ~= nil) then
-    for _, f in pairs(event_map[event]) do
-      f(event, ...)
-    end
-  end
-  
-  if (GetTime() - last_totals_update > TOTALS_UPDATE_WINDOW) then
-    q:updateTotals(q.current_segment)
-  end
-end
-
-function quantify:registerNextFrame(callback, ...)
-  local uuid = q:generateUUID()
-  next_frame_callbacks[uuid] = {callback = callback, args = {...}}
 end
 
 function quantify:registerTimer(callback, seconds, ...)
   local uuid = q:generateUUID()  --for random access deletes
   timer_callbacks[uuid] = {callback = callback, seconds = seconds, args = {...}, start = GetTime()}
+  
+  if (not timer_running) then
+    C_Timer.After(1, timerFired)
+  end
 end
 
 function quantify:registerQEvent(event,func)
@@ -156,6 +182,19 @@ function quantify:unregisterEvent(event, func)
       end
     end
   end
+end
+
+function quantify:hookSecureFunc(func, callback)
+  if (not secure_hooks[func]) then
+    secure_hooks[func] = {}
+    hooksecurefunc(func, function (...)
+                          for _,cb in pairs(secure_hooks[func]) do
+                            cb(...)
+                          end
+                         end)
+  end
+  
+  table.insert(secure_hooks[func], callback)
 end
 
 local function init(event, ...)

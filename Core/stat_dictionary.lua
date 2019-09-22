@@ -180,6 +180,8 @@ quantify.STATS = {
   ["derived_stats:pct_time_indoors"] = {text = "% Play Time: Indoors", abbr = "Indoors", units = "percentage", order = 857},
   ["raw:time_outdoors"] = {text = "Total Time Outdoors", units = "time", abbr="Outdoors", order = 858},
   ["derived_stats:pct_time_outdoors"] = {text = "% Play Time: Outdoors", abbr = "Outdoors", units = "percentage", order = 859},
+  ["raw:air_time"] = {text = "Jump Air Time", units = "time", order = 870},
+  ["derived_stats:pct_time_jump"] = {text = "% Play Time: Jump Air Time", abbr = "Jump Air Time", units = "percentage", order = 871},
   
   --tradeskill
   ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801, version = "retail"},
@@ -206,4 +208,7 @@ quantify.STATS = {
   ["session_rates:gathering_xp"] = {text = "Gathering XP Per Hour", abbr="Gathering xp/hr", units = "integer/hour", version="retail"},  
   ["derived_stats:pct_xp_gathering"] = {text = "% XP: Gathering", units = "percentage", version="retail"},
   
+  --misc
+  ["raw:jumps"] = {text = "Total Jumps", units = "integer"},
+  ["session_rates:jumps"] = {text = "Jumps Per Hour", units = "integer/hour"},  
 }
