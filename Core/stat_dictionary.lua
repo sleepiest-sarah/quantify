@@ -138,6 +138,8 @@ quantify.STATS = {
   ["derived_stats:pct_money_vendor"] = {text = "% Money Earned: Vendor", units = "percentage", order = 845},
   ["raw:money_pickpocketed"] = {text = "Money from Pick Pocketing", abbr = "Pick Pocketing", units = "money"},
   ["session_rates:money_pickpocketed"] ={text = "Pick Pocketing Money Per Hour", abbr = "PPpH", units = "money/hour"},
+  ["raw:repair_money"] = {text = "Money Spent on Repairs", units = "money"},
+  ["session_rates:repair_money"] ={text = "Money Spent on Repairs Per Hour", abbr = "Hourly Repair Cost", units = "money/hour"},
   
   --instances
   ["raw:bfa_total_dungeon_completed"] = {text = "Total BFA Dungeons Completed", units = "integer", version="retail"},

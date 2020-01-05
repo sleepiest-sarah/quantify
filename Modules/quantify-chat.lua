@@ -11,7 +11,7 @@ quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
 quantify_chat.MAX_CLOUD_WORDS = 10
 
 quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an", "or", "you","is","was",
-                                "could", "did", "they", "are", "doing", "from", "have"}
+                                "could", "did", "they", "are", "doing", "from", "have", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "is"}
 
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}
@@ -140,6 +140,7 @@ local function chatMsg(event, ...)
   for word in string.gmatch(msg, "([^%s]+)") do
     word = string.lower(word)
     word = string.gsub(word, "(%p+)$", "") --strip any punctuation at the end of the word
+    word = string.gsub(word, "^(%p+)", "") --or beginning
     if (quantify_chat.filtered_words[word] == nil) then
       if (author == player or event == "CHAT_MSG_BN_WHISPER_INFORM") then
         if (session.word_cloud[word] == nil) then

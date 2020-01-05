@@ -11,9 +11,10 @@ local qc = quantify_currency
 qc.CURRENCY_GAINED_PREFIX = "currency_gained_*"
 qc.CURRENCY_LOST_PREFIX = "currency_lost_*" 
 qc.PICKPOCKET_THRESHOLD_TIME = 2
+qc.DURABILITY_CHANGE_TOLERANCE = .5
 
 function quantify_currency.Session:new(o)
-  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0, money_pickpocketed = 0}
+  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0, money_pickpocketed = 0, repair_money = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -30,6 +31,7 @@ local auction_open = false
 local vendor_open = false
 
 local pickpocket_time = 0
+local durability_change_time = 0
 
 local function init()
   q.current_segment.stats.currency = {}
@@ -42,6 +44,10 @@ local function playerEnteringWorld()
   money = GetMoney()
 end
 
+local function updateInventoryDurability()
+  durability_change_time = GetTime()
+end
+
 local function playerMoney()
   local delta_money = GetMoney() - money
   
@@ -52,6 +58,9 @@ local function playerMoney()
   if (vendor_open) then
     if (delta_money > 0) then
       session.vendor_money = session.vendor_money + delta_money
+    elseif (GetTime() - durability_change_time < qc.DURABILITY_CHANGE_TOLERANCE) then
+      durability_change_time = 0
+      session.repair_money = session.repair_money + math.abs(delta_money)
     else
       session.vendor_money_spent = session.vendor_money_spent + math.abs(delta_money)
     end
@@ -219,3 +228,4 @@ quantify:registerEvent("AUCTION_HOUSE_CLOSED", auctionhouse)
 quantify:registerEvent("MERCHANT_SHOW", merchant)
 quantify:registerEvent("MERCHANT_CLOSED", merchant)
 quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+quantify:registerEvent("UPDATE_INVENTORY_DURABILITY", updateInventoryDurability)
