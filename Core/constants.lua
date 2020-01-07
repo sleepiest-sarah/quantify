@@ -28,9 +28,10 @@ For issues, bugs, suggestions, or anything else please feel free to contact me.
 quantify.HELP_TEXT =
 [[
 quantify command line options
-  /qty show   -- show the UI
-  /qty hide   -- hide the UI
-  /qty debug  -- display debug options
+  /qty show             -- show the UI
+  /qty hide             -- hide the UI
+  /qty preload <1 or 0> -- set to 0 if you experience any issues with the quantify UI not loading
+  /qty debug            -- display debug options
 ]]
 
 quantify.DEBUG_OPTIONS =

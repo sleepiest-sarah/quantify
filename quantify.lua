@@ -68,6 +68,8 @@ function quantify:registerNextFrame(callback, ...)
 end
 
 local function timerFired()
+  timer_running = false
+  
   local exhausted = {}
   for id,c in pairs(timer_callbacks) do
     if (GetTime() - c.start > c.seconds) then
@@ -76,7 +78,7 @@ local function timerFired()
     end
   end
   
-  --remove expired timeres
+  --remove expired timers
   for _,id in pairs(exhausted) do
     timer_callbacks[id] = nil
   end
@@ -88,6 +90,7 @@ function quantify:registerTimer(callback, seconds, ...)
   timer_callbacks[uuid] = {callback = callback, seconds = seconds, args = {...}, start = GetTime()}
   
   if (not timer_running) then
+    timer_running = true
     C_Timer.After(1, timerFired)
   end
 end
@@ -301,6 +304,8 @@ local function qtySlashCmd(msg, editbox)
   elseif (cmd == "classic") then
     quantify.isClassic = 1
     quantify.isRetail = 0
+  elseif (cmd == "preload" and (args == "0" or args == "1")) then
+    qDbOptions.preload = args == "1"
   elseif (cmd == "clear" and args ~= nil) then
     if (args == "all") then
       qDb = nil

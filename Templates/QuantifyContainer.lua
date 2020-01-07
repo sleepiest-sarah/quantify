@@ -4,6 +4,9 @@ local q = quantify
 local LibQTip = LibStub('LibQTip-1.0')
 
 local PRE_INITIALIZED_BUTTONS = 350
+local FIRST_INITIALIZATION_BUTTONS = 100
+local BUTTON_INITIALIZATION_INCREMENT = 1
+local num_buttons = 0
 
 local watchlist_cb
 
@@ -237,8 +240,11 @@ local function createStatRow(self,i)
     
     wrapper.i = i
     
+    num_buttons = i
+    
     stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
     
+    self:PauseLayout()
     self:AddChild(wrapper)
   end
   
@@ -272,10 +278,35 @@ function QuantifyStatsScrollFrame_Refresh(redoLayout)
       index = index + 1
     end
 
-    if (redoLayout) then
+    if (redoLayout or stats_scrollframe.LayoutPaused) then
+      stats_scrollframe:ResumeLayout()
       self:DoLayout()
     end
     
+  end
+end
+
+function QuantifyContainer_InitializeScrollButtons()
+  stats_scrollframe:PauseLayout()
+  
+  local min,max
+  if (num_buttons == 0) then
+    min = 1
+    max = FIRST_INITIALIZATION_BUTTONS
+  else
+    min = num_buttons + 1
+    max = min + BUTTON_INITIALIZATION_INCREMENT
+  end
+  
+  for i=min,math.min(max,PRE_INITIALIZED_BUTTONS) do
+    createStatRow(stats_scrollframe,i)
+    
+  end
+  
+  if (max < PRE_INITIALIZED_BUTTONS) then
+    q:registerNextFrame(QuantifyContainer_InitializeScrollButtons, 1)
+  else
+    stats_scrollframe:ResumeLayout()
   end
 end
 
@@ -298,8 +329,12 @@ function QuantifyContainer_Initialize()
   stats_scrollframe:SetLayout("qList")
   
   --create some buttons ahead of time for performance
-  for i=1,PRE_INITIALIZED_BUTTONS do
-    createStatRow(stats_scrollframe,i)
+  if (qDbOptions.preload ~= false) then
+    stats_scrollframe:PauseLayout()
+    for i=1,PRE_INITIALIZED_BUTTONS do
+      createStatRow(stats_scrollframe,i)
+    end
+    stats_scrollframe:ResumeLayout()
   end
   
   stats_scrollcontainer:AddChild(stats_scrollframe)
