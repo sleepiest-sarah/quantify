@@ -1,7 +1,7 @@
 ## Interface: 80205
 ## Title: quantify
 ## Author: Sarah Mantovani
-## Version: 1.2
+## Version: 1.2a
 ## SavedVariables: qDb, qDbOptions
 
 embeds.xml
