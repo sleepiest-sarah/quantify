@@ -32,6 +32,8 @@ local vendor_open = false
 
 local pickpocket_time = 0
 local durability_change_time = 0
+local money_change_time = 0
+local last_delta_money = 0
 
 local function init()
   q.current_segment.stats.currency = {}
@@ -46,10 +48,21 @@ end
 
 local function updateInventoryDurability()
   durability_change_time = GetTime()
+  
+  --in retail the player money event fires first
+  if (GetTime() - money_change_time < qc.DURABILITY_CHANGE_TOLERANCE) then
+    money_change_time = 0
+    session.repair_money = session.repair_money + math.abs(last_delta_money)
+    --subtract the repair amount from vendor money spent since it already got added to vendor money spent if we're in here
+    session.vendor_money_spent = session.vendor_money_spent - math.abs(last_delta_money)
+  end
 end
 
 local function playerMoney()
   local delta_money = GetMoney() - money
+  
+  last_delta_money = delta_money
+  money_change_time = GetTime()
   
   if (auction_open and delta_money < 0) then
     session.auction_money_spent = session.auction_money_spent + math.abs(delta_money)
