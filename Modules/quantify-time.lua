@@ -7,7 +7,7 @@ quantify_time.Session = {}
 quantify_time.MODULE_KEY = "time"
 
 function quantify_time.Session:new(o)
-  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0, time_sub_max_level = 0, time_rested = 0, air_time = 0}
+  o = o or {time_combat = 0, play_time = 0, time_afk = 0, time_mounted = 0, time_fishing = 0, time_indoors = 0, time_outdoors = 0, time_sub_max_level = 0, time_rested = 0, air_time = 0, time_pet_battle = 0}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -23,6 +23,7 @@ local outdoors_start = nil
 local indoors_start = nil
 local rested_start = nil
 local falling_start = nil
+local pet_battle_start = nil
 
 local in_combat = false
 local isAfk = false
@@ -31,6 +32,7 @@ local is_outdoors = false
 local is_indoors = false
 local is_rested = false
 local is_falling = false
+local in_pet_battle = false
 
 local function init()
   q.current_segment.stats.time = {}
@@ -161,6 +163,22 @@ local function jump()
   end
 end
 
+local function petBattleStart()
+  pet_battle_start = GetTime()
+  
+  in_pet_battle = true
+end
+
+local function petBattleEnd()
+  in_pet_battle = false
+  
+  local curtime = GetTime()
+  pet_battle_start = pet_battle_start or curtime
+  
+  local combat_time = curtime - pet_battle_start
+  session.time_pet_battle = session.time_pet_battle + combat_time  
+end
+
 function quantify_time:calculateDerivedStats(segment)
   local derived_stats = {}
   
@@ -172,6 +190,7 @@ function quantify_time:calculateDerivedStats(segment)
   derived_stats.pct_time_indoors = (raw.time_indoors / raw.play_time) * 100
   derived_stats.pct_time_outdoors = (raw.time_outdoors / raw.play_time) * 100
   derived_stats.pct_time_jump = (raw.air_time / raw.play_time) * 100
+  derived_stats.pct_time_pet_battles = (raw.time_pet_battle / raw.play_time) * 100
   segment.stats.time.derived_stats = derived_stats
 end
 
@@ -207,6 +226,12 @@ function quantify_time:updateStats(segment)
     if is_rested then
       updateExhaustion()
       rested_start = GetTime()
+    end
+    
+    if in_pet_battle then
+      petBattleEnd()
+      in_pet_battle = true
+      pet_battle_start = GetTime()
     end
     
     if q.current_segment.start_time ~= nil then
@@ -251,6 +276,8 @@ q:hookSecureFunc("JumpOrAscendStart", jump)
 
 if (q.isRetail) then
   quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+  quantify:registerEvent("PET_BATTLE_OPENING_DONE", petBattleStart)
+  quantify:registerEvent("PET_BATTLE_FINAL_ROUND", petBattleEnd)
 end
   
   
