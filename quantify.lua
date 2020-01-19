@@ -18,6 +18,12 @@ local q = quantify
 
 q.modules = {}
 
+--copying here to make sure the version flags are declared when the modules load
+--should rework the addon loading a bit so that sort of stuff always runs after the ADDON_LOADED event
+local clientVersion,_,_,tocVersion = GetBuildInfo()
+q.isClassic = tocVersion < 80000
+q.isRetail = not q.isClassic --just for more readable checks
+
 q.player_login_time = nil
 q.segments = {q.Segment:new()}
 q.current_segment = q.segments[1]
@@ -26,9 +32,6 @@ local last_totals_update = 0
 local TOTALS_UPDATE_WINDOW = 300
 
 function sframe:OnEvent(event, ...)
-  
-
-  
   if (event_map[event] ~= nil) then
     for _, f in pairs(event_map[event]) do
       f(event, ...)
