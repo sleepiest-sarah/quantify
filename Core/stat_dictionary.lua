@@ -120,7 +120,7 @@ quantify.STATS = {
   ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344, version="retail"},
   ["raw:azerite_xp"] = {text = "Azerite XP Gained", units = "integer", order = 343, version="retail"},
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345, exclude_total = true, version="retail"},  
-  ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
+  --["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
   --combat
   ["derived_stats:kd_ratio"] = {text = "Kill-to-Death Ratio", units = "decimal"},
@@ -226,4 +226,14 @@ quantify.STATS = {
   ["derived_stats:pct_battle_wins"] = {text = "% Pet Battle Victories", units = "percentage", version = "retail"},
   ["derived_stats:pct_wild_battle_wins"] = {text = "% Wild Pet Battle Victories", units = "percentage", version = "retail"},
   ["derived_stats:pct_trainer_battle_wins"] = {text = "% Trainer Pet Battle Victories", units = "percentage", version = "retail"},
+  ["derived_stats:pct_battle_wins_no_forfeits"] = {text = "% Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
+  ["derived_stats:pct_wild_battle_wins_no_forfeits"] = {text = "% Wild Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
+  ["derived_stats:pct_trainer_battle_wins_no_forfeits"] = {text = "% Trainer Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
+  ["derived_stats:total_pets"] = {text = "Total Pets", units = "integer", version = "retail", order = 100, exclude_total = true},
+  ["derived_stats:max_level_pets"] = {text = "Total Max Level Pets", units = "integer", version = "retail", order = 101, exclude_total = true},
+  ["derived_stats:combat_pets"] = {text = "Total Combat Pets", units = "integer", version = "retail", order = 102, exclude_total = true},
+  ["derived_stats:wild_caught_pets"] = {text = "Total Pets Caught in the Wild", units = "integer", version = "retail", order = 103, exclude_total = true},
+  ["derived_stats:num_rarity_*"] = {text = "Total * Pets", units = "integer", version = "retail", order = 110, exclude_total = true},
+  ["derived_stats:num_type_*"] = {text = "Total * Type Pets", units = "integer", version = "retail", order = 120, exclude_total = true},
+  
 }
