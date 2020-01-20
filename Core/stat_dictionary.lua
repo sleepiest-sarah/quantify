@@ -120,7 +120,7 @@ quantify.STATS = {
   ["session_rates:azerite_xp"] = {text = "Azerite XP Per Hour", units = "integer/hour", order = 344, version="retail"},
   ["raw:azerite_xp"] = {text = "Azerite XP Gained", units = "integer", order = 343, version="retail"},
   ["derived_stats:azerite_time_to_level"] = {text = "Time to Next Azerite Level", units = "time", order = 345, exclude_total = true, version="retail"},  
-  ["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
+  --["raw:faction_delta_*"] = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
   --combat
   ["derived_stats:kd_ratio"] = {text = "Kill-to-Death Ratio", units = "decimal"},
