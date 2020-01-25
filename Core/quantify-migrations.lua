@@ -53,6 +53,18 @@ local function sanityCheckTimes()
     end
   end 
 end
+
+local function cleanWordCloud()
+  if(not q:getData(quantify_chat.WORD_CLOUD_TIMESTAMP_KEY)) then
+    q:storeData(quantify_chat.WORD_CLOUD_TIMESTAMP_KEY, {})
+  end
+  
+  for seg_k,seg in pairs(qDb) do
+    if (type(seg) == "table" and seg.stats ~= nil and seg.stats[quantify_chat.MODULE_KEY] ~= nil and seg.stats[quantify_chat.MODULE_KEY].word_cloud ~= nil) then
+      quantify_chat:cleanWordCloud(seg.stats[quantify_chat.MODULE_KEY].word_cloud)
+    end
+  end 
+end
   
 
 local function isPreReleaseVersion(v)
@@ -80,6 +92,9 @@ function q:runMigrations()
     
     if (qDbOptions.version < "1.2") then
     end
+  
+    --all versions
+    cleanWordCloud()
     
   end
   

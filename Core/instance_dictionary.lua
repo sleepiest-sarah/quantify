@@ -1,11 +1,9 @@
 quantify.LEGION_DUNGEON_IDS = {1501, 1677, 1571, 1466, 1456, 1477, 1492, 1458, 1651, 1753, 1516, 1493, 1544}
 quantify.LEGION_RAID_IDS = {1520,1648,1530,1676,1712}
-quantify.BFA_DUNGEON_IDS = {1877,1862,1763,1754,1762,1864,1822,1594,1841,1771}
---quantify.BFA_DUNGEON_IDS = {1001,968,1041,1036,1023,1030,1012,1022,1002,1021}
-quantify.BFA_RAID_IDS = {1861}
---quantify.BFA_RAID_IDS = {1031}
-quantify.BFA_END_BOSSES = {"Yazma", "Lord Harlan Sweete", "Dazar, The First King", "Vol'zith the Whisperer", "Viq'Goth", "Avatar of Sethraliss", "Mogul Razdunk", "Unbound Abomination", "Overseer Korgus", "Gorak Tul"}
-quantify.BFA_END_BOSS_IDS = {2108,2117,2087,2127,2123,2096}
+quantify.BFA_DUNGEON_IDS = {1877,1862,1763,1754,1762,1864,1822,1594,1841,1771, 2097}
+quantify.BFA_RAID_IDS = {1861,2070,2096,2164,2217}
+quantify.BFA_END_BOSSES = {"Yazma", "Lord Harlan Sweete", "Dazar, The First King", "Vol'zith the Whisperer", "Viq'Goth", "Avatar of Sethraliss", "Mogul Razdunk", "Unbound Abomination", "Overseer Korgus", "Gorak Tul", "King Mechagon"}
+quantify.BFA_END_BOSS_IDS = {2108,2117,2087,2127,2123,2096,2143,2133,2100,2104,2260}
 
 
 quantify.CLASSIC_DUNGEON_IDS = {48, 230, 229, 429, 90, 349, 389, 129, 47, 1001, 1004, 1007, 33, 329, 36, 34, 109, 70, 43, 209}

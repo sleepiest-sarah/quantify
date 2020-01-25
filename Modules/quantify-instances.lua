@@ -13,6 +13,8 @@ quantify_instances.RAW_DUNGEON_DEATHS_PREFIX = "dungeon_deaths_*"
 quantify_instances.BFA_DUNGEON_TIME_PREFIX = "bfa_dungeon_time_*"
 quantify_instances.BFA_DUNGEON_COMPLETED_PREFIX = "bfa_dungeon_completed_*"
 
+quantify_instances.PARTY_MEMBER_TIMESTAMP_KEY = "instances_party_member_timestamp_"
+
 function quantify_instances.Session:new(o)
   o = o or {legion_raid_boss_kills = 0, legion_raid_boss_wipes = 0, legion_dungeon_boss_kills = 0, legion_dungeon_boss_wipes = 0, bfa_raid_boss_kills = 0, bfa_raid_boss_wipes = 0, bfa_dungeon_boss_kills = 0, bfa_dungeon_boss_wipes = 0, overall_raid_boss_kills = 0, overall_raid_boss_wipes = 0, overall_dungeon_boss_kills = 0, overall_dungeon_boss_wipes = 0, player_raid_deaths = 0, player_dungeon_deaths = 0, bfa_dungeon_time = {}, bfa_total_dungeon_completed = 0, party_members = {}}
   setmetatable(o, self)
@@ -73,6 +75,7 @@ local function updatePartyStats(kill, wipe, player_death, dungeon)
     session.party_members[mate].kills = session.party_members[mate].kills + kill
     session.party_members[mate].wipes = session.party_members[mate].wipes + wipe
     session.party_members[mate].player_deaths = session.party_members[mate].player_deaths + player_death
+    q:storeData(quantify_instances.PARTY_MEMBER_TIMESTAMP_KEY, time())
   end
   
 end
