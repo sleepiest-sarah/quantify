@@ -223,6 +223,8 @@ quantify.STATS = {
   ["raw:total_battle_wins"] = {text = "Total Pet Battle Victories", units = "integer", version="retail"},
   ["raw:total_wild_battle_wins"] = {text = "Total Wild Pet Battle Victories", units = "integer", version="retail"},
   ["raw:total_trainer_battle_wins"] = {text = "Total Trainer Pet Battle Victories", units = "integer", version="retail"},
+  ["raw:total_wild_forfeits"] = {text = "Total Wild Pet Battle Forfeits", units = "integer", version="retail"},
+  ["raw:total_trainer_forfeits"] = {text = "Total Trainer Pet Battle Forfeits", units = "integer", version="retail"}, 
   ["derived_stats:pct_battle_wins"] = {text = "% Pet Battle Victories", units = "percentage", version = "retail"},
   ["derived_stats:pct_wild_battle_wins"] = {text = "% Wild Pet Battle Victories", units = "percentage", version = "retail"},
   ["derived_stats:pct_trainer_battle_wins"] = {text = "% Trainer Pet Battle Victories", units = "percentage", version = "retail"},
@@ -235,5 +237,6 @@ quantify.STATS = {
   ["derived_stats:wild_caught_pets"] = {text = "Total Pets Caught in the Wild", units = "integer", version = "retail", order = 103, exclude_total = true},
   ["derived_stats:num_rarity_*"] = {text = "Total * Pets", units = "integer", version = "retail", order = 110, exclude_total = true},
   ["derived_stats:num_type_*"] = {text = "Total * Type Pets", units = "integer", version = "retail", order = 120, exclude_total = true},
-  
+  ["derived_stats:most_used_pets_*"] = {text = "Most Used Pets: *", units = "integer", version = "retail", order = 200},
+
 }

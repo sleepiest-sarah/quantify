@@ -30,12 +30,14 @@ bp.TYPES[8] = "Beast"
 bp.TYPES[9] = "Aquatic" 
 bp.TYPES[10] = "Mechanical" 
 
+quantify_bp.MOST_USED_PETS_PREFIX = "most_used_pets_*"
+
 quantify_bp.Session = {}
 
 quantify_bp.MODULE_KEY = "battlepets"
 
 function quantify_bp.Session:new(o)
-  o = o or {total_battles = 0, total_trainer_battles = 0, total_wild_battles = 0, total_battle_wins = 0, total_wild_battle_wins = 0, total_trainer_battle_wins = 0, total_forfeits = 0, total_trainer_forfeits = 0, total_wild_forfeits = 0}
+  o = o or {total_battles = 0, total_trainer_battles = 0, total_wild_battles = 0, total_battle_wins = 0, total_wild_battle_wins = 0, total_trainer_battle_wins = 0, total_forfeits = 0, total_trainer_forfeits = 0, total_wild_forfeits = 0, pet_battle_counts = {}}
   setmetatable(o, self)
   self.__index = self
   return o
@@ -69,16 +71,26 @@ local function petBattleStart()
   else
     session.total_trainer_battles = session.total_trainer_battles + 1
   end
+  
+  for i=1,pb.GetNumPets(1) do
+    local _,species = pb.GetName(1,i)
+    
+    if (not session.pet_battle_counts[species]) then
+      session.pet_battle_counts[species] = 0
+    end
+    
+    session.pet_battle_counts[species] = session.pet_battle_counts[species] + 1
+  end
 end
 
-local function petBattleEnd(owner)
+local function petBattleEnd(event,owner)
   if (owner == 1) then
     session.total_battle_wins = session.total_battle_wins + 1
     
     if (C_PetBattles.IsWildBattle()) then
-      session.total_wild_forfeits = session.total_wild_forfeits + 1
+      session.total_wild_battle_wins = session.total_wild_battle_wins + 1
     else
-      session.total_trainer_forfeits = session.total_trainer_forfeits + 1
+      session.total_trainer_battle_wins = session.total_trainer_battle_wins + 1
     end
   end
 end
@@ -87,9 +99,9 @@ local function forfeitBattle()
   session.total_forfeits = session.total_forfeits + 1
   
   if (C_PetBattles.IsWildBattle()) then
-    session.total_wild_battles = session.total_wild_battles + 1
+    session.total_wild_forfeits = session.total_wild_forfeits + 1
   else
-    session.total_trainer_battles = session.total_trainer_battles + 1
+    session.total_trainer_forfeits = session.total_trainer_forfeits + 1
   end
 end
 
@@ -97,7 +109,7 @@ local function petCaptured(owner, petindex)
   
 end
 
-local function petBattleRoundOver(roundNumber)
+local function petBattleRoundOver(event,roundNumber)
   print("pet battle round over")
 end
 
@@ -181,6 +193,14 @@ local function processPetJournal()
   restoreFilterSettings(userFilterSettings)
 end
 
+local function sortPetCounts(pet_counts)
+  local keys = {}
+  table.foreach(pet_counts, function(k,v) table.insert(keys,k); end)
+  table.sort(keys,function(a,b) return pet_counts[a] > pet_counts[b] end)
+  
+  return keys
+end
+
 local function petJournalUpdate(event)
   processPetJournal()
 end
@@ -207,6 +227,13 @@ function quantify_bp:calculateDerivedStats(segment)
   
   for pettype,n in pairs(petJournalStats.types) do
     derived_stats["num_type_*"..pettype] = n
+  end
+  
+  local sorted_pet_keys = sortPetCounts(raw.pet_battle_counts)
+  for i=1,3 do
+    if (sorted_pet_keys[i]) then
+      derived_stats[bp.MOST_USED_PETS_PREFIX..sorted_pet_keys[i]] = raw.pet_battle_counts[sorted_pet_keys[i]]
+    end
   end
   
   segment.stats.battlepets.derived_stats = derived_stats
