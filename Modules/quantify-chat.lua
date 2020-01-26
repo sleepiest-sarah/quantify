@@ -11,12 +11,14 @@ quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
 quantify_chat.MAX_CLOUD_WORDS_DISPLAY = 10
 
 quantify_chat.MAX_CLOUD_WORDS_STORE = 200
-quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS = 2592000
+quantify_chat.ABSOLUTE_MAX_CLOUD_WORDS_STORE = 500
+quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS = 604800
 
 quantify_chat.WORD_CLOUD_TIMESTAMP_KEY = "word_cloud_timestamps"
 
 quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an", "or", "you","is","was",
-                                "could", "did", "they", "are", "doing", "from", "have", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "is", "do"}
+                                "could", "did", "they", "are", "doing", "from", "have", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "is", "do", "there", "too", "that", "if", "be",
+                                "would", "get", "can", "while"}
 
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}
@@ -224,8 +226,9 @@ function quantify_chat:cleanWordCloud(wordcloud)
     local cur = time()
     
     for i=quantify_chat.MAX_CLOUD_WORDS_STORE,#sorted_keys do
-      if (sorted_keys[i] ~= nil and (cur - (cloud_timestamps[sorted_keys[i]] or 0) > quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS)) then
+      if (sorted_keys[i] ~= nil and ((cur - (cloud_timestamps[sorted_keys[i]] or 0) > quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS) or (i > quantify_chat.ABSOLUTE_MAX_CLOUD_WORDS_STORE))) then
         wordcloud[sorted_keys[i]] = nil
+        cloud_timestamps[sorted_keys[i]] = nil
       end
     end
   end
@@ -233,6 +236,7 @@ function quantify_chat:cleanWordCloud(wordcloud)
   for i=1,#sorted_keys do
     if (sorted_keys[i] ~= nil and quantify_chat.filtered_words[sorted_keys[i]]) then
       wordcloud[sorted_keys[i]] = nil
+      cloud_timestamps[sorted_keys[i]] = nil
     end
   end
 end
