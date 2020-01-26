@@ -472,3 +472,17 @@ function q:generateUUID()
       return string.format('%x', v)
   end)
 end
+
+function q:storeData(key,data)
+  if (not qDb.data) then
+    qDb.data = {}
+  end
+  
+  qDb.data[key] = data
+end
+
+function q:getData(key)
+  if (qDb and qDb.data and qDb.data[key]) then
+    return qDb.data[key]
+  end
+end

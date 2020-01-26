@@ -8,10 +8,17 @@ quantify_chat.MODULE_KEY = "chat"
 
 quantify_chat.CHANNEL_CHAT_PREFIX = "channel_sent_*"
 quantify_chat.WORD_CLOUD_PREFIX = "word_cloud_*"
-quantify_chat.MAX_CLOUD_WORDS = 10
+quantify_chat.MAX_CLOUD_WORDS_DISPLAY = 10
+
+quantify_chat.MAX_CLOUD_WORDS_STORE = 200
+quantify_chat.ABSOLUTE_MAX_CLOUD_WORDS_STORE = 500
+quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS = 604800
+
+quantify_chat.WORD_CLOUD_TIMESTAMP_KEY = "word_cloud_timestamps"
 
 quantify_chat.filtered_words = {"a", "the", "and", "of", "in", "it", "for", "ok", "i", "i'm", "no", "yea", "yes", "to", "on", "an", "or", "you","is","was",
-                                "could", "did", "they", "are", "doing", "from", "have", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "is"}
+                                "could", "did", "they", "are", "doing", "from", "have", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "is", "do", "there", "too", "that", "if", "be",
+                                "would", "get", "can", "while"}
 
 function quantify_chat.Session:new(o)
   o = o or {word_cloud = {}, combat_messages = 0, whispers_sent = 0, whispers_received = 0, whispers_received_from = {}, whispers_sent_to = {}, party_sent = 0, say_sent = 0, guild_sent = 0, yell_sent = 0, emotes_sent = 0, emotes_used = {}, raid_sent = 0, mentions = 0}
@@ -148,6 +155,13 @@ local function chatMsg(event, ...)
         end
         session.word_cloud[word] = session.word_cloud[word] + 1
         
+        local word_cloud_timestamps = q:getData(quantify_chat.WORD_CLOUD_TIMESTAMP_KEY)
+        if (not word_cloud_timestamps) then
+          word_cloud_timestamps = {}
+        end
+        word_cloud_timestamps[word] = time()
+        q:storeData(quantify_chat.WORD_CLOUD_TIMESTAMP_KEY, word_cloud_timestamps)
+        
         if (quantify_state:isPlayerInCombat()) then
           session.combat_messages = session.combat_messages + 1
         end
@@ -174,7 +188,7 @@ function quantify_chat:calculateDerivedStats(segment)
   
   local derived_stats = {}
   local sorted_keys = sortWordCloud(segment.stats.chat.raw.word_cloud)
-  for i=1,quantify_chat.MAX_CLOUD_WORDS do
+  for i=1,quantify_chat.MAX_CLOUD_WORDS_DISPLAY do
     if (sorted_keys[i] ~= nil) then
       derived_stats[quantify_chat.WORD_CLOUD_PREFIX..sorted_keys[i]] = segment.stats.chat.raw.word_cloud[sorted_keys[i]]
     end
@@ -203,6 +217,30 @@ function quantify_chat:newSegment(previous_seg,new_seg)
   
 end
 
+function quantify_chat:cleanWordCloud(wordcloud)
+  local sorted_keys = sortWordCloud(wordcloud)
+  local cloud_timestamps = q:getData(quantify_chat.WORD_CLOUD_TIMESTAMP_KEY)
+  
+  if (#sorted_keys > quantify_chat.MAX_CLOUD_WORDS_STORE and cloud_timestamps) then
+    
+    local cur = time()
+    
+    for i=quantify_chat.MAX_CLOUD_WORDS_STORE,#sorted_keys do
+      if (sorted_keys[i] ~= nil and ((cur - (cloud_timestamps[sorted_keys[i]] or 0) > quantify_chat.CLOUD_WORDS_AGE_OFF_SECONDS) or (i > quantify_chat.ABSOLUTE_MAX_CLOUD_WORDS_STORE))) then
+        wordcloud[sorted_keys[i]] = nil
+        cloud_timestamps[sorted_keys[i]] = nil
+      end
+    end
+  end
+  
+  for i=1,#sorted_keys do
+    if (sorted_keys[i] ~= nil and quantify_chat.filtered_words[sorted_keys[i]]) then
+      wordcloud[sorted_keys[i]] = nil
+      cloud_timestamps[sorted_keys[i]] = nil
+    end
+  end
+end
+
 init()
 
 table.insert(quantify.modules, quantify_chat)
@@ -218,7 +256,7 @@ quantify:registerEvent("CHAT_MSG_PARTY_LEADER", chatMsgParty)
 quantify:registerEvent("CHAT_MSG_RAID", chatMsgRaid)
 quantify:registerEvent("CHAT_MSG_RAID_LEADER", chatMsgRaid)
 quantify:registerEvent("CHAT_MSG_RAID_WARNING", chatMsgRaid)
-quantify:registerEvent("CHAT_MSG_RAID", chatMsgSay)
+quantify:registerEvent("CHAT_MSG_SAY", chatMsgSay)
 quantify:registerEvent("CHAT_MSG_TEXT_EMOTE", chatMsgEmote)
 quantify:registerEvent("CHAT_MSG_EMOTE", chatMsgEmote)
 quantify:registerEvent("CHAT_MSG_WHISPER", chatMsgWhisper)
@@ -232,7 +270,7 @@ quantify:registerEvent("CHAT_MSG_OFFICER", chatMsg)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsg)
 quantify:registerEvent("CHAT_MSG_PARTY", chatMsg)
 quantify:registerEvent("CHAT_MSG_PARTY_LEADER", chatMsg)
-quantify:registerEvent("CHAT_MSG_RAID", chatMsg)
+quantify:registerEvent("CHAT_MSG_SAY", chatMsg)
 quantify:registerEvent("CHAT_MSG_RAID_LEADER", chatMsg)
 quantify:registerEvent("CHAT_MSG_RAID_WARNING", chatMsg)
 quantify:registerEvent("CHAT_MSG_RAID", chatMsg)
