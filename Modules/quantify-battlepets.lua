@@ -110,11 +110,11 @@ local function petCaptured(owner, petindex)
 end
 
 local function petBattleRoundOver(event,roundNumber)
-  print("pet battle round over")
+  --print("pet battle round over")
 end
 
 local function useTrap()
-  print("use trap")
+  --print("use trap")
 end
 
 local function storeFilterSettings()
