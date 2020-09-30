@@ -1,4 +1,4 @@
-## Interface: 80300
+## Interface: 90001
 ## Title: quantify
 ## Author: Sarah Mantovani
 ## Version: r13-alpha
@@ -29,7 +29,5 @@ Modules\quantify-loot.lua
 Modules\quantify-tradeskill.lua
 Modules\quantify-reputation.lua
 Modules\quantify-miscellaneous.lua
-Modules\quantify-battlepets.lua
-Modules\quantify-collections.lua
 
 quantify-ui.xml

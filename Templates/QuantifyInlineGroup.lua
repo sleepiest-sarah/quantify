@@ -32,7 +32,7 @@ local function Constructor()
     c:SetBackdrop(nil)
   end
 
-	local border = CreateFrame("Frame", nil, basegroup.frame)
+	local border = CreateFrame("Frame", nil, basegroup.frame, "BackdropTemplate")
 	border:SetPoint("TOPLEFT", 0, -17)
 	border:SetPoint("BOTTOMRIGHT", -1, 3)
 	border:SetBackdrop(PaneBackdrop)

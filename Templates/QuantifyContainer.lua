@@ -311,6 +311,9 @@ function QuantifyContainer_InitializeScrollButtons()
 end
 
 function QuantifyContainer_Initialize()
+  QuantifyContainer_Frame:SetBackdrop(BACKDROP_QUANTIFY_WINDOW)
+  QuantifyBottomBar:SetBackdrop(BACKDROP_QUANTIFY_BAR)
+  
   local qcontainer = agui:Create("QuantifyContainerWrapper")
   qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
   qcontainer:SetLayout("Fill")

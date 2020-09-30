@@ -1,6 +1,8 @@
 
 
 function QuantifyWatchList_Initialize(self, max_rows, button_height)
+  self:SetBackdrop(BACKDROP_QUANTIFY_WATCHLIST)
+  
   self.max_rows = max_rows
   self.row_height = button_height
   

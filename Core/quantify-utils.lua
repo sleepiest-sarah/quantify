@@ -138,7 +138,7 @@ function q:getSegmentList()
   local segments = {}
   if (qDb ~= nil) then
     for k,v in pairs(qDb) do
-      if (type(v) == "table") then
+      if (type(v) == "table" and k ~= "data") then
         segments[k] = v
       end
     end

@@ -190,12 +190,10 @@ function quantify:unregisterEvent(event, func)
   end
 end
 
-function quantify:hookSecureFunc(func, callback, t)
+function quantify:hookSecureFunc(func, callback)
   if (not secure_hooks[func]) then
-    t = t or _G
-    
     secure_hooks[func] = {}
-    hooksecurefunc(t, func, function (...)
+    hooksecurefunc(func, function (...)
                           for _,cb in pairs(secure_hooks[func]) do
                             cb(...)
                           end

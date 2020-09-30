@@ -184,8 +184,6 @@ quantify.STATS = {
   ["derived_stats:pct_time_outdoors"] = {text = "% Play Time: Outdoors", abbr = "Outdoors", units = "percentage", order = 859},
   ["raw:air_time"] = {text = "Jump Air Time", units = "time", order = 870},
   ["derived_stats:pct_time_jump"] = {text = "% Play Time: Jump Air Time", abbr = "Jump Air Time", units = "percentage", order = 871},
-  ["raw:time_pet_battle"] = {text = "Total Time in Pet Battles", units = "time", order = 872, version = "retail"},
-  ["derived_stats:pct_time_pet_battles"] = {text = "% Play Time: Pet Battles", abbr = "Pet Battles", units = "percentage", order = 873, version = "retail"},
   
   --tradeskill
   ["raw:cooking_looted"] = {text = "Cooking Items and Fish Gathered", units = "integer", order = 801, version = "retail"},
@@ -215,28 +213,4 @@ quantify.STATS = {
   --misc
   ["raw:jumps"] = {text = "Total Jumps", units = "integer"},
   ["session_rates:jumps"] = {text = "Jumps Per Hour", units = "integer/hour"},  
-  
-  --pet battles
-  ["raw:total_battles"] = {text = "Total Pet Battles", units = "integer", version="retail"},
-  ["raw:total_wild_battles"] = {text = "Total Wild Pet Battles", units = "integer", version="retail"},
-  ["raw:total_trainer_battles"] = {text = "Total Trainer Pet Battles", units = "integer", version="retail"},
-  ["raw:total_battle_wins"] = {text = "Total Pet Battle Victories", units = "integer", version="retail"},
-  ["raw:total_wild_battle_wins"] = {text = "Total Wild Pet Battle Victories", units = "integer", version="retail"},
-  ["raw:total_trainer_battle_wins"] = {text = "Total Trainer Pet Battle Victories", units = "integer", version="retail"},
-  ["raw:total_wild_forfeits"] = {text = "Total Wild Pet Battle Forfeits", units = "integer", version="retail"},
-  ["raw:total_trainer_forfeits"] = {text = "Total Trainer Pet Battle Forfeits", units = "integer", version="retail"}, 
-  ["derived_stats:pct_battle_wins"] = {text = "% Pet Battle Victories", units = "percentage", version = "retail"},
-  ["derived_stats:pct_wild_battle_wins"] = {text = "% Wild Pet Battle Victories", units = "percentage", version = "retail"},
-  ["derived_stats:pct_trainer_battle_wins"] = {text = "% Trainer Pet Battle Victories", units = "percentage", version = "retail"},
-  ["derived_stats:pct_battle_wins_no_forfeits"] = {text = "% Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
-  ["derived_stats:pct_wild_battle_wins_no_forfeits"] = {text = "% Wild Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
-  ["derived_stats:pct_trainer_battle_wins_no_forfeits"] = {text = "% Trainer Pet Battle Victories Exclude Forfeits", units = "percentage", version = "retail"},
-  ["derived_stats:total_pets"] = {text = "Total Pets", units = "integer", version = "retail", order = 100, exclude_total = true},
-  ["derived_stats:max_level_pets"] = {text = "Total Max Level Pets", units = "integer", version = "retail", order = 101, exclude_total = true},
-  ["derived_stats:combat_pets"] = {text = "Total Combat Pets", units = "integer", version = "retail", order = 102, exclude_total = true},
-  ["derived_stats:wild_caught_pets"] = {text = "Total Pets Caught in the Wild", units = "integer", version = "retail", order = 103, exclude_total = true},
-  ["derived_stats:num_rarity_*"] = {text = "Total * Pets", units = "integer", version = "retail", order = 110, exclude_total = true},
-  ["derived_stats:num_type_*"] = {text = "Total * Type Pets", units = "integer", version = "retail", order = 120, exclude_total = true},
-  ["derived_stats:most_used_pets_*"] = {text = "Most Used Pets: *", units = "integer", version = "retail", order = 200},
-
 }
