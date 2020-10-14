@@ -9,6 +9,9 @@
 <Script file="QuantifyStatContextMenu.lua"/>
 <Script file="QuantifyEditWindow.lua" />
 <Script file="QuantifyConfirmWindow.lua" />
+<Script file="QuantifyStatScrollFrame.lua" />
+
+<Include file="Widgets\quantify-widgets.xml"/>
 
 </Ui>
 

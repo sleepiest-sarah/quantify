@@ -1,5 +1,7 @@
-local log = quantify.log
-local session
+local q = quantify
+
+quantify_exp = {}
+quantify_exp.MODULE_KEY = "xp"
 
 local player_kill = 0
 local player_quest = 0
@@ -11,29 +13,6 @@ local previous_level = nil
 local previous_max_xp = nil
 
 local previous_max_azerite_xp
-
-local q = quantify
-
-quantify_exp = {}
-quantify_exp.Session = {}
-
-quantify_exp.MODULE_KEY = "xp"
-
-function quantify_exp.Session:new(o)
-  o = o or {xp = 0, quest_xp = 0, kill_xp = 0, scenario_xp = 0, other_xp = 0, rested_xp = 0, pct_levels_gained = 0, levels_gained = 0, group_xp = 0, azerite_xp = 0, pet_battle_xp = 0,                gathering_xp = 0}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-
-local function init()
-  quantify.current_segment.stats.xp = {} 
-  quantify.current_segment.stats.xp.raw = quantify_exp.Session:new()
-  quantify.current_segment.stats.xp.derived_stats = {time_to_level = 0}
-  quantify.current_segment.stats.xp.session_rates = {}
-  session = quantify.current_segment.stats.xp.raw
-end
 
 --other exp
 local function playerExpUpdate(event, ...)
@@ -47,19 +26,19 @@ local function playerExpUpdate(event, ...)
       xp_gain = (previous_max_xp - previous_xp) + current_xp
       previous_max_xp = max_xp
     end
-    session.xp = session.xp + xp_gain
+    q:incrementStat("XP", xp_gain)
     
     
     local xp_pct = xp_gain / max_xp
-    session.pct_levels_gained = session.pct_levels_gained + xp_pct
+    q:incrementStat("PCT_LEVELS_GAINED", xp_pct)
     
     local curtime = GetTime()
     if (curtime - pet_battle < quantify.EVENT_WINDOW) then
-      session.pet_battle_xp = session.pet_battle_xp + xp_gain
+      q:incrementStat("PET_BATTLE_XP", xp_gain)
     elseif (curtime - gathering < quantify.EVENT_WINDOW) then
-      session.gathering_xp = session.gathering_xp + xp_gain
+      q:incrementStat("GATHERING_XP", xp_gain)
     elseif ((curtime - player_kill > quantify.EVENT_WINDOW) and (curtime - player_quest > quantify.EVENT_WINDOW)) then
-      session.other_xp = session.other_xp + xp_gain
+      q:incrementStat("OTHER_XP", xp_gain)
     end
     
     previous_xp = current_xp
@@ -72,6 +51,7 @@ local function playerQuestTurnedIn(event, ...)
   
   if (xp ~= nil) then
     session.quest_xp = session.quest_xp + xp
+    q:incrementStat("QUEST_XP", xp)
   end
   
   player_quest = GetTime()
@@ -82,18 +62,18 @@ local function playerMsgCombatXpGain(event, ...)
   
   local xp_gain = string.match(msg, "dies, you gain (%d+) experience.")
   if (xp_gain ~= nil) then
-    session.kill_xp = session.kill_xp + xp_gain
+    q:incrementStat("KILL_XP", xp_gain)
     player_kill = GetTime()
   end
   
   local rested_xp = string.match(msg, "%+(%d+) exp Rested bonus")
   if (rested_xp ~= nil) then
-    session.rested_xp = session.rested_xp + tonumber(rested_xp)
+    q:incrementStat("RESTED_XP", tonumber(rested_xp))
   end
   
   local group_xp = string.match(msg, "%+(%d+) group bonus")
   if (group_xp ~= nil) then
-    session.group_xp = session.group_xp + tonumber(group_xp)
+    q:incrementStat("GROUP_XP", tonumber(group_xp))
   end
 end
 
@@ -101,7 +81,7 @@ local function playerScenarioCompleted(event, ...)
   local questid, xp, money = unpack({...})
   
   if (xp ~= nil) then
-    session.scenario_xp = session.scenario_xp + xp
+    q:incrementStat("SCENARIO_XP", xp)
   end
   
   player_quest = GetTime()
@@ -113,7 +93,7 @@ end
 
 local function playerLevelUp(event, newLevel)
   if (newLevel ~= previous_level) then
-    session.levels_gained = session.levels_gained + 1
+    q:incrementStat("LEVELS_GAINED", 1)
     previous_level = newLevel
   end
 end
@@ -148,55 +128,67 @@ local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
     previous_max_azerite_xp = totalLevelXP
   end
 
-  session.azerite_xp = session.azerite_xp + delta
+  q:incrementStat("AZERITE_XP", delta)
 end
 
 function quantify_exp:calculateDerivedStats(segment)
-  segment.stats.xp.session_rates = quantify:calculateSegmentRates(segment, segment.stats.xp.raw)
+  --segment.stats.xp.session_rates = quantify:calculateSegmentRates(segment, segment.stats.xp.raw)
   
-  local session_xp_rate = segment.stats.xp.session_rates.xp
-  segment.stats.xp.derived_stats = {}
-  segment.stats.xp.derived_stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
+  --local session_xp_rate = segment.stats.xp.session_rates.xp
   
-  local rate_max_level = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_sub_max_level).xp or 0
-  local rate_rested = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_rested).rested_xp or 0
-  
-  segment.stats.xp.session_rates.xp = rate_max_level
-  segment.stats.xp.session_rates.rested_xp = rate_rested
+  local stats = segment.stats
 
-  local xp_rate_no_rested = rate_max_level - rate_rested --xp/hr
-  local time_per_total_xp = segment.stats.xp.raw.xp * 3600/(rate_max_level )                                   --seconds
-  local time_per_total_xp_no_rested = segment.stats.xp.raw.xp * 3600/(xp_rate_no_rested )               --seconds
+  --stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
+  
+  --local rate_max_level = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_sub_max_level).xp or 0
+  --local rate_rested = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_rested).rested_xp or 0
+  
+  --segment.stats.xp.session_rates.xp = rate_max_level
+  --segment.stats.xp.session_rates.rested_xp = rate_rested
 
-  segment.stats.xp.derived_stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
+  --local xp_rate_no_rested = rate_max_level - rate_rested --xp/hr
+  --local time_per_total_xp = segment.stats.xp.raw.xp * 3600/(rate_max_level )                                   --seconds
+  --local time_per_total_xp_no_rested = segment.stats.xp.raw.xp * 3600/(xp_rate_no_rested )               --seconds
+
+  --segment.stats.xp.derived_stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
   
   if (q.isRetail and quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
     local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
     if (success) then
-      segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
+      --segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
     end
   end
   
-  local raw = segment.stats.xp.raw
-  segment.stats.xp.derived_stats.pct_xp_kill = (raw.kill_xp / raw.xp) * 100
-  segment.stats.xp.derived_stats.pct_xp_pet_battle = (raw.pet_battle_xp / raw.xp) * 100
-  segment.stats.xp.derived_stats.pct_xp_quest = (raw.quest_xp / raw.xp) * 100
-  segment.stats.xp.derived_stats.pct_xp_other = (raw.other_xp / raw.xp) * 100
-  segment.stats.xp.derived_stats.pct_xp_gathering = (raw.gathering_xp / raw.xp) * 100
+  stats.pct_xp_kill = (stats.kill_xp / stats.xp) * 100
+  stats.pct_xp_pet_battle = (stats.pet_battle_xp / stats.xp) * 100
+  stats.pct_xp_quest = (stats.quest_xp / stats.xp) * 100
+  stats.pct_xp_other = (stats.other_xp / stats.xp) * 100
+  stats.pct_xp_gathering = (stats.gathering_xp / stats.xp) * 100
 end
 
 function quantify_exp:updateStats(segment)
   quantify_exp:calculateDerivedStats(segment)
 end
 
-function quantify_exp:newSegment(previous_seg, new_seg)  
-  init()
+function quantify_exp:newSegment(segment)  
+  
+  segment.stats = segment.stats or 
+                 {xp = 0,
+                  quest_xp = 0,
+                  kill_xp = 0,
+                  scenario_xp = 0,
+                  other_xp = 0,
+                  rested_xp = 0,
+                  pct_levels_gained = 0,
+                  levels_gained = 0,
+                  group_xp = 0,
+                  azerite_xp = 0,
+                  pet_battle_xp = 0,
+                  gathering_xp = 0}  
+  
   
   playerLogin()
-  
 end
-
-init()
 
 table.insert(quantify.modules, quantify_exp)
 

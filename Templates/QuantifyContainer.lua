@@ -1,12 +1,8 @@
 local agui = LibStub("AceGUI-3.0")
 local q = quantify
+local qui = quantify_ui
 
 local LibQTip = LibStub('LibQTip-1.0')
-
-local PRE_INITIALIZED_BUTTONS = 350
-local FIRST_INITIALIZATION_BUTTONS = 100
-local BUTTON_INITIALIZATION_INCREMENT = 1
-local num_buttons = 0
 
 local watchlist_cb
 
@@ -14,9 +10,11 @@ local selected_module,selected_segment
 
 local segment_list
 
-local stats_scrollframe
-
 local stats_buttons = {}
+
+local default_stat_widget, dungeon_widget
+local active_widget
+local maincontainer
 
 local function CreateWatchlistCheckbox(width)
   width = width or 200
@@ -62,10 +60,22 @@ local function QuantifySegmentLabel_OnClick(self)
   
   selected_segment = self
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true, true, false, false)
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
+  if (self.module == "dungeons") then
+    default_stat_widget:Hide()
+    dungeon_widget:Show()
+    active_widget = dungeon_widget
+    maincontainer:DoLayout()
+  elseif (self.module ~= "dungeons") then
+    dungeon_widget:Hide()
+    default_stat_widget:Show()
+    active_widget = default_stat_widget
+    maincontainer:DoLayout()
+  end
+  
   q:setCurrentViewModule(self.module)
   
   selected_module:SetColor(nil)
@@ -76,7 +86,8 @@ local function QuantifyModuleLabel_OnClick(self)
   
   selected_module = self
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true, false, true, false)
+
 end
 
 function QuantifySegmentList_Refresh(self)
@@ -84,7 +95,7 @@ function QuantifySegmentList_Refresh(self)
   
   self:ReleaseChildren()
   
-  local segments = quantify:getSegmentList()
+  local segments = quantify:getAllSegments()
   local keys_t = {}
   table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
   table.sort(keys_t, segmentListComparator)
@@ -151,6 +162,13 @@ local function CreateModuleList()
   c:AddChild(label)  
   
   selected_module = label
+  
+  label = agui:Create("InteractiveLabel")
+  label:SetText("Dungeons")
+  label.module = "dungeons"
+  label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
+  label:SetFontObject(AchievementPointsFontSmall)
+  c:AddChild(label)  
   
   for _,m in ipairs(modules) do
     label = agui:Create("InteractiveLabel")
@@ -225,145 +243,42 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
     quantify:ViewAllStats_Update()
   end
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true)
 end
 
-local function createStatRow(self,i)
-  local wrapper = stats_buttons["ViewStatsButton"..tostring(i)]
-  if (not wrapper) then
-    local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
-    
-    wrapper = agui:Create("QuantifyContainerWrapper")
-    wrapper:SetQuantifyFrame(button)
-    wrapper:SetLayout("Fill")
-    wrapper:SetFullWidth(true)
-    
-    wrapper.i = i
-    
-    num_buttons = i
-    
-    stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
-    
-    self:PauseLayout()
-    self:AddChild(wrapper)
-  end
-  
-  return wrapper
-end
-
-function QuantifyStatsScrollFrame_Refresh(redoLayout)
-  local self = stats_scrollframe
-  
-  if (self) then
-    --self:ReleaseChildren()
-    
-    local list = quantify:getStatsList()
-    local listn = #list
-    
-    --reuse buttons for performance
-    for i,item in ipairs(list) do
-      local wrapper = createStatRow(self,i)
-      
-      QuantifyStatRowTemplate_SetText(wrapper.frame,item)
-      
-      wrapper.frame:Show()
-    end
-
-    local index = 1
-    for _,b in pairs(stats_buttons) do
-      if (b.i > listn) then
-        b.frame:Hide()
-      end
-      
-      index = index + 1
-    end
-
-    if (redoLayout or stats_scrollframe.LayoutPaused) then
-      stats_scrollframe:ResumeLayout()
-      self:DoLayout()
-    end
-    
-  end
-end
-
-function QuantifyContainer_InitializeScrollButtons()
-  stats_scrollframe:PauseLayout()
-  
-  local min,max
-  if (num_buttons == 0) then
-    min = 1
-    max = FIRST_INITIALIZATION_BUTTONS
-  else
-    min = num_buttons + 1
-    max = min + BUTTON_INITIALIZATION_INCREMENT
-  end
-  
-  for i=min,math.min(max,PRE_INITIALIZED_BUTTONS) do
-    createStatRow(stats_scrollframe,i)
-    
-  end
-  
-  if (max < PRE_INITIALIZED_BUTTONS) then
-    q:registerNextFrame(QuantifyContainer_InitializeScrollButtons, 1)
-  else
-    stats_scrollframe:ResumeLayout()
+function qui:RefreshWidget(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
+  if (active_widget) then
+    active_widget:refresh(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
   end
 end
 
 function QuantifyContainer_Initialize()
   QuantifyContainer_Frame:SetBackdrop(BACKDROP_QUANTIFY_WINDOW)
-  QuantifyBottomBar:SetBackdrop(BACKDROP_QUANTIFY_BAR)
+  --QuantifyBottomBar:SetBackdrop(BACKDROP_QUANTIFY_BAR)
   
   local qcontainer = agui:Create("QuantifyContainerWrapper")
   qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
   qcontainer:SetLayout("Fill")
   
-  local maincontainer = agui:Create("QuantifyContainerWrapper")
+  maincontainer = agui:Create("QuantifyContainerWrapper")
   maincontainer:SetQuantifyFrame(QuantifyMainPane)
-  maincontainer:SetLayout("Fill")
-  maincontainer:SetWidth("490")
+  maincontainer:SetLayout("qFill")
+  maincontainer:SetWidth("780")
+  maincontainer:SetHeight("630")
   
-  local stats_scrollcontainer = agui:Create("SimpleGroup")
-  stats_scrollcontainer:SetFullWidth(true)
-  --stats_scrollcontainer:SetFullHeight(true)
-  stats_scrollcontainer:SetLayout("Fill")
+  maincontainer:PauseLayout()
   
-  stats_scrollframe = agui:Create("ScrollFrame")
-  stats_scrollframe:SetLayout("qList")
+  default_stat_widget = qui:CreateWidget("StatWidget")
+  maincontainer:AddChild(default_stat_widget.widget)
   
-  --create some buttons ahead of time for performance
-  if (qDbOptions.preload ~= false) then
-    stats_scrollframe:PauseLayout()
-    for i=1,PRE_INITIALIZED_BUTTONS do
-      createStatRow(stats_scrollframe,i)
-    end
-    stats_scrollframe:ResumeLayout()
-  end
+  dungeon_widget = qui:CreateWidget("DungeonWidget")
+  maincontainer:AddChild(dungeon_widget.widget)
+  dungeon_widget:Hide()
   
-  stats_scrollcontainer:AddChild(stats_scrollframe)
+  maincontainer:ResumeLayout()
+  maincontainer:DoLayout()
   
-  local tabgroup = agui:Create("TabGroup")
-  tabgroup:SetLayout("Fill")
-  tabgroup:SetWidth(470)
-  tabgroup:SetTabs({
-        {value = "all", text = "All"},
-        --{value = "summary", text = "Summary"},
-        {value = "raw", text = "Totals"},
-        {value = "session_rates", text = "Rates"},
-        {value = "derived_stats", text = "Complex"},
-        ---{value = "graphs", text = "Graphs"},
-        --{value = "settings", text = "Settings"}
-      })
-  tabgroup:SetUserData("all",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("raw",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("session_rates",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("derived_stats",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("selected","all")
-  tabgroup:SetCallback("OnGroupSelected", QuantifyTabGroup_OnGroupSelected)
-  tabgroup:SelectTab("all")
-  tabgroup:AddChild(stats_scrollcontainer)
-  
-  maincontainer:AddChild(tabgroup)
+  active_widget = default_stat_widget
   
   local bottom_bar = agui:Create("QuantifyContainerWrapper")
   bottom_bar:SetQuantifyFrame(QuantifyBottomBar)
@@ -386,7 +301,6 @@ function QuantifyContainer_Initialize()
   modulelist:SetHeight(140)
 
   local segment_group =  agui:Create("QuantifyInlineGroup")
-  segment_group:SetBackdropColor(.1,.1,.1,.8)
   segment_group:SetWidth(180)
   segment_group:SetTitle("Segments")
   segment_group:AddChild(segmentlist)
@@ -397,7 +311,6 @@ function QuantifyContainer_Initialize()
   module_group:AddChild(modulelist)
   
   local segment_control_group = CreateSegmentControl()
-  
   
   left_pane:AddChild(segment_group)
   left_pane:AddChild(segment_control_group)

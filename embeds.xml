@@ -12,5 +12,6 @@
 
 <Include file="Libs\LibDBIcon-1.0\LibDBIcon-1.0\lib.xml"/>
 <Script file="Libs\LibQTip-1.0\LibQTip-1.0.lua"/>
+<Script file="Libs\lib-st\Core.lua" />
 </Ui>
 

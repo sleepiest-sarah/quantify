@@ -25,8 +25,8 @@ q.isClassic = tocVersion < 80000
 q.isRetail = not q.isClassic --just for more readable checks
 
 q.player_login_time = nil
-q.segments = {q.Segment:new()}
-q.current_segment = q.segments[1]
+q.segments = {}
+q.current_segment = nil
 
 local last_totals_update = 0
 local TOTALS_UPDATE_WINDOW = 300
@@ -119,52 +119,52 @@ function q:getSnapshotSegment()
 end
 
 function q:updateTotals(in_segment)
-
-  local segment = in_segment
-  if (segment_snapshot) then
+  if (false) then
+    local segment = in_segment
+    if (segment_snapshot) then
+      for k, statgroup in pairs(segment.stats) do
+          if (segment_snapshot.stats[k] == nil) then
+            segment_snapshot.stats[k] = {}
+            segment_snapshot.stats[k].raw = {}
+          end
+          segment_snapshot.stats[k].raw = q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
+      end
+      
+      segment = segment_snapshot
+    end
+    
+    local duration
+    local start_time = segment.total_start_time or segment.start_time
+    if (start_time == nil and segment.end_time == nil) then
+      duration = segment._duration or 0
+    elseif (segment.end_time ~= nil) then
+      duration = segment.end_time - start_time
+    else
+      duration = GetTime() - start_time
+    end
+    
+    segment.total_start_time = GetTime()
+    
+    qDb.account.time = qDb.account.time + duration
+    qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
+    
     for k, statgroup in pairs(segment.stats) do
-        if (segment_snapshot.stats[k] == nil) then
-          segment_snapshot.stats[k] = {}
-          segment_snapshot.stats[k].raw = {}
-        end
-        segment_snapshot.stats[k].raw = q:subtractTables(statgroup.raw,segment_snapshot.stats[k].raw)
+      if (qDb.account.stats[k] == nil) then
+        qDb.account.stats[k] = {}
+      end
+      q:addTables(qDb.account.stats[k], statgroup.raw)
+      
+      if (qDb[q.TotalSegment:characterKey()].stats[k] == nil) then
+        qDb[q.TotalSegment:characterKey()].stats[k] = {}
+      end
+      q:addTables(qDb[q.TotalSegment:characterKey()].stats[k], statgroup.raw)
+
     end
+
+    last_totals_update = GetTime()
     
-    segment = segment_snapshot
+    segment_snapshot = q:createSegmentSnapshot(in_segment)
   end
-  
-  local duration
-  local start_time = segment.total_start_time or segment.start_time
-  if (start_time == nil and segment.end_time == nil) then
-    duration = segment._duration or 0
-  elseif (segment.end_time ~= nil) then
-    duration = segment.end_time - start_time
-  else
-    duration = GetTime() - start_time
-  end
-  
-  segment.total_start_time = GetTime()
-  
-  qDb.account.time = qDb.account.time + duration
-  qDb[q.TotalSegment:characterKey()].time = qDb[q.TotalSegment:characterKey()].time + duration
-  
-  for k, statgroup in pairs(segment.stats) do
-    if (qDb.account.stats[k] == nil) then
-      qDb.account.stats[k] = {}
-    end
-    q:addTables(qDb.account.stats[k], statgroup.raw)
-
-    
-    if (qDb[q.TotalSegment:characterKey()].stats[k] == nil) then
-      qDb[q.TotalSegment:characterKey()].stats[k] = {}
-    end
-    q:addTables(qDb[q.TotalSegment:characterKey()].stats[k], statgroup.raw)
-
-  end
-
-  last_totals_update = GetTime()
-  
-  segment_snapshot = q:createSegmentSnapshot(in_segment)
 end
 
 function quantify:registerEvent(event, func)
@@ -216,6 +216,10 @@ local function init(event, ...)
     
     if (qDb[quantify.TotalSegment:characterKey()] == nil) then
       qDb[q.TotalSegment:characterKey()] = q.TotalSegment:new()
+      for _,m in ipairs(q.modules) do
+        qDb[q.TotalSegment:characterKey()].stats[m.MODULE_KEY] = {}
+        m:newSegment(qDb[q.TotalSegment:characterKey()].stats[m.MODULE_KEY])
+      end
     end
     
     
@@ -243,6 +247,9 @@ local function init(event, ...)
     local icon = LibStub("LibDBIcon-1.0")
     icon:Register("quantify", bunnyLDB, qDbOptions.profile.minimap)
     
+    q.current_segment = q:createNewSegment()
+    table.insert(q.segments, q.current_segment)
+    
     quantify:initializeUi()
   end
 end
@@ -259,28 +266,35 @@ local function playerLogin(event, ...)
   q.current_segment.start_time = q.player_login_time
 end
 
-function q:createNewSegment()
-  local new_segment = q.Segment:new()
-  new_segment.start_time = GetTime()
-  q.current_segment.end_time = GetTime()
-  
+local function closeSegment(segment)
+  segment.end_time = GetTime()
   
   --process any rates or derived stats
   for _,m in ipairs(q.modules) do
-    m:updateStats(q.current_segment)
+    m:updateStats(segment)
   end
   
-  q:updateTotals(q.current_segment)
+  q:updateTotals(segment)
   segment_snapshot = nil
+end
+
+function q:createNewSegment()
+  local new_segment = q.Segment:new()
+  new_segment.start_time = GetTime()
+  
+  if (q.current_segment) then
+    closeSegment(q.current_segment)
+  end
   
   q.current_segment = new_segment
   
   --initialize modules for the new segment
   for _,m in ipairs(q.modules) do
-    m.newSegment()
+    new_segment.stats[m.MODULE_KEY] = {}
+    m:newSegment(new_segment.stats[m.MODULE_KEY])
   end
 
-  table.insert(q.segments, q.current_segment)
+  return new_segment
 end
 
 local function qtySlashCmd(msg, editbox)

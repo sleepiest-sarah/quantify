@@ -15,7 +15,13 @@ local methods = {
 
 	["SetBackdrop"] = function(self, PaneBackdrop)
 		self.border:SetBackdrop(PaneBackdrop)
-	end
+	end,
+  
+  ["ClearBackdrop"] = function(self)
+    self:SetBorderColor(0,0,0,0)
+    self:SetBackdropColor(0,0,0,0)
+    self:SetBackdrop(nil)
+  end
 }
 
 local PaneBackdrop  = {
@@ -31,6 +37,8 @@ local function Constructor()
   for i,c in ipairs(basegroup.frame:GetChildren()) do
     c:SetBackdrop(nil)
   end
+  
+  basegroup.content:GetParent():SetBackdrop(nil)
 
 	local border = CreateFrame("Frame", nil, basegroup.frame, "BackdropTemplate")
 	border:SetPoint("TOPLEFT", 0, -17)

@@ -187,8 +187,6 @@ function quantify_reputation:newSegment(previous_seg,new_seg)
   
 end
 
-init()
-
 table.insert(quantify.modules, quantify_reputation)
 
 quantify:registerEvent("CHAT_MSG_COMBAT_FACTION_CHANGE", combatFactionChange)

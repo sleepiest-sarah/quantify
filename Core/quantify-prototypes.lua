@@ -197,3 +197,28 @@ Faction.FRIENDLY = 5
 Faction.HONORED = 6
 Faction.REVERED = 7
 Faction.EXALTED = 8
+
+quantify.Party = {}
+local Party = quantify.Party
+
+function Party:new(o)
+  o = o or {members = {}}
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+function Party:addMember(name, role)
+  self.members[name] = {name = name, role = role}
+end
+
+function Party:getPartyKey()
+  local mates = {}
+  for k,v in pairs(self.members) do
+    table.insert(mates, v.name.."-"..v.role)
+  end
+  
+  table.sort(mates)
+  
+  return strjoin("|", unpack(mates))
+end

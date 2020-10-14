@@ -1,6 +1,9 @@
 local q = quantify
 local _G = _G
 
+quantify_ui = {}
+local qui = quantify_ui
+
 q.STAT_ROW_HEIGHT = 30
 q.NUM_STAT_ROWS = 10
 q.VIEW_STATS_BUTTON_PREFIX = "ViewStatsButton"
@@ -95,13 +98,15 @@ function q:ViewAllStats_Update()
     table.sort(ViewAllStats_List, function(a,b) return (a.order == b.order and a.label < b.label) or (a.order < b.order) end)
   end
   
-  QuantifyStatsScrollFrame_Refresh(false)
+  qui:RefreshWidget(false)
 end
 
 function q:showUi(bool)
   q.quantify_ui_shown = bool
   if (bool) then
     QuantifyContainer_Frame:Show()
+    
+    qui:RefreshWidget(true, false, false, true)
   else
     QuantifyContainer_Frame:Hide()
   end
@@ -148,7 +153,7 @@ function q:updateUi(watchlist)
   end
   
   for _,m in ipairs(q.modules) do
-    m:updateStats(q.current_segment)
+    m:updateStats(q.current_segment.stats[m.MODULE_KEY])
   end
   
   if (q.viewingTotalSegment()) then

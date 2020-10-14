@@ -10,6 +10,8 @@ Core\constants.lua
 Core\stat_dictionary.lua
 Core\instance_dictionary.lua
 
+Core\quantify-segment.lua
+Core\quantify-dataaccess.lua
 Core\quantify-prototypes.lua
 Core\quantify-utils.lua
 Core\quantify-migrations.lua
@@ -31,3 +33,5 @@ Modules\quantify-reputation.lua
 Modules\quantify-miscellaneous.lua
 
 quantify-ui.xml
+
+Core\quantify-test.lua

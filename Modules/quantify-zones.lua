@@ -82,8 +82,6 @@ function quantify_zones:newSegment(previous_seg,new_seg)
   init()
 end
 
-init()
-
 table.insert(quantify.modules, quantify_zones)
 
 quantify:registerEvent("ZONE_CHANGED_NEW_AREA", zoneChangedNewArea)

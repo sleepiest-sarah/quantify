@@ -12,14 +12,6 @@ quantify.LOADED_TEXT =
 [[
 quantify loaded :)
   use /qty or /quantify to see options
-  
-This is the first release for WoW Classic. Nothing new yet while I focus on ironing out the issues with the port from Retail to Classic. New Classic-focused stats and features are on the way though. Thank you for your support!
-
-Tips
-  1) Double-click to add/remove stats to/from the watchlist
-  2) Right click the watchlist to save presets
-  3) Watchlist stats can be mixed and matched between the current, account, and character view.
-  4) Right-clicking a stat opens a menu with additional options.
 
 For issues, bugs, suggestions, or anything else please feel free to contact me.
   Discord: Aeroxis#2344 Twitch: quitesleepysarah
@@ -52,3 +44,13 @@ This is an advanced feature intended to allow repairing single stats without cle
 
 As always please feel free to contact me or submit an issue if you are resetting stats due to a bug or other issue.
 ]]
+
+quantify.EJ_CLASSIC = 1
+quantify.EJ_BC = 2
+quantify.EJ_WOTLK = 3
+quantify.EJ_CATACLYSM = 4
+quantify.EJ_MOP = 5
+quantify.EJ_WOD = 6
+quantify.EJ_LEGION = 7
+quantify.EJ_BFA = 8
+quantify.EJ_SL = 9

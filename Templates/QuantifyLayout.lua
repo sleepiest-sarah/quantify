@@ -190,3 +190,63 @@ agui:RegisterLayout("qFlow",
       content.obj.LayoutFinished(content.obj,nil,height)
     end
 	end)
+
+--same ace Fill but uses the first visible child instead of the first child
+agui:RegisterLayout("qFill",
+	function(content, children)
+		for i,c in ipairs(children) do
+      if (c.frame:IsVisible()) then
+        c:SetWidth(content:GetWidth() or 0)
+        c:SetHeight(content:GetHeight() or 0)
+        c.frame:ClearAllPoints()
+        c.frame:SetAllPoints(content)
+        c.frame:Show()
+        
+        if (content.obj.LayoutFinished) then
+          content.obj.LayoutFinished(content.obj,nil,c.frame:GetHeight())
+        end
+        
+        break
+      end
+		end
+	end)
+
+agui:RegisterLayout("qGrid",
+  function (content, children)
+    local grid = content.gridOptions
+    
+    local height = content:GetHeight()
+    local width = content:GetWidth()
+    local rowHeight = height / grid.rows
+    local columnWidth = width / grid.columns
+    
+    grid.anchorPoints = {}
+    for x=0,grid.columns do
+      for y=0,grid.rows do
+        grid.anchorPoints[tostring(x)..","..tostring(y)] = {x = x * columnWidth, y = y * rowHeight}
+      end
+    end
+    
+    for i,child in ipairs(children) do
+      local frame = child.frame
+      frame:ClearAllPoints()
+      frame:Show()
+      
+      frame:SetPoint("TOPLEFT", content, "TOPLEFT"
+                    ,grid.anchorPoints[child.gridPosition].x
+                    ,grid.anchorPoints[child.gridPosition].y * -1)
+      
+      local childHeight = (not child.rowspan or child.rowspan == 1) and rowHeight or (rowHeight * child.rowspan)
+      local childWidth = (not child.colspan or child.colspan == 1) and columnWidth or (columnWidth * child.colspan)
+      child:SetWidth(childWidth)
+      child:SetHeight(childHeight)
+      
+      if (child.DoLayout) then
+        child:DoLayout()
+      end
+    end
+    
+    if (content.obj.LayoutFinished) then
+      content.obj.LayoutFinished(content.obj,nil,height)
+    end
+  end)

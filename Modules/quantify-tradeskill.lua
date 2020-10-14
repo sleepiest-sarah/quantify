@@ -91,6 +91,4 @@ function quantify_tradeskill:newSegment(previous_seg,new_seg)
   
 end
 
-init()
-
 table.insert(quantify.modules, quantify_tradeskill)

@@ -42,8 +42,6 @@ function quantify_misc:newSegment(previous_seg,new_seg)
   init()
 end
 
-init()
-
 table.insert(quantify.modules, quantify_misc)
-  
+
 q:hookSecureFunc("JumpOrAscendStart", jump)

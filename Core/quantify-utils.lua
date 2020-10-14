@@ -1,14 +1,16 @@
 local q = quantify
 
-function q:printTable(t)
-  if (not t) then
+function q:printTable(t, depth)
+  depth = depth or 0
+  
+  if (not t or depth > 5) then
     return
   end
   
   for k,v in pairs(t) do
     if (type(v) == "table") then
       print(string.format("%s:", tostring(k)))
-      q:printTable(v)
+      q:printTable(v, depth + 1)
     else
       print(string.format("%s: %s", tostring(k), tostring(v)))
     end
@@ -66,10 +68,10 @@ function q:calculateSegmentRates(segment, segment_stats, period, duration)
   return session_rates
 end
 
-function q:addTables(a,b)
+function q:addTables(a,b,shallow)
   --b expected to be the most up to date in the case of missing keys
   for k,v in pairs(b) do
-    if (type(v) == "table") then
+    if (type(v) == "table" and not shallow) then
       if (a[k] == nil) then
         a[k] = {}
       end
@@ -134,23 +136,6 @@ function q:deepcopy(orig)
     return copy
 end
 
-function q:getSegmentList()
-  local segments = {}
-  if (qDb ~= nil) then
-    for k,v in pairs(qDb) do
-      if (type(v) == "table" and k ~= "data") then
-        segments[k] = v
-      end
-    end
-  end
-  
-  for i,v in ipairs(q.segments) do
-    segments["Segment "..i] = v
-  end
-  
-  return segments
-end
-
 --flattens stat table
 function q:getAllStats(segment, type)
   local stats = {}
@@ -167,35 +152,6 @@ function q:getAllStats(segment, type)
   return stats
 end
 
-function q:convertSavedSegment(segment)
-  local cseg = q.Segment:new()
-  cseg._duration = segment.time
-  
-  for k,v in pairs(segment.stats) do
-    cseg.stats[k] = {}
-    cseg.stats[k].raw = v
-  end
-  
-  for _,m in ipairs(q.modules) do
-    if (cseg.stats[m.MODULE_KEY] == nil) then
-      cseg.stats[m.MODULE_KEY] = {}
-      cseg.stats[m.MODULE_KEY].raw = m.Session:new()
-    end
-    
-    --add any stats that are missing from the saved segment
-    local empty_stats = m.Session:new()
-    for s,v in pairs(empty_stats) do
-      if (cseg.stats[m.MODULE_KEY].raw[s] == nil) then
-        cseg.stats[m.MODULE_KEY].raw[s] = v
-      end
-    end
-    
-    m:updateStats(cseg)
-  end
-  
-  return cseg
-end
-
 function q:getSingleModuleSegment(key,segment,type)
   local new_seg = q:shallowCopy(segment)
   
@@ -206,8 +162,6 @@ function q:getSingleModuleSegment(key,segment,type)
   else
     new_seg.stats[key] = segment.stats[key]
   end
-  
-
   
   return new_seg 
 end
@@ -485,4 +439,50 @@ function q:getData(key)
   if (qDb and qDb.data and qDb.data[key]) then
     return qDb.data[key]
   end
+end
+
+function q:getUnitGroupPrefix()
+  return IsInRaid() and "raid" or "party"
+end
+
+function q:buildDisplayTable(data, ...)
+  local rows = {}
+  local data_keys = {...}
+  local num_columns = #data_keys
+  
+  for _,d in pairs(data) do
+    local r = {}
+    for i,data_key in ipairs({...}) do
+      --if (d[data_key]) then
+        table.insert(r, d[data_key])
+      --end
+    end
+    
+    --if (#r == num_columns) then
+      table.insert(rows, r)
+    --end
+  end
+    
+  return rows
+end
+
+function q:getRoleIcon(role)
+  if (role == "TANK") then
+    return INLINE_TANK_ICON
+  elseif (role == "HEALER") then
+    return INLINE_HEALER_ICON
+  elseif (role == "DAMAGER") then
+    return INLINE_DAMAGER_ICON
+  end
+  
+  return ""
+end
+
+function q:keyTable(t)
+  local res = {}
+  for i,v in pairs(t) do
+    res[v] = v
+  end
+  
+  return res
 end

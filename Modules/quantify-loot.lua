@@ -1,14 +1,11 @@
 quantify_loot = {}
 
 local q = quantify
-
-quantify_loot.Session = {}
+local ql = quantify_loot
 
 quantify_loot.MODULE_KEY = "loot"
 quantify_loot.INV_TYPE_PREFIX = "inv_type_*"
 quantify_loot.UPGRADE_PREFIX = "upgrade_received_*"
-
-local ql = quantify_loot
 
 ql.POOR = 0
 ql.COMMON = 1
@@ -26,7 +23,7 @@ ql.BFA = 7
 ql.CLASSIC = 254
 
 function quantify_loot.Session:new(o)
-  o = o or {total_items_looted = 0, gear_loot = 0, junk_looted = 0, junk_looted_value = 0, poor_loot = 0, common_loot = 0, uncommon_loot = 0, rare_loot = 0, epic_loot = 0, bfa_poor_loot = 0, bfa_common_loot = 0, bfa_uncommon_loot = 0, bfa_rare_loot = 0, bfa_epic_loot = 0, cloth_gear_loot = 0, leather_gear_loot = 0, mail_gear_loot = 0, plate_gear_loot = 0, overall_ilevel_upgrades = 0}
+  o = o or 
   setmetatable(o, self)
   self.__index = self
   return o
@@ -185,13 +182,34 @@ function quantify_loot:updateStats(segment)
   ql:calculateDerivedStats(segment)
 end
  
-function quantify_loot:newSegment(previous_seg,new_seg)
+function quantify_loot:newSegment(segment)
   
-  init()
+  segment.stats = segment.stats or 
+                   {total_items_looted = 0,
+                    gear_loot = 0,
+                    junk_looted = 0,
+                    junk_looted_value = 0,
+                    poor_loot = 0,
+                    common_loot = 0,
+                    uncommon_loot = 0,
+                    rare_loot = 0,
+                    epic_loot = 0,
+                    bfa_poor_loot = 0,
+                    bfa_common_loot = 0,
+                    bfa_uncommon_loot = 0,
+                    bfa_rare_loot = 0,
+                    bfa_epic_loot = 0,
+                    cloth_gear_loot = 0,
+                    leather_gear_loot = 0,
+                    mail_gear_loot = 0,
+                    plate_gear_loot = 0,
+                    overall_ilevel_upgrades = 0,
+                    inv_type_looted = {},
+                    pct_armor_class_looted = {},
+                    pct_loot_quality = {},
+                    upgrades_received = {}}
   
 end
-
-init()
 
 table.insert(quantify.modules, quantify_loot)
   
