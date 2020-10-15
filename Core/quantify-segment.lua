@@ -2,7 +2,7 @@ local q = quantify
 
 local stats = q.STATS
 
-function q:getStat(segment, path)
+function q:getStatByPath(segment, path)
   local pieces = {strsplit("/", path)}
   
   local obj = segment.stats
@@ -15,18 +15,25 @@ function q:getStat(segment, path)
   return obj
 end
 
+function q:getStat(segment, key)
+  return q:getStatByPath(segment, stats[key].path)
+end
+
 function q:setStat(segment, path, value)
   local pieces = {strsplit("/", path)}
   
   local obj = segment.stats
+  local key = nil
   for i,p in ipairs(pieces) do
-    
-    if (type(obj[p]) ~= "table") then
-      obj[p] = value
-    else
-      obj = obj[p]
+    key = p
+    if (i == #pieces) then
+      break
+    elseif (not obj[key]) then
+      obj[key] = {}
     end
+    obj = obj[key]
   end
+  obj[key] = value
 end
 
 function q:getAllSegments()
@@ -66,7 +73,7 @@ function q:incrementStatByPath(path, increment)
   local segments = q:getAllActiveSegments()
   
   for k,seg in pairs(segments) do
-    local stat = q:getStat(seg, path)
+    local stat = q:getStatByPath(seg, path)
     q:setStat(seg, path, (stat or 0) + increment)
   end
 end
@@ -80,7 +87,7 @@ function q:updateStatBlock(path,callback, ...)
   local segments = q:getAllActiveSegments()
   
   for k,seg in pairs(segments) do
-    local stat_block = q:getStat(seg, path)
+    local stat_block = q:getStatByPath(seg, path)
     callback(stat_block, ...)
   end
 end
@@ -108,7 +115,7 @@ function q:convertSavedSegment(segment)
 --    end
 
     m:newSegment(cseg.stats[m.MODULE_KEY])
-    m:updateStats(cseg.stats[m.MODULE_KEY])
+    m:updateStats(cseg.stats[m.MODULE_KEY], cseg)
   end
   
   return cseg

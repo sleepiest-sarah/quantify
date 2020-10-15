@@ -299,15 +299,15 @@ local function encounterEnd(event, ...)
     
     current_dungeon_run.boss_kills = current_dungeon_run.boss_kills + 1
   elseif (success == 1 and quantify_state:getInstanceType() == "raid") then
-    incrementPrefix(quantify_instances.RAW_RAID_BOSS_KILL_PREFIX, instance_name, quantify_state:getInstanceDifficulty())
-    session.overall_raid_boss_kills = session.overall_raid_boss_kills + 1
+    --incrementPrefix(quantify_instances.RAW_RAID_BOSS_KILL_PREFIX, instance_name, quantify_state:getInstanceDifficulty())
+    q:incrementStat("OVERALL_RAID_BOSS_KILLS",1)
   elseif (success == 0 and quantify_state:getInstanceType() == "party") then
     q:incrementStat("OVERALL_DUNGEON_BOSS_WIPES",1)
     
     current_dungeon_run.boss_wipes = current_dungeon_run.boss_wipes + 1
   elseif (success == 0 and quantify_state:getInstanceType() == "raid") then
-    incrementPrefix(quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX, instance_name,quantify_state:getInstanceDifficulty())
-    session.overall_raid_boss_wipes = session.overall_raid_boss_wipes + 1
+    --incrementPrefix(quantify_instances.RAW_RAID_BOSS_WIPE_PREFIX, instance_name,quantify_state:getInstanceDifficulty())
+    q:incrementStat("OVERALL_RAID_BOSS_WIPES",1)
   end
   
   if (quantify_state:isCurrentDungeonComplete()) then
@@ -506,7 +506,7 @@ function quantify_instances:newSegment(segment)
   segment.data.dungeons = segment.data.dungeons or {}
   segment.data.parties = segment.data.parties or {}
   
-  segment.stats = segment.stats or 
+  segment.stats = q:addKeysLeft(segment.stats,
             {legion_raid_boss_kills = 0,
               legion_raid_boss_wipes = 0, 
               legion_dungeon_boss_kills = 0, 
@@ -522,7 +522,7 @@ function quantify_instances:newSegment(segment)
               player_raid_deaths = 0, 
               player_dungeon_deaths = 0, 
               bfa_total_dungeon_completed = 0,
-              sl_total_dungoen_completed = 0}
+              sl_total_dungoen_completed = 0})
 end
 
 table.insert(quantify.modules, quantify_instances)

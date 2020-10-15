@@ -213,7 +213,7 @@ function quantify_time:newSegment(segment)
   afk_start = GetTime()
   mount_start = GetTime()
   
-  segment.stats = segment.stats or
+  segment.stats = q:addKeysLeft(segment.stats,
                    {time_combat = 0,
                     play_time = 0, 
                     time_afk = 0, 
@@ -223,7 +223,7 @@ function quantify_time:newSegment(segment)
                     time_outdoors = 0, 
                     time_sub_max_level = 0, 
                     time_rested = 0, 
-                    air_time = 0}
+                    air_time = 0})
   
 end
 

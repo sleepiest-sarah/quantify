@@ -216,7 +216,6 @@ local function restructureLootData()
 end
 
 local function deleteRemovedStats()
-  local mod
     for seg_name,seg in pairs(qDb) do
       if (seg.stats) then
         
@@ -224,9 +223,9 @@ local function deleteRemovedStats()
           seg.stats[quantify_chat.MODULE_KEY].word_cloud = nil
         end
         
-        for k,v in pairs(mod) do
+        for k,v in pairs(seg.stats) do
           if (k ~= "stats" and k ~= "data") then
-            mod[k] = nil
+            v[k] = nil
           end
         end
         

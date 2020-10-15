@@ -191,10 +191,20 @@ local function merchant(event)
   end
 end
 
-function quantify_currency:calculateDerivedStats(segment)
+function quantify_currency:calculateDerivedStats(segment, fullSeg)
   local stats = segment.stats
   
-  --quantify:calculateSegmentRates(segment, segment.stats.currency.raw)
+  local rates = quantify:calculateSegmentRates(fullSeg, stats)
+  
+  stats.quest_money_rate = rates.quest_money
+  stats.money_pickpocketed_rate = rates.money_pickpocketed
+  stats.repair_money_rate = rates.repair_money
+  stats.delta_money_rate = rates.delta_money
+  stats.total_money_gained_rate = rates.total_money_gained
+  stats.total_money_spent_rate = rates.total_money_spent
+  stats.money_looted_rate = rates.money_looted
+  
+  --stats.currency_gained_rates = quantify:calculateSegmentRates(fullSeg, stats.currency_gained)
   
   stats.pct_money_quest  = (stats.quest_money / stats.total_money_gained) * 100
   stats.pct_money_auction = (stats.auction_money / stats.total_money_gained) * 100
@@ -203,8 +213,8 @@ function quantify_currency:calculateDerivedStats(segment)
   
 end
 
-function quantify_currency:updateStats(segment)
-  qc:calculateDerivedStats(segment)
+function quantify_currency:updateStats(segment, fullSeg)
+  qc:calculateDerivedStats(segment, fullSeg)
 end
  
 function quantify_currency:newSegment(segment)
@@ -212,7 +222,7 @@ function quantify_currency:newSegment(segment)
   segment.data = segment.data or {}
   segment.data.currency = segment.data.currency or {}
   
-  segment.stats = segment.stats or 
+  segment.stats = q:addKeysLeft(segment.stats,
                  {total_money_gained = 0,
                   total_money_spent = 0,
                   delta_money = 0,
@@ -223,7 +233,7 @@ function quantify_currency:newSegment(segment)
                   vendor_money = 0,
                   vendor_money_spent = 0,
                   money_pickpocketed = 0,
-                  repair_money = 0}
+                  repair_money = 0})
   
 end
 

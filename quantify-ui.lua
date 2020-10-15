@@ -153,7 +153,7 @@ function q:updateUi(watchlist)
   end
   
   for _,m in ipairs(q.modules) do
-    m:updateStats(q.current_segment.stats[m.MODULE_KEY])
+    m:updateStats(q.current_segment.stats[m.MODULE_KEY], q.current_segment)
   end
   
   if (q.viewingTotalSegment()) then
@@ -178,7 +178,7 @@ function q:updateWatchlist(frame)
     q:updateUi(true)
   else
    for _,m in ipairs(q.modules) do
-     m:updateStats(q.current_segment)
+     m:updateStats(q.current_segment.stats[m.MODULE_KEY], q.current_segment)
     end 
   end
   

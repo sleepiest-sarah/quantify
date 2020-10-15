@@ -111,7 +111,7 @@ end
  
 function quantify_combat:newSegment(segment)
   
-  segment.stats = segment.stats or 
+  segment.stats = q:addKeysLeft(segment.stats,
                          {num_deaths = 0,
                           num_corpse_runs = 0,
                           num_brez_accepted = 0,
@@ -119,7 +119,7 @@ function quantify_combat:newSegment(segment)
                           num_rez_accepted = 0,
                           time_crowd_controlled = 0,
                           player_kills = 0,
-                          player_actual_kills = 0}
+                          player_actual_kills = 0})
   
 end
 

@@ -47,6 +47,17 @@ function q:printSegment(segment)
   end
 end
 
+function q:addKeysLeft(a,b)
+  a = a or {}
+  for k,v in pairs(b) do
+    if (not a[k]) then
+      a[k] = type(v) == "table" and {} or v
+    end
+  end
+  
+  return a
+end
+
 function q:calculateSegmentRates(segment, segment_stats, period, duration)
   period = period or 3600
   

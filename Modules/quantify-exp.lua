@@ -131,31 +131,43 @@ local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
   q:incrementStat("AZERITE_XP", delta)
 end
 
-function quantify_exp:calculateDerivedStats(segment)
-  --segment.stats.xp.session_rates = quantify:calculateSegmentRates(segment, segment.stats.xp.raw)
+function quantify_exp:calculateDerivedStats(segment, fullSeg)
+  local rates = quantify:calculateSegmentRates(fullSeg, segment.stats)
   
-  --local session_xp_rate = segment.stats.xp.session_rates.xp
-  
+  local session_xp_rate = rates.xp
   local stats = segment.stats
-
-  --stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
   
-  --local rate_max_level = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_sub_max_level).xp or 0
-  --local rate_rested = quantify:calculateSegmentRates(segment, segment.stats.xp.raw, 3600, segment.stats.time.raw.time_rested).rested_xp or 0
+  stats.pet_battle_xp_rate = rates.pet_battle_xp
+  stats.gathering_xp_rate = rates.gathering_xp
+  stats.pct_levels_gained_rate = rates.pct_levels_gained
+  stats.quest_xp_rate = rates.quest_xp
+  stats.levels_gained_rate = rates.levels_gained
+  stats.other_xp_rate = rates.other_xp
+  stats.scenario_xp_rate = rates.scenario_xp
+  stats.group_xp_rate = rates.group_xp
+  stats.azerite_xp_rate = rates.azerite_xp
+  stats.kill_xp_rate = rates.kill_xp
+
+  stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
   
-  --segment.stats.xp.session_rates.xp = rate_max_level
-  --segment.stats.xp.session_rates.rested_xp = rate_rested
+  local time_sub_max_level = q:getStat(fullSeg, "TIME_SUB_MAX_LEVEL")
+  local time_rested = q:getStat(fullSeg, "TIME_RESTED")
+  local rate_max_level = quantify:calculateSegmentRates(fullSeg, stats, 3600, time_sub_max_level).xp or 0
+  local rate_rested = quantify:calculateSegmentRates(fullSeg, stats, 3600, time_rested).rested_xp or 0
+  
+  stats.xp_rate_til_max = rate_max_level
+  stats.bonus_rested_xp_rate = rate_rested
 
-  --local xp_rate_no_rested = rate_max_level - rate_rested --xp/hr
-  --local time_per_total_xp = segment.stats.xp.raw.xp * 3600/(rate_max_level )                                   --seconds
-  --local time_per_total_xp_no_rested = segment.stats.xp.raw.xp * 3600/(xp_rate_no_rested )               --seconds
+  local xp_rate_no_rested = rate_max_level - rate_rested --xp/hr
+  local time_per_total_xp = stats.xp * 3600/(rate_max_level)                                   --seconds
+  local time_per_total_xp_no_rested = stats.xp * 3600/(xp_rate_no_rested)               --seconds
 
-  --segment.stats.xp.derived_stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
+  stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
   
   if (q.isRetail and quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
     local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
     if (success) then
-      --segment.stats.xp.derived_stats.azerite_time_to_level = ((totalLevelXP - xp) / segment.stats.xp.session_rates.azerite_xp) * 3600
+      stats.azerite_time_to_level = ((totalLevelXP - xp) / rates.azerite_xp) * 3600
     end
   end
   
@@ -166,13 +178,13 @@ function quantify_exp:calculateDerivedStats(segment)
   stats.pct_xp_gathering = (stats.gathering_xp / stats.xp) * 100
 end
 
-function quantify_exp:updateStats(segment)
-  quantify_exp:calculateDerivedStats(segment)
+function quantify_exp:updateStats(segment, fullSeg)
+  quantify_exp:calculateDerivedStats(segment, fullSeg)
 end
 
 function quantify_exp:newSegment(segment)  
   
-  segment.stats = segment.stats or 
+  segment.stats = q:addKeysLeft(segment.stats,
                  {xp = 0,
                   quest_xp = 0,
                   kill_xp = 0,
@@ -184,7 +196,7 @@ function quantify_exp:newSegment(segment)
                   group_xp = 0,
                   azerite_xp = 0,
                   pet_battle_xp = 0,
-                  gathering_xp = 0}  
+                  gathering_xp = 0})
   
   
   playerLogin()

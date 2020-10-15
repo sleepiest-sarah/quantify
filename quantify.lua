@@ -256,7 +256,7 @@ end
 
 local function logout(event, ...)
   for _,m in ipairs(q.modules) do
-    m:updateStats(q.current_segment)
+    m:updateStats(q.current_segment.stats[m.MODULE_KEY],q.current_segment)
   end
   q:updateTotals(q.current_segment)
 end
@@ -271,7 +271,7 @@ local function closeSegment(segment)
   
   --process any rates or derived stats
   for _,m in ipairs(q.modules) do
-    m:updateStats(segment)
+    m:updateStats(segment.stats[m.MODULE_KEY], segment)
   end
   
   q:updateTotals(segment)

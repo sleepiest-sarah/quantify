@@ -145,7 +145,7 @@ function quantify_chat:newSegment(segment)
   segment.data.whispers_sent_to = segment.data.whispers_sent_to or {}
   segment.data.whispers_received_from = segment.data.whispers_received_from or {}
   
-  segment.stats = segment.stats or 
+  segment.stats = q:addKeysLeft(segment.stats, 
               {combat_messages = 0,
               whispers_sent = 0, 
               whispers_received = 0,
@@ -155,7 +155,7 @@ function quantify_chat:newSegment(segment)
               yell_sent = 0,
               emotes_sent = 0,
               raid_sent = 0,
-              mentions = 0}
+              mentions = 0})
 end
 
 table.insert(quantify.modules, quantify_chat)
