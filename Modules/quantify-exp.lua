@@ -132,7 +132,8 @@ local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
 end
 
 function quantify_exp:calculateDerivedStats(segment, fullSeg)
-  local rates = quantify:calculateSegmentRates(fullSeg, segment.stats)
+  local play_time = q:getStat(fullSeg, "PLAY_TIME")
+  local rates = quantify:calculateSegmentRates(segment.stats, play_time)
   
   local session_xp_rate = rates.xp
   local stats = segment.stats
@@ -148,34 +149,35 @@ function quantify_exp:calculateDerivedStats(segment, fullSeg)
   stats.azerite_xp_rate = rates.azerite_xp
   stats.kill_xp_rate = rates.kill_xp
 
-  stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
+  stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / (session_xp_rate == 0 and 1 or session_xp_rate)) * 3600
   
   local time_sub_max_level = q:getStat(fullSeg, "TIME_SUB_MAX_LEVEL")
   local time_rested = q:getStat(fullSeg, "TIME_RESTED")
-  local rate_max_level = quantify:calculateSegmentRates(fullSeg, stats, 3600, time_sub_max_level).xp or 0
-  local rate_rested = quantify:calculateSegmentRates(fullSeg, stats, 3600, time_rested).rested_xp or 0
+  local rate_max_level = quantify:calculateSegmentRates(stats, time_sub_max_level).xp or 0
+  local rate_rested = quantify:calculateSegmentRates(stats, time_rested).rested_xp or 0
   
   stats.xp_rate_til_max = rate_max_level
   stats.bonus_rested_xp_rate = rate_rested
 
   local xp_rate_no_rested = rate_max_level - rate_rested --xp/hr
-  local time_per_total_xp = stats.xp * 3600/(rate_max_level)                                   --seconds
-  local time_per_total_xp_no_rested = stats.xp * 3600/(xp_rate_no_rested)               --seconds
+  local time_per_total_xp = stats.xp * 3600/(rate_max_level == 0 and 1 or rate_max_level)                                   --seconds
+  local time_per_total_xp_no_rested = stats.xp * 3600/ (xp_rate_no_rested == 0 and 1 or xp_rate_no_rested)               --seconds
 
   stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
   
   if (q.isRetail and quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
     local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
     if (success) then
-      stats.azerite_time_to_level = ((totalLevelXP - xp) / rates.azerite_xp) * 3600
+      stats.azerite_time_to_level = ((totalLevelXP - xp) / (rates.azerite_xp == 0 and 1 or rates.azerite_xp)) * 3600
     end
   end
   
-  stats.pct_xp_kill = (stats.kill_xp / stats.xp) * 100
-  stats.pct_xp_pet_battle = (stats.pet_battle_xp / stats.xp) * 100
-  stats.pct_xp_quest = (stats.quest_xp / stats.xp) * 100
-  stats.pct_xp_other = (stats.other_xp / stats.xp) * 100
-  stats.pct_xp_gathering = (stats.gathering_xp / stats.xp) * 100
+  local total_xp = stats.xp == 0 and 1 or stats.xp
+  stats.pct_xp_kill = (stats.kill_xp / total_xp) * 100
+  stats.pct_xp_pet_battle = (stats.pet_battle_xp / total_xp) * 100
+  stats.pct_xp_quest = (stats.quest_xp / total_xp) * 100
+  stats.pct_xp_other = (stats.other_xp / total_xp) * 100
+  stats.pct_xp_gathering = (stats.gathering_xp / total_xp) * 100
 end
 
 function quantify_exp:updateStats(segment, fullSeg)

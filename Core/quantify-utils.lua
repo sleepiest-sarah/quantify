@@ -58,21 +58,13 @@ function q:addKeysLeft(a,b)
   return a
 end
 
-function q:calculateSegmentRates(segment, segment_stats, period, duration)
+function q:calculateSegmentRates(stats, duration, period)
   period = period or 3600
   
-  if (segment ~= nil and segment:duration() ~= nil) then
-    duration = segment:duration()
-  elseif (segment ~= nil) then
-    local start = segment.start_time or GetTime()
-    local endt = segment.end_time or GetTime()
-    duration = endt - start
-  end
-  
   local session_rates = {}
-  for k,v in pairs(segment_stats) do
+  for k,v in pairs(stats) do
     if (type(v) == "number") then
-      session_rates[k] = (v/duration) * period
+      session_rates[k] = duration == 0 and 0 or (v/duration) * period
     end
   end
   
@@ -177,6 +169,16 @@ function q:getSingleModuleSegment(key,segment,type)
   return new_seg 
 end
 
+function q:getTableKeys(t)
+  local keys = {}
+  
+  for k,_ in pairs(t) do
+    table.insert(keys, k)
+  end
+  
+  return keys  
+end
+
 function q:getModuleKeys()
   local keys = {}
   
@@ -230,6 +232,10 @@ function q:getCurrencyString(n)
 end
 
 function q:getFormattedUnit(n,units,abbr)
+  if (not n) then
+    return "-"
+  end
+  
   if (units == "string") then
     return n
   end
@@ -401,7 +407,7 @@ function q:getBnAccountNameFromChatString(str)
   local id = string.match(str, "|K[gsf]([0-9]+)|")
   local bn_name
   if (id ~= nil) then
-    local _,_,bn_name = BNGetFriendInfoByID(id)
+    local _,_,bn_name = C_BattleNet.GetAccountInfoByID(id)
   end
   
   return bn_name
@@ -436,20 +442,6 @@ function q:generateUUID()
       local v = (c == 'x') and random(0, 0xf) or random(8, 0xb)
       return string.format('%x', v)
   end)
-end
-
-function q:storeData(key,data)
-  if (not qDb.data) then
-    qDb.data = {}
-  end
-  
-  qDb.data[key] = data
-end
-
-function q:getData(key)
-  if (qDb and qDb.data and qDb.data[key]) then
-    return qDb.data[key]
-  end
 end
 
 function q:getUnitGroupPrefix()
@@ -496,4 +488,13 @@ function q:keyTable(t)
   end
   
   return res
+end
+
+function q:dump(v)
+  _G["q_dump"] = v
+  SlashCmdList["DUMP"]("q_dump")
+end
+
+function q:getCharacterKey()
+  return GetUnitName("player", false).."-"..GetRealmName()
 end

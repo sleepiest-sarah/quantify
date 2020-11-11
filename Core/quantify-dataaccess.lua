@@ -57,3 +57,9 @@ function qDA:getExpansions()
   
   return expansions
 end
+
+function qDA:getFactions()
+  local factions = quantify_reputation.factions
+  
+  return q:getTableKeys(factions)
+end

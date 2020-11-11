@@ -33,7 +33,7 @@ function QuantifyStatScrollFrame_Create(numPreInitializedButtons)
   stats_scrollframe.stats_buttons = {}
   
     --create some buttons ahead of time for performance
-  if (qDbOptions.preload ~= false and (numPreInitializedButtons and numPreInitializedButtons > 0)) then
+  if (numPreInitializedButtons and numPreInitializedButtons > 0) then
     stats_scrollframe:PauseLayout()
     for i=1,numPreInitializedButtons do
       createStatRow(stats_scrollframe,i)

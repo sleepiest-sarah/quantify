@@ -12,7 +12,8 @@ local segment_list
 
 local stats_buttons = {}
 
-local default_stat_widget, dungeon_widget
+local widgets = {}
+
 local active_widget
 local maincontainer
 
@@ -53,10 +54,8 @@ local function QuantifySegmentLabel_OnClick(self)
   q:setViewingSegment(self.segment)
   
   selected_segment:SetColor(nil)
-  selected_segment:SetFontObject(GameFontHighlightSmall)
   
   self:SetColor(1,.82,0)
-  self:SetFontObject(AchievementPointsFontSmall)
   
   selected_segment = self
   
@@ -64,25 +63,19 @@ local function QuantifySegmentLabel_OnClick(self)
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
-  if (self.module == "dungeons") then
-    default_stat_widget:Hide()
-    dungeon_widget:Show()
-    active_widget = dungeon_widget
-    maincontainer:DoLayout()
-  elseif (self.module ~= "dungeons") then
-    dungeon_widget:Hide()
-    default_stat_widget:Show()
-    active_widget = default_stat_widget
-    maincontainer:DoLayout()
+  if (active_widget) then
+    active_widget:Hide()
+  end
+  self.module:Show()
+  active_widget = self.module
+  maincontainer:DoLayout()
+  
+  if (selected_module) then
+    selected_module:SetColor(nil)
   end
   
-  q:setCurrentViewModule(self.module)
-  
-  selected_module:SetColor(nil)
-  selected_module:SetFontObject(GameFontHighlightSmall)
-  
   self:SetColor(1,.82,0)
-  self:SetFontObject(AchievementPointsFontSmall)
+
   
   selected_module = self
   
@@ -102,6 +95,7 @@ function QuantifySegmentList_Refresh(self)
   for _,seg in ipairs(keys_t) do
     local label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(seg))
+    label:SetFontObject(AchievementPointsFontSmall)
     label.segment = seg
     
     if (seg == "Segment 1") then
@@ -112,7 +106,6 @@ function QuantifySegmentList_Refresh(self)
     
     if (seg == "Segment "..table.maxn(q.segments)) then 
       label:SetColor(1,.82,0)
-      label:SetFontObject(AchievementPointsFontSmall)
       selected_segment = label
     end
     
@@ -153,30 +146,35 @@ local function CreateModuleList()
   
   scrollcontainer:AddChild(c)
   
-  local label = agui:Create("InteractiveLabel")
-  label:SetText("All")
-  label.module = "All"
-  label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-  label:SetColor(1,.82,0)
-  label:SetFontObject(AchievementPointsFontSmall)
-  c:AddChild(label)  
+  local labels = {}
   
-  selected_module = label
+  maincontainer:PauseLayout()
   
-  label = agui:Create("InteractiveLabel")
-  label:SetText("Dungeons")
-  label.module = "dungeons"
-  label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-  label:SetFontObject(AchievementPointsFontSmall)
-  c:AddChild(label)  
-  
-  for _,m in ipairs(modules) do
+  for k,w in pairs(QUANTIFY_WIDGETS) do
+    local label
     label = agui:Create("InteractiveLabel")
-    label:SetText(q:capitalizeString(m))
-    label.module = m
+    label:SetText(k)
+    label.qText = k
+    label.module = qui:CreateWidget(w.widget, w.data)
     label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-    c:AddChild(label)
+    label:SetFontObject(AchievementPointsFontSmall)
+    table.insert(labels, label) 
   end
+  
+  table.sort(labels, function (a,b) 
+        return a.qText < b.qText
+      end)
+  
+  for _,label in pairs(labels) do
+    c:AddChild(label)
+    maincontainer:AddChild(label.module.widget)
+    label.module:Hide()
+  end
+  
+  maincontainer:ResumeLayout()
+  maincontainer:DoLayout()
+  
+  QuantifyModuleLabel_OnClick(labels[1])
   
   return scrollcontainer  
 end
@@ -190,7 +188,7 @@ end
 local function CreateSegmentControl()
   local container = agui:Create("SimpleGroup")
   container:SetLayout("Flow")
-  container:SetFullWidth(true)
+  container:SetWidth(180)
   
   local new_seg_button = agui:Create("Button")
   new_seg_button:SetText("New Segment")
@@ -247,7 +245,7 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
 end
 
 function qui:RefreshWidget(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
-  if (active_widget) then
+  if (active_widget and q.quantify_ui_shown) then
     active_widget:refresh(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
   end
 end
@@ -266,20 +264,6 @@ function QuantifyContainer_Initialize()
   maincontainer:SetWidth("780")
   maincontainer:SetHeight("630")
   
-  maincontainer:PauseLayout()
-  
-  default_stat_widget = qui:CreateWidget("StatWidget")
-  maincontainer:AddChild(default_stat_widget.widget)
-  
-  dungeon_widget = qui:CreateWidget("DungeonWidget")
-  maincontainer:AddChild(dungeon_widget.widget)
-  dungeon_widget:Hide()
-  
-  maincontainer:ResumeLayout()
-  maincontainer:DoLayout()
-  
-  active_widget = default_stat_widget
-  
   local bottom_bar = agui:Create("QuantifyContainerWrapper")
   bottom_bar:SetQuantifyFrame(QuantifyBottomBar)
   bottom_bar:SetPadding(10,5)
@@ -295,10 +279,10 @@ function QuantifyContainer_Initialize()
   left_pane:SetPadding(10,-10)
   
   local segmentlist = CreateSegmentList()
-  segmentlist:SetHeight(100)
+  segmentlist:SetHeight(250)
   
   local modulelist = CreateModuleList()
-  modulelist:SetHeight(140)
+  modulelist:SetHeight(240)
 
   local segment_group =  agui:Create("QuantifyInlineGroup")
   segment_group:SetWidth(180)
@@ -315,16 +299,6 @@ function QuantifyContainer_Initialize()
   left_pane:AddChild(segment_group)
   left_pane:AddChild(segment_control_group)
   left_pane:AddChild(module_group)
-  
-  
---  local watchlist_frame = agui:Create("Window")
---  watchlist_frame:SetLayout("Fill")
-  
---  local watchlist_container = agui:Create("QuantifyContainerWrapper")
---  watchlist_container:SetQuantifyFrame(QuantifyWatchList)
---  watchlist_container:SetLayout("Fill")
-  
---  watchlist_frame:AddChild(watchlist_container)
   
   QuantifyContextMenu_Initialize()
 end

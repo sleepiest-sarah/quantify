@@ -131,9 +131,11 @@ local function questLootReceived(event, questID, itemLink, quantity)
 end
 
 function quantify_loot:calculateDerivedStats(segment, fullSeg)
-  segment.stats.upgrades_received_rates =  q:calculateSegmentRates(fullSeg, segment.stats.upgrades_received, 86400)
+  local play_time = q:getStat(fullSeg, "PLAY_TIME")
+  segment.stats.upgrades_received_rates =  q:calculateSegmentRates(segment.stats.upgrades_received, play_time, 86400)
   
   local sum = segment.stats.poor_loot + segment.stats.uncommon_loot + segment.stats.common_loot + segment.stats.rare_loot + segment.stats.epic_loot
+  sum = sum == 0 and 1 or sum
   segment.stats.pct_loot_quality = {}
   segment.stats.pct_loot_quality["poor"] = (segment.stats.poor_loot / sum) * 100
   segment.stats.pct_loot_quality["common"] = (segment.stats.common_loot / sum) * 100
@@ -142,6 +144,7 @@ function quantify_loot:calculateDerivedStats(segment, fullSeg)
   segment.stats.pct_loot_quality["epic"] = (segment.stats.epic_loot / sum) * 100
   
   sum = segment.stats.cloth_gear_loot + segment.stats.leather_gear_loot + segment.stats.mail_gear_loot + segment.stats.plate_gear_loot
+  sum = sum == 0 and 1 or sum
   segment.stats.pct_armor_class_looted = {}
   segment.stats.pct_armor_class_looted["Cloth"] = (segment.stats.cloth_gear_loot / sum) * 100
   segment.stats.pct_armor_class_looted["Leather"] = (segment.stats.leather_gear_loot / sum) * 100
@@ -151,7 +154,7 @@ function quantify_loot:calculateDerivedStats(segment, fullSeg)
 end
 
 function quantify_loot:updateStats(segment, fullSeg)
-  ql:calculateDerivedStats(segment)
+  ql:calculateDerivedStats(segment, fullSeg)
 end
  
 function quantify_loot:newSegment(segment)

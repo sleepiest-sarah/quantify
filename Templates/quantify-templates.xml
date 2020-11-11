@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
 
-<Script file="QuantifyBackdrops.lua" />
+<Script file="QuantifyUiConstants.lua" />
 
 <Script file="QuantifyLayout.lua" />
 <Script file="QuantifyContainerWrapper.lua"/>
@@ -10,6 +10,7 @@
 <Script file="QuantifyEditWindow.lua" />
 <Script file="QuantifyConfirmWindow.lua" />
 <Script file="QuantifyStatScrollFrame.lua" />
+<Script file="QuantifyTableWrapper.lua" />
 
 <Include file="Widgets\quantify-widgets.xml"/>
 

@@ -12,10 +12,12 @@ local function zoneChangedNewArea(event,...)
   if (zone ~= nil) then
     zone_start_time = zone_start_time or GetTime()
     local zone_duration = GetTime() - zone_start_time
-    
-    q:incrementStatByPath("zones/stats/zones/"..zone, zone_duration)
-    
-    zone_start_time = GetTime()
+
+    if (zone_duration > 0) then
+      q:incrementStatByPath("zones/stats/zones/"..zone, zone_duration)
+      
+      zone_start_time = GetTime()
+    end
   end
 end
 
@@ -35,7 +37,7 @@ function quantify_zones:calculateDerivedStats(segment, completeSegment)
 end
 
 function quantify_zones:updateStats(segment, completeSegment) --work around until I figure out a better way to access external stats from modules
-  if (segment == q.current_segment.stats.zones) then
+  if (q.current_segment and segment == q.current_segment.stats.zones) then
     zoneChangedNewArea()
   end
   
@@ -44,7 +46,6 @@ end
 
  
 function quantify_zones:newSegment(segment)
-  zone_start_time = GetTime()
   
   segment.stats = q:addKeysLeft(segment.stats, { zones = {} }) 
 end

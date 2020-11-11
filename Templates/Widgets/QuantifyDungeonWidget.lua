@@ -170,36 +170,34 @@ function DungeonWidget:create()
   c:AddChild(keystone_wrapper)
   
   --players table
-  local players_frame = agui:Create("QuantifyInlineGroup")
-  players_frame:SetTitle("Players")
+  local players_frame = agui:Create("SimpleGroup")
   players_frame.gridPosition = "0,1"
   players_frame.colspan = 2
   players_frame.rowspan = 2
   players_frame:SetLayout("Fill")
-  players_frame:ClearBackdrop()
   local player_table_wrapper = agui:Create("SimpleGroup")
   player_table_wrapper:PauseLayout()
   player_table_wrapper:SetHeight(170)
   player_table_wrapper:SetFullWidth(true)
   local players_table = st:CreateST(PLAYER_TABLE_COLS,7,20,nil,player_table_wrapper.frame)
+  players_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.player_table = players_table
   players_frame:AddChild(player_table_wrapper)
   
   c:AddChild(players_frame)
   
   --party table
-  local party_frame = agui:Create("QuantifyInlineGroup")
-  party_frame:SetTitle("Parties")
+  local party_frame = agui:Create("SimpleGroup")
   party_frame.gridPosition = "2,1"
   party_frame.colspan = 2
   party_frame.rowspan = 2
   party_frame:SetLayout("Fill")
-  party_frame:ClearBackdrop()
   local party_table_wrapper = agui:Create("SimpleGroup")
   party_table_wrapper:PauseLayout()
   party_table_wrapper:SetHeight(170)
   party_table_wrapper:SetWidth(300)
   local party_table = st:CreateST(PARTY_TABLE_COLS,5,28,nil,party_table_wrapper.frame)
+  party_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.party_table = party_table
   party_frame:AddChild(party_table_wrapper)
   
@@ -208,6 +206,7 @@ function DungeonWidget:create()
   local dungeonsTableWrapper = agui:Create("SimpleGroup")
   dungeonsTableWrapper:PauseLayout()
   local dungeons_table = st:CreateST(DUNGEONS_TABLE_COLS,nil,30,nil,dungeonsTableWrapper.frame)
+  dungeons_table.frame:SetPoint("TOPLEFT", 10, 25)
   self.dungeons_table = dungeons_table
   dungeonsTableWrapper.gridPosition = "0,5"
   dungeonsTableWrapper.colspan = 3

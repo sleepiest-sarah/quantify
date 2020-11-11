@@ -11,8 +11,8 @@ local function jump()
 end
 
 function quantify_misc:calculateDerivedStats(segment, fullSeg)
-  
-  local rates = quantify:calculateSegmentRates(fullSeg, segment.stats)
+  local play_time = q:getStat(fullSeg, "PLAY_TIME")
+  local rates = quantify:calculateSegmentRates(segment.stats, play_time)
   segment.stats.jumps_rate = rates.jumps
 end
 

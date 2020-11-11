@@ -155,7 +155,9 @@ function quantify_chat:newSegment(segment)
               yell_sent = 0,
               emotes_sent = 0,
               raid_sent = 0,
-              mentions = 0})
+              mentions = 0,
+              emotes = {},
+              channels = {}})
 end
 
 table.insert(quantify.modules, quantify_chat)

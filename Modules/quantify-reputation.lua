@@ -88,16 +88,17 @@ end
 
 function quantify_reputation:calculateDerivedStats(segment, fullSeg)
   --really shouldn't be checking the viewing segment but it's a quick workaround so we don't calculate these stats for the account
-  if (segment == q.current_segment.stats.reputation or q:getViewingSegmentKey() == quantify_state:getPlayerNameRealm()) then  
+  --if (segment == q.current_segment.stats.reputation or q:getViewingSegmentKey() == quantify_state:getPlayerNameRealm()) then  
     local stats = segment.stats
-    local rates = q:calculateSegmentRates(fullSeg, segment.data.faction_change_delta, 86400) --per day
+    local play_time = q:getStat(fullSeg, "PLAY_TIME")
+    local rates = q:calculateSegmentRates(segment.data.faction_change_delta, play_time, 86400) --per day
     segment.stats.faction_change_delta_rate = rates
     
     for faction_key, faction in pairs(qr.factions) do
       local r = rates[faction_key] or 0
       
       if (q:isInf(r) or q:isNan(r) or r <= 0) then
-          r = 0
+          r = 1
       end
       
       --time until neutral
@@ -131,7 +132,7 @@ function quantify_reputation:calculateDerivedStats(segment, fullSeg)
       end
     end
     
-  end
+  --end
 end
 
 function quantify_reputation:updateStats(segment, fullSeg)
@@ -141,7 +142,8 @@ function quantify_reputation:updateStats(segment, fullSeg)
 end
  
 function quantify_reputation:newSegment(segment)
-  segment.data = segment.data or {faction_change_delta = {}}
+  segment.data = segment.data or {}
+  segment.data.faction_change_delta = segment.data.faction_change_delta or {}
   
   segment.stats = q:addKeysLeft(segment.stats,
                      {faction_remaining = {},

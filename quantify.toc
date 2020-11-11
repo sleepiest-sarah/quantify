@@ -31,6 +31,7 @@ Modules\quantify-loot.lua
 Modules\quantify-tradeskill.lua
 Modules\quantify-reputation.lua
 Modules\quantify-miscellaneous.lua
+Modules\quantify-battlepets.lua
 
 quantify-ui.xml
 

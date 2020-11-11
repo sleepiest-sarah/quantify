@@ -3,6 +3,12 @@
 
 <Script file="QuantifyWidget.lua" />
 
+<Script file="QuantifyView.lua" />
+<Script file="QuantifyStatView.lua" />
+<Script file="QuantifyPieView.lua" />
+<Script file="QuantifyMultiStatView.lua" />
+<Script file="QuantifyFilterView.lua" />
+
 <Script file="QuantifyStatWidget.lua" />
 <Script file="QuantifyDungeonWidget.lua" />
 

@@ -22,7 +22,6 @@ quantify.HELP_TEXT =
 quantify command line options
   /qty show             -- show the UI
   /qty hide             -- hide the UI
-  /qty preload <1 or 0> -- set to 0 if you experience any issues with the quantify UI not loading
   /qty debug            -- display debug options
 ]]
 
@@ -32,10 +31,6 @@ debug options
   /qty segment new      -- create a new segment
   /qty segment <int>    -- print segment <int>
   /qty state            -- print state variables
-  /qty log <1 or 0>     -- enable advanced event logging
-  /qty clear all        -- clear all addon saved data
-  /qty clear <segment>  -- clear all saved data for <segment>
-  /qty classic          -- force Classic behavior to run in Retail version
 ]]
 
 quantify.RESET_STAT_WARNING = 

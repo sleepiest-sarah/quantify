@@ -13,6 +13,7 @@ local indoors_start = nil
 local rested_start = nil
 local falling_start = nil
 local play_time_start = nil
+local pet_battle_start = nil
 
 local in_combat = false
 local isAfk = false
@@ -21,6 +22,7 @@ local is_outdoors = false
 local is_indoors = false
 local is_rested = false
 local is_falling = false
+local in_pet_battle = false
 
 local function playerRegenDisabled()
   combat_start = GetTime()
@@ -147,21 +149,42 @@ local function jump()
   end
 end
 
+local function petBattleStart()
+  pet_battle_start = GetTime()
+
+  in_pet_battle = true
+end
+
+local function petBattleEnd()
+  in_pet_battle = false
+
+  local curtime = GetTime()
+  pet_battle_start = pet_battle_start or curtime
+
+  local combat_time = curtime - pet_battle_start
+  q:incrementStat("TIME_PET_BATTLE", combat_start)
+end
+
 function quantify_time:calculateDerivedStats(segment)
   
-  local stats = segment.stats
-  stats.pct_play_time_combat = (stats.time_combat / stats.play_time) * 100
-  stats.pct_play_time_afk = (stats.time_afk / stats.play_time) * 100
-  stats.pct_time_mounted = (stats.time_mounted / stats.play_time) * 100
-  stats.pct_time_fishing = (stats.time_fishing / stats.play_time) * 100
-  stats.pct_time_indoors = (stats.time_indoors / stats.play_time) * 100
-  stats.pct_time_outdoors = (stats.time_outdoors / stats.play_time) * 100
-  stats.pct_time_jump = (stats.air_time / stats.play_time) * 100
+  if (segment.stats and segment.stats.play_time) then
+    local stats = segment.stats
+    local play_time = stats.play_time > 0 and stats.play_time or 1
+    stats.pct_play_time_combat = (stats.time_combat / play_time) * 100
+    stats.pct_play_time_afk = (stats.time_afk / play_time) * 100
+    stats.pct_time_mounted = (stats.time_mounted / play_time) * 100
+    stats.pct_time_fishing = (stats.time_fishing / play_time) * 100
+    stats.pct_time_indoors = (stats.time_indoors / play_time) * 100
+    stats.pct_time_outdoors = (stats.time_outdoors / play_time) * 100
+    stats.pct_time_jump = (stats.air_time / play_time) * 100
+    stats.pct_time_rested = (stats.time_rested / play_time) * 100
+    stats.pct_time_pet_battles = (stats.time_pet_battle / play_time) * 100
+  end
 
 end
 
 function quantify_time:updateStats(segment)
-  if (segment == q.current_segment.stats.time) then
+  if (q.current_segment and segment == q.current_segment.stats.time) then
     if in_combat then
       playerRegenEnabled()
       in_combat = true
@@ -194,6 +217,12 @@ function quantify_time:updateStats(segment)
       rested_start = GetTime()
     end
     
+    if in_pet_battle then
+      petBattleEnd()
+      in_pet_battle = true
+      pet_battle_start = GetTime()
+    end
+    
     local duration = GetTime() - (play_time_start or GetTime())
     q:incrementStat("PLAY_TIME", duration)
   
@@ -223,7 +252,8 @@ function quantify_time:newSegment(segment)
                     time_outdoors = 0, 
                     time_sub_max_level = 0, 
                     time_rested = 0, 
-                    air_time = 0})
+                    air_time = 0,
+                    time_pet_battle = 0})
   
 end
 
@@ -243,6 +273,8 @@ q:hookSecureFunc("JumpOrAscendStart", jump)
 
 if (q.isRetail) then
   quantify:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
+  quantify:registerEvent("PET_BATTLE_OPENING_DONE", petBattleStart)
+  quantify:registerEvent("PET_BATTLE_FINAL_ROUND", petBattleEnd)
 end
   
   

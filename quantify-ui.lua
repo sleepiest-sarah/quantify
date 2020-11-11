@@ -10,102 +10,85 @@ q.VIEW_STATS_BUTTON_PREFIX = "ViewStatsButton"
 
 q.quantify_ui_shown = false
 
-q.UI_REFRESH_RATE = 5
+q.UI_REFRESH_RATE = 10
+q.WATCHLIST_REFRESH_RATE = 1
 
-local last_refresh = 0
+local last_watchlist_refresh = 0
 
-local ViewAllStats_List = {}
+local ui_initialized = false
 
 local viewing_segment = nil
 local viewing_segment_key = "Segment 1"
-local viewing_module_key = "All"
-local viewing_module_subkey = "all"
-
-local scroll_frame_initialized = false
 
 local watchlist_enabled = false
 local watchlist = {}
 
-local function getReadableKeyValue(k,v,abbr)
-  local star_index = string.find(k, "*")
-  local star_string
-  if (star_index ~= nil) then
-    star_string = string.sub(k,star_index + 1)
-    k = string.sub(k,1,star_index) 
-  end
-  if (q.STATS[k] ~= nil) then
-    
-    local readable_key = abbr and q.STATS[k].abbr or q.STATS[k].text
-    if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
-      readable_key = string.gsub(readable_key,"*",star_string)
+local function expandViewStats(segment, view, data_key)
+  local stats = {}
+  
+  if (view.stats) then
+    for i,stat_key in ipairs(view.stats) do
+      local stat = q.STATS[stat_key]
+      if (not stat or not stat.path) then
+        print(stat_key.." is not a valid")
+      end
+      local current_stat_value = q:getStat(segment, stat_key)
+      if (type(current_stat_value) == "table") then
+        for k,v in pairs(current_stat_value) do
+          if (not data_key or data_key and k == data_key) then
+            local formatted_value = q:getFormattedUnit(v,stat.units)
+            local formatted_name = string.gsub(stat.text,"*",k)
+            
+            local statobj = {}
+            statobj.text = formatted_name
+            statobj.stat_key = stat_key
+            statobj.value = formatted_value
+            statobj.data_key = k
+            table.insert(stats, statobj)
+          end
+        end
+      else
+        local formatted_value = q:getFormattedUnit(current_stat_value,stat.units)
+        local statobj = {}
+        statobj.text = stat.text
+        statobj.stat_key = stat_key
+        statobj.value = formatted_value
+        table.insert(stats, statobj)
+      end
+
     end
-    local readable_value = q:getFormattedUnit(v,q.STATS[k].units,abbr)
-    
-    return readable_key,readable_value
-  end  
+  end
+  
+  return stats
 end
 
-function q:ViewAllStats_Update()
+function q:buildStatsList(view)
   if (viewing_segment == nil) then
     viewing_segment = q.current_segment
   end
   
-  local stats
-  if viewing_module_key == "All" then
-    if (viewing_module_subkey == "all" or viewing_module_subkey == nil) then
-      stats = q:getAllStats(viewing_segment)
-    else
-      stats = q:getAllStats(viewing_segment,viewing_module_subkey)
-    end
-  else
-    if (viewing_module_subkey == "all" or viewing_module_subkey == nil) then
-      stats = q:getSingleModuleSegment(viewing_module_key,viewing_segment)
-      stats = q:getAllStats(stats)
-    else
-      stats = q:getSingleModuleSegment(viewing_module_key,viewing_segment,viewing_module_subkey)
-      stats = q:getAllStats(stats,viewing_module_subkey)
-    end
-  end
-  ViewAllStats_List = {}
+  local stats = expandViewStats(viewing_segment, view)
   
-  for k,v in pairs(stats) do
-    local star_index = string.find(k, "*")
-    local star_string
-    if (star_index ~= nil) then
-      star_string = string.sub(k,star_index + 1)
-      k = string.sub(k,1,star_index) 
-    end
-    
-    if (q.STATS[k] ~= nil and q:doesStatApplyToVersion(k) and not (q:viewingTotalSegmentUi() and q.STATS[k].exclude_total)) then
-      local readable_key = q.STATS[k].text
-      if (star_string ~= nil and string.find(readable_key,"*") ~= nil) then
-        readable_key = string.gsub(readable_key,"*",star_string)
-      end
-      local readable_value = q:getFormattedUnit(v,q.STATS[k].units)
-      table.insert(ViewAllStats_List, 
-                  {label =  readable_key
-                    , value = tostring(readable_value)
-                    , order = (q.STATS[k].order or 500)
-                    , dict_key = k
-                    , subkey = star_string
-                    , segment =  viewing_segment_key})
-    end
+  local stats_list = {}
+  
+  for _,statobj in ipairs(stats) do
+    local row = {statobj.text,statobj.value}
+    row.stat_key = statobj.stat_key
+    row.data_key = statobj.data_key
+    row.viewing_segment_key = viewing_segment_key
+    table.insert(stats_list, row)
   end
   
-  if (viewing_module_key == "All") then                   --sort alphabetically
-    table.sort(ViewAllStats_List, function(a,b) return a.label < b.label end)
-  else                                                    --sort according to order
-    table.sort(ViewAllStats_List, function(a,b) return (a.order == b.order and a.label < b.label) or (a.order < b.order) end)
-  end
+                        --sort according to order
+  --table.sort(stats_list, function(a,b) return (a.order == b.order and a.label < b.label) or (a.order < b.order) end)
   
-  qui:RefreshWidget(false)
+  return stats_list
 end
 
 function q:showUi(bool)
   q.quantify_ui_shown = bool
   if (bool) then
     QuantifyContainer_Frame:Show()
-    
     qui:RefreshWidget(true, false, false, true)
   else
     QuantifyContainer_Frame:Hide()
@@ -123,17 +106,10 @@ function q:setViewingSegment(text)
   if (seg_id ~= nil) then
     viewing_segment = q.segments[tonumber(seg_id)]
   else
-    viewing_segment = q:convertSavedSegment(qDb[text])
+    viewing_segment = qDb[text]
   end
   
-  q:ViewAllStats_Update()
-end
-
-
-function q:setCurrentViewModule(text)
-  viewing_module_key = text
-  
-  q:ViewAllStats_Update()
+  qui:RefreshWidget(false, true, false, false)
 end
 
 function q:AddSegmentButton_initialize(self)
@@ -142,105 +118,85 @@ function q:AddSegmentButton_initialize(self)
 end
 
 function q:AddSegmentButton_OnClick(self)
-  q:createNewSegment()
+  q:createNewCurrentSegment()
   
   q:setViewingSegment("Segment "..table.maxn(q.segments))
 end
 
-function q:updateUi(watchlist)
-  if (GetTime() - last_refresh < q.UI_REFRESH_RATE) then
+function q:refreshUi()
+  q:updateSegment(q.current_segment)
+  
+  if (q.viewingTotalSegmentUi()) then
+    q:updateSegment(viewing_segment)
+  end
+  
+  qui:RefreshWidget(false)  
+end
+
+function q:updateUi()
+  if (not ui_initialized or (not q.stats_dirty and GetTime() - q.last_update_timestamp < q.UI_REFRESH_RATE)) then
     return
   end
+
+  q.last_update_timestamp = GetTime()
   
-  for _,m in ipairs(q.modules) do
-    m:updateStats(q.current_segment.stats[m.MODULE_KEY], q.current_segment)
-  end
+  q:refreshUi()
+end
+
+function q:refreshWatchlist(frame)
+  frame = frame or QuantifyWatchList
   
-  if (q.viewingTotalSegment()) then
-    q:updateTotals(q.current_segment)
+  local segments = {}  
+  frame.items = {}
+  for watchlist_key,item in pairs(watchlist) do
     
-    local total_seg = qDb[viewing_segment_key]
-    if (total_seg) then
-      viewing_segment = q:convertSavedSegment(total_seg)
+    if (not segments[item.segment]) then
+      segments[item.segment] = q:getSegment(item.segment)
+      q:updateSegment(segments[item.segment])
+    end
+    local seg = segments[item.segment]
+
+    if (seg)  then
+      local view = {stats = {item.stat_key}}
+      local stat = expandViewStats(seg, view, item.data_key)[1]
+    
+      QuantifyWatchList_Add(frame, {label = stat.text, value = stat.value, stat_key = item.stat_key, datakey = item.datakey, segment = item.segment})
     end
   end
-  
-  q:ViewAllStats_Update()
-  
-  if (not watchlist) then
-    last_refresh = GetTime()
-  end
+
+  QuantifyWatchList_Update(frame)  
 end
 
 function q:updateWatchlist(frame)
-  local segments = {}
-  if (q:viewingTotalSegment()) then
-    q:updateUi(true)
-  else
-   for _,m in ipairs(q.modules) do
-     m:updateStats(q.current_segment.stats[m.MODULE_KEY], q.current_segment)
-    end 
+  if (not ui_initialized or (not q.stats_dirty and GetTime() - last_watchlist_refresh < q.WATCHLIST_REFRESH_RATE)) then
+    return
   end
   
-  frame.items = {}
-  
-  for watchlist_key,item in pairs(watchlist) do
-    if (segments[item.segment] == nil) then
-      local seg_id = string.match(item.segment, "Segment (%d+)")
-      if (seg_id ~= nil) then
-        segments[item.segment] = q.segments[tonumber(seg_id)]
-      else
-        segments[item.segment] = q:convertSavedSegment(qDb[item.segment])
-      end
-    end
-    
-    local seg = segments[item.segment]
-    if (seg)  then
-    
-      local group = string.sub(item.key, 1, string.find(item.key, ":") - 1)
-      
-      local keynogroup = string.sub(item.key,string.len(group) + 2)
-      
-      local concat_key_no_group = item.subkey and keynogroup..item.subkey or keynogroup
-      local found = false
-      for _,mod in pairs(seg.stats) do
-        if (mod[group] ~= nil) then
-          for k,v in pairs(mod[group]) do
-            if (k == concat_key_no_group) then
-              found = true
-              local readable_key, readable_value = getReadableKeyValue(group..":"..k,v, true)
-              QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
-            end
-          end
-        end
-      end
-      
-      if (not found) then
-        local readable_key, readable_value = getReadableKeyValue(group..":"..concat_key_no_group,0, true)
-        QuantifyWatchList_Add(frame, {label = readable_key, value = tostring(readable_value), dict_key = item.key, subkey = item.subkey, segment = item.segment})
-      end
-    end
-  end
+  last_watchlist_refresh = GetTime()
 
-  QuantifyWatchList_Update(frame)
+  q:refreshWatchlist(frame)
 end
 
 function q:addWatchlistItemMenu(menu)
-  q:addWatchListItem(menu.userdata.dict_key, menu.userdata.subkey)
+  q:addWatchListItem(menu.userdata.stat_key, menu.userdata.data_key)
 end
 
 function q:removeWatchlistItemMenu(menu)
-  q:removeWatchListItem(menu.userdata.dict_key, menu.userdata.subkey, menu.userdata.segment)
+  q:removeWatchListItem(menu.userdata.stat_key, menu.userdata.data_key, menu.userdata.segment)
 end
 
-function q:addWatchListItem(key, subkey)
-  local concat_key = subkey and viewing_segment_key..key..subkey or viewing_segment_key..key
-  watchlist[concat_key] = {key = key, subkey = subkey, segment = viewing_segment_key}
+function q:addWatchListItem(stat_key, data_key)
+  local concat_key = viewing_segment_key .. stat_key .. (data_key or "")
+  watchlist[concat_key] = {stat_key = stat_key, data_key = data_key, segment = viewing_segment_key}
+  
+  q:refreshWatchlist()
 end
 
-function q:removeWatchListItem(key,subkey,segment)
-  local concat_key = subkey and segment..key..subkey or segment..key
+function q:removeWatchListItem(stat_key,data_key,segment)
+  local concat_key = segment .. stat_key .. (data_key or "")
   watchlist[concat_key] = nil
+  
+  q:refreshWatchlist()
 end
 
 function q:toggleWatchlist(button,value)
@@ -259,25 +215,6 @@ function q:viewingTotalSegmentUi()
   end
 end
 
---mainly for checking whether to live update certain stats
-function q:viewingTotalSegment()
-  local res = nil
-  
-  res = q:viewingTotalSegmentUi()
-  
-
-  if (not res and watchlist_enabled) then
-    for k,item in pairs(watchlist) do
-      res = string.find(item.segment, "Segment %d+") == nil
-      if (res) then
-        break
-      end
-    end
-  end
-    
-  return res
-end
-
 function q:getViewingSegmentKey()
   return viewing_segment_key
 end
@@ -294,18 +231,10 @@ function quantify:setViewingSubkey(subkey)
   viewing_module_subkey = subkey
 end
 
-function quantify:getStatsList()
-  return ViewAllStats_List
-end
-
-function q:test_ui()
-  local key = "raw:xp"
-  
-  print(getReadableKeyValue(key, 0))
-end
-
 function q:initializeUi()
+  viewing_segment = q.current_segment
   QuantifyContainer_Initialize()
+  ui_initialized = true
 end
 
 function q:copyToClipboard(menu)
@@ -320,11 +249,10 @@ end
 
 function q:resetStat(userdata)
   local id = q:getSegmentId(userdata.segment)
-  local seg = id and q.segments[id]
+  local seg = id and q.segments[id] or qDb[userdata.segment]
   if (seg) then
-    seg:resetStat(userdata.dict_key,userdata.subkey)
-  else
-    q.TotalSegment:resetStat(qDb[userdata.segment],userdata.dict_key, userdata.subkey)
+    q:setStat(seg, userdata.stat_key, nil, userdata.data_key)
+    q:refreshUi()
   end
 end
 
@@ -383,7 +311,7 @@ local function saveUiState()
 end
 
 local function loadUiState()
-  if (qDbOptions.watchlist ~= nil and qDbOptions.watchlist_enabled ~= nil) then
+  if (qDbOptions and qDbOptions.watchlist ~= nil and qDbOptions.watchlist_enabled ~= nil) then
     watchlist = qDbOptions.watchlist
     if (qDbOptions.watchlist_enabled) then
       q:toggleWatchlist(nil,true)

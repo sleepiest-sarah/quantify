@@ -32,11 +32,13 @@ quantify.STATS = {
   QUEST_MONEY_RATE = {text = "Quest Money Per Hour", path = "currency/stats/quest_money_rate", abbr = "QMpH", units = "money/hour"},
   AUCTION_MONEY = {text = "Money from Auction House", path = "currency/stats/auction_money", abbr = "AH Money", units = "money"},
   AUCTION_MONEY_SPENT = {text = "Money Spent at Auction House", path = "currency/stats/auction_money_spent", abbr = "AH Spent", units = "money"},
+  AUCTION_MONEY_SPENT_RATE = {text = "Auction Money Spent Per Hour", path = "currency/stats/auction_money_spent_rate", abbr = "AH Spent/hr", units = "money/hour"},
   PCT_MONEY_QUEST = {text = "% Money Earned: Quest", path = "currency/stats/pct_money_quest", units = "percentage", order = 845},
   PCT_MONEY_AUCTION = {text = "% Money Earned: Auctions", path = "currency/stats/pct_money_auction", units = "percentage", order = 845},
   PCT_MONEY_LOOT = {text = "% Money Earned: Loot", path = "currency/stats/pct_money_loot", units = "percentage", order = 845},  
   VENDOR_MONEY = {text = "Money from Vendor Sales", path = "currency/stats/vendor_money", abbr = "Vendor Sales", units = "money"},
   VENDOR_MONEY_SPENT = {text = "Money Spent at Vendors", path = "currency/stats/vendor_money_spent", abbr = "Vendor Spent", units = "money"},
+  VENDOR_MONEY_SPENT_RATE = {text = "Vendor Money Spent Per Hour", path = "currency/stats/vendor_money_spent_rate", abbr = "Vendor Spent/hr", units = "money/hour"},
   PCT_MONEY_VENDOR = {text = "% Money Earned: Vendor", path = "currency/stats/pct_money_vendor", units = "percentage", order = 845},
   MONEY_PICKPOCKETED = {text = "Money from Pick Pocketing", path = "currency/stats/money_pickpocketed", abbr = "Pick Pocketing", units = "money"},
   MONEY_PICKPOCKETED_RATE ={text = "Pick Pocketing Money Per Hour", path = "currency/stats/money_pickpocketed_rate", abbr = "PPpH", units = "money/hour"},
@@ -47,7 +49,7 @@ quantify.STATS = {
   TOTAL_MONEY_GAINED = {text = "Money Earned", path = "currency/stats/total_money_gained", units="money"},
   TOTAL_MONEY_SPENT = {text = "Money Spent", path = "currency/stats/total_money_spent", units="money"},
   MONEY_LOOTED = {text = "Money Looted", path = "currency/stats/money_looted", units="money"},
-  --CURRENCY_GAINED_RATES = {text = "* Gained Per Hour", path = "currency/stats/currency_gained_rates/*", units="integer/hour"},
+  CURRENCY_GAINED_RATES = {text = "* Gained Per Hour", path = "currency/stats/currency_gained_rates/*", units="integer/hour"},
   DELTA_MONEY_RATE = {text = "Net Money Earned Per Hour", path = "currency/stats/delta_money_rate", units="money/hour"},
   TOTAL_MONEY_GAINED_RATE = {text = "Money Earned Per Hour", path = "currency/stats/total_money_gained_rate", units="money/hour"},
   TOTAL_MONEY_SPENT_RATE = {text = "Money Spent Per Hour", path = "currency/stats/total_money_spent_rate", units="money/hour"},
@@ -73,7 +75,7 @@ quantify.STATS = {
   UPGRADES_RECEIVED = {text = "iLvl Upgrades: *", path = "loot/stats/upgrades_received/*", units = "integer", order = 150},
   UPGRADES_RECEIVED_RATES = {text = "iLvl Upgrades Per Day: *", path = "loot/stats/upgrades_received_rates/*", units = "integer", order = 160},
   OVERALL_ILEVEL_UPGRADES = {text = "Total iLvl Upgrades", path = "loot/stats/overall_ilevel_upgrades", units = "integer", order = 140},
-  PCT_ARMOR_CLASS_LOOTED = {text = "% Armor Class Looted: *", path = "loot/stats/pct_armor_class/*", units = "percentage", order = 870},
+  PCT_ARMOR_CLASS_LOOTED = {text = "% Armor Class Looted: *", path = "loot/stats/pct_armor_class_looted/*", units = "percentage", order = 870},
   PCT_LOOT_QUALITY = {text = "% * Loot", path = "loot/stats/pct_loot_quality/*", units = "percentage", order = 825},
   INV_TYPE_LOOTED = {text = "* Items Looted", path = "loot/stats/inv_type_looted/*", units = "integer", order = 900},
   JUNK_LOOTED_VALUE = {text = "Value of Junk Looted", path = "loot/stats/junk_looted_value", units = "money", order = 451},
@@ -95,40 +97,65 @@ quantify.STATS = {
   MAIL_GEAR_LOOT = {text = "Mail Pieces Looted", path = "loot/stats/mail_gear_loot", units = "integer", order = 752},
   PLATE_GEAR_LOOT = {text = "Plate Gear Looted", path = "loot/stats/plate_gear_loot", units = "integer", order = 753},
   
-  
    --misc
-  JUMPS = {text = "Total Jumps", path = "misc/stats/jumps", units = "integer"},
-  JUMPS_RATE = {text = "Jumps Per Hour", path = "misc/stats/jumps_rate", units = "integer/hour"},  
+  JUMPS = {text = "Total Jumps", path = "miscellaneous/stats/jumps", units = "integer"},
+  JUMPS_RATE = {text = "Jumps Per Hour", path = "miscellaneous/stats/jumps_rate", units = "integer/hour"},  
+  
+  --pet battles
+  TOTAL_BATTLES = {text = "Total Pet Battles", path = "battlepets/stats/total_battles", units = "integer", version="retail"},
+  TOTAL_WILD_BATTLES = {text = "Total Wild Pet Battles", path = "battlepets/stats/total_wild_battles", units = "integer", version="retail"},
+  TOTAL_TRAINER_BATTLES = {text = "Total Trainer Pet Battles", path = "battlepets/stats/total_trainer_battles", units = "integer", version="retail"},
+  TOTAL_BATTLE_WINS = {text = "Total Pet Battle Victories", path = "battlepets/stats/total_battle_wins", units = "integer", version="retail"},
+  TOTAL_WILD_BATTLE_WINS = {text = "Total Wild Pet Battle Victories", path = "battlepets/stats/total_wild_battle_wins", units = "integer", version="retail"},
+  TOTAL_TRAINER_BATTLE_WINS = {text = "Total Trainer Pet Battle Victories", path = "battlepets/stats/total_trainer_battle_wins", units = "integer", version="retail"},
+  TOTAL_WILD_FORFEITS = {text = "Total Wild Pet Battle Forfeits", path = "battlepets/stats/total_wild_forfeits", units = "integer", version="retail"},
+  TOTAL_TRAINER_FORFEITS = {text = "Total Trainer Pet Battle Forfeits", path = "battlepets/stats/total_trainer_forfeits", units = "integer", version="retail"}, 
+  TOTAL_FORFEITS = {text = "Total Pet Battle Forfeits", path = "battlepets/stats/total_forfeits", units = "integer", version="retail"},
+  PCT_BATTLE_WINS = {text = "% Pet Battle Victories", path = "battlepets/stats/pct_battle_wins", units = "percentage", version = "retail"},
+  PCT_WILD_BATTLE_WINS = {text = "% Wild Pet Battle Victories", path = "battlepets/stats/pct_wild_battle_wins", units = "percentage", version = "retail"},
+  PCT_TRAINER_BATTLE_WINS = {text = "% Trainer Pet Battle Victories", path = "battlepets/stats/pct_trainer_battle_wins", units = "percentage", version = "retail"},
+  PCT_BATTLE_WINS_NO_FORFEITS = {text = "% Pet Battle Victories Exclude Forfeits", path = "battlepets/stats/pct_battle_wins_no_forfeits", units = "percentage", version = "retail"},
+  PCT_WILD_BATTLE_WINS_NO_FORFEITS = {text = "% Wild Pet Battle Victories Exclude Forfeits", path = "battlepets/stats/pct_wild_battle_wins_no_forfeits", units = "percentage", version = "retail"},
+  PCT_TRAINER_BATTLE_WINS_NO_FORFEITS = {text = "% Trainer Pet Battle Victories Exclude Forfeits", path = "battlepets/stats/pct_trainer_battle_wins_no_forfeits", units = "percentage", version = "retail"},
+  TOTAL_PETS = {text = "Total Pets", units = "integer", path = "battlepets/stats/total_pets", version = "retail", order = 100, exclude_total = true},
+  MAX_LEVEL_PETS = {text = "Total Max Level Pets", path = "battlepets/stats/max_level_pets", units = "integer", version = "retail", order = 101, exclude_total = true},
+  COMBAT_PETS = {text = "Total Combat Pets", units = "integer", path = "battlepets/stats/combat_pets", version = "retail", order = 102, exclude_total = true},
+  WILD_CAUGHT_PETS = {text = "Total Pets Caught in the Wild", path = "battlepets/stats/wild_caught_pets", units = "integer", version = "retail", order = 103, exclude_total = true},
+  PET_RARITY_COUNTS = {text = "Total * Pets", units = "integer", path = "battlepets/stats/pet_rarity/*", version = "retail", order = 110, exclude_total = true},
+  PET_TYPE_COUNTS = {text = "Total * Type Pets", units = "integer", path = "battlepets/stats/pet_type/*", version = "retail", order = 120, exclude_total = true},
+  PET_BATTLE_COUNTS = {text = "Most Used Pets: *", units = "integer", path = "battlepets/data/pet_battle_counts/*", version = "retail", order = 200},
   
   --reputation
-  FACTION_REMAINING = {text = "*: Remaining Rep to Next Rank", "reputation/stats/faction_remaining/", units = "integer", order = 300},
-  FACTION_REMAINING_TIME = {text = "*: Time Until Next Rank", path = "reputation/stats/faction_remaining_time/", units = "time", order = 300},
-  FACTION_TIME_NEUTRAL = {text = "*: Time until Neutral", path = "reputation/stats/faction_time_neutral/", units = "time", order = 300, exclude_total = true},
-  FACTION_TIME_EXALTED = {text = "*: Time until Exalted", path = "reputation/stats/faction_time_exalted/", units = "time", order = 300, exclude_total = true},
-  FACTION_REMAINING_EXALTED = {text = "*: Remaining Rep until Exalted", path = "reputation/stats/faction_remaining_exalted/", units = "integer", order = 300, exclude_total = true},
+  FACTION_REMAINING = {text = "*: Remaining Rep to Next Rank", path = "reputation/stats/faction_remaining/*", units = "integer", order = 300},
+  FACTION_REMAINING_TIME = {text = "*: Time Until Next Rank", path = "reputation/stats/faction_remaining_time/*", units = "time", order = 300},
+  FACTION_TIME_NEUTRAL = {text = "*: Time until Neutral", path = "reputation/stats/faction_time_neutral/*", units = "time", order = 300, exclude_total = true},
+  FACTION_TIME_EXALTED = {text = "*: Time until Exalted", path = "reputation/stats/faction_time_exalted/*", units = "time", order = 300, exclude_total = true},
+  FACTION_REMAINING_EXALTED = {text = "*: Remaining Rep until Exalted", path = "reputation/stats/faction_remaining_exalted/*", units = "integer", order = 300, exclude_total = true},
   FACTION_CHANGE_DELTA_RATE = {text = "*: Rep. Gained Per Day", path = "reputation/stats/faction_change_delta_rate/*", units = "integer/day", order = 300},
   --faction_delta_* = {text = "Delta: *", units = "integer", order = 100}, --FOR TESTING ONLY
   
   
   --time
   TIME_FISHING = {text = "Total Time Fishing", units = "time", path = "time/stats/time_fishing", order = 850, version="retail"},
-  PCT_TIME_FISHING = {text = "% Play Time: Fishing", path = "time/stats/time_fishing", units = "percentage", order = 852, version="retail"},
+  PCT_TIME_FISHING = {text = "% Play Time: Fishing", path = "time/stats/pct_time_fishing", units = "percentage", order = 852, version="retail"},
   TIME_INDOORS = {text = "Total Time Indoors", units = "time", path = "time/stats/time_indoors", abbr="Indoors", order = 855},
-  PCT_TIME_INDOORS = {text = "% Play Time: Indoors", path = "time/stats/time_fishing", abbr = "Indoors", units = "percentage", order = 857},
+  PCT_TIME_INDOORS = {text = "% Play Time: Indoors", path = "time/stats/pct_time_indoors", abbr = "Indoors", units = "percentage", order = 857},
   TIME_OUTDOORS = {text = "Total Time Outdoors", units = "time", path = "time/stats/time_outdoors", abbr="Outdoors", order = 858},
-  PCT_TIME_OUTDOORS = {text = "% Play Time: Outdoors", path = "time/stats/time_fishing", abbr = "Outdoors", units = "percentage", order = 859},
+  PCT_TIME_OUTDOORS = {text = "% Play Time: Outdoors", path = "time/stats/pct_time_outdoors", abbr = "Outdoors", units = "percentage", order = 859},
   AIR_TIME = {text = "Jump Air Time", path = "time/stats/air_time", units = "time", order = 870},
-  PCT_TIME_JUMP = {text = "% Play Time: Jump Air Time", path = "time/stats/time_fishing", abbr = "Jump Air Time", units = "percentage", order = 871},
+  PCT_TIME_JUMP = {text = "% Play Time: Jump Air Time", path = "time/stats/pct_time_jump", abbr = "Jump Air Time", units = "percentage", order = 871},
   TIME_COMBAT = { text = "Total Time in Combat", path = "time/stats/time_combat", units = "time", order = 400},
-  PCT_PLAY_TIME_AFK = {text="% Play Time: AFK", path = "time/stats/time_fishing", units = "percentage", order = 610},
-  PCT_PLAY_TIME_COMBAT = {text = "% Play Time: Combat", path = "time/stats/time_fishing", units = "percentage", order = 410},
+  PCT_PLAY_TIME_AFK = {text="% Play Time: AFK", path = "time/stats/pct_play_time_afk", units = "percentage", order = 610},
+  PCT_PLAY_TIME_COMBAT = {text = "% Play Time: Combat", path = "time/stats/pct_play_time_combat", units = "percentage", order = 410},
   TIME_AFK = {text = "Total Time AFK", path = "time/stats/time_afk", units = "time", order = 600},
   PLAY_TIME = {text = "Total Play Time", path = "time/stats/play_time", units = "time", order = 50},
   TIME_SUB_MAX_LEVEL = {text = "Total Time Below Level Cap", path = "time/stats/time_sub_max_level", units = "time", order = 50},
   TIME_MOUNTED = {text = "Total Time Mounted", path = "time/stats/time_mounted", units = "time", order = 650},
-  PCT_TIME_MOUNTED = {text = "% Play Time: Mounted", path = "time/stats/time_fishing", units = "percentage", order = 660},
+  PCT_TIME_MOUNTED = {text = "% Play Time: Mounted", path = "time/stats/pct_time_mounted", units = "percentage", order = 660},
   TIME_RESTED = {text = "Total Time with Rested XP", path = "time/stats/time_rested", units = "time"},
   PCT_TIME_RESTED = {text = "% Play Time: Rested", path = "time/stats/pct_time_rested", units = "percentage"},
+  TIME_PET_BATTLE = {text = "Total Time in Pet Battles", path = "time/stats/time_pet_battle", units = "time", order = 872, version = "retail"},
+  PCT_TIME_PET_BATTLES = {text = "% Play Time: Pet Battles", path = "time/stats/pct_time_pet_battles", abbr = "Pet Battles", units = "percentage", order = 873, version = "retail"},
   
   --tradeskill
   COOKING_LOOTED = {text = "Cooking Items and Fish Gathered", path = "tradeskill/stats/cooking_looted", units = "integer", order = 801, version = "retail"},
@@ -180,4 +207,110 @@ quantify.STATS = {
   ZONE_PCT = {text = "Zone %: *", path = "zones/stats/pct_zones/*", units = "percentage", order = 800},
   ZONE_TIME = {text = "*", path = "zones/stats/zones/*", units ="time", order = 200},
 
+}
+
+quantify.VIEWS = {
+	["All"] = {	stats = {"*"}
+	
+			},
+	["Zone Times"] = {
+				stats = {"ZONE_TIME"}
+			},
+	["Zone Percentages"] = {
+				stats = { "ZONE_PCT"}
+			},
+	["Gold Spent"] = {
+				stats = {"REPAIR_MONEY", "AUCTION_MONEY_SPENT", "VENDOR_MONEY_SPENT"}
+			},
+	["Gold Spent Per Hour"] = {
+				stats = {"REPAIR_MONEY_RATE", "AUCTION_MONEY_SPENT_RATE", "VENDOR_MONEY_SPENT_RATE"}
+			},
+	["Gold Earned"] = {
+				stats = {"QUEST_MONEY", "AUCTION_MONEY", "VENDOR_MONEY", "MONEY_PICKPOCKETED", "MONEY_LOOTED"}
+			},
+	["Gold Earned Per Hour"] = {
+				stats = {"QUEST_MONEY_RATE", "MONEY_PICKPOCKETED_RATE", "MONEY_LOOTED_RATE"} -- missing auction and vendor earned per hour
+			},
+	["Gold Overview"] = {
+				stats = {"TOTAL_MONEY_GAINED", "TOTAL_MONEY_SPENT", "DELTA_MONEY"}
+			},
+	["Gold Overview Per Hour"] = {
+				stats = {"TOTAL_MONEY_GAINED_RATE", "TOTAL_MONEY_SPENT_RATE", "DELTA_MONEY_RATE"}
+			},
+	["Gold Sources"] = {
+				stats = {"PCT_MONEY_QUEST", "PCT_MONEY_AUCTION", "PCT_MONEY_LOOT", "PCT_MONEY_VENDOR"}
+			},
+	["Currency Gained"] = {
+				stats = {"CURRENCY_GAINED"}
+			},
+	["Currency Gained Per Hour"] = {
+				stats = {"CURRENCY_GAINED_RATES"}
+			},
+	["Chat Channels"] = {
+				stats = {"WHISPERS_SENT", "SAY_SENT", "YELL_SENT", "PARTY_SENT", "RAID_SENT", "GUILD_SENT", "CHANNEL_SENT"}
+			}, 
+	["Chat Overview"] = {
+				stats = {"COMBAT_MESSAGES", "MENTIONS", "EMOTES_SENT", "WHISPERS_RECEIVED", "BFF_SENT", "BFF_RECEIVED"}
+			},
+	["Combat Overview"] = {
+				stats = {"KD_RATIO", "NUM_REZ_ACCEPTED", "NUM_SPIRIT_HEALER_REZ", "NUM_DEATHS", "NUM_BREZ_ACCEPTED", "NUM_CORPSE_RUNS", "TIME_CROWD_CONTROLLED", "PLAYER_ACTUAL_KILLS", "PLAYER_KILLS"}
+			},
+	["Armor Class Percentages"] = {
+				stats = {"PCT_ARMOR_CLASS_LOOTED"}
+			},	
+	["Loot Quality Percentages"] = {
+				stats = {"PCT_LOOT_QUALITY"}
+			},
+	["Loot Counts"] = {
+				stats = {"INV_TYPE_LOOTED", "JUNK_LOOTED_VALUE", "TOTAL_ITEMS_LOOTED", "GEAR_LOOT", "JUNK_LOOTED", "POOR_LOOT", "COMMON_LOOT", "UNCOMMON_LOOT", "RARE_LOOT",
+						"EPIC_LOOT", "BFA_POOR_LOOT", "BFA_COMMON_LOOT", "BFA_UNCOMMON_LOOT", "BFA_RARE_LOOT", "BFA_EPIC_LOOT", "CLOTH_GEAR_LOOT", "LEATHER_GEAR_LOOT", "MAIL_GEAR_LOOT", "PLATE_GEAR_LOOT"}
+			},
+	["Loot Upgrades"] = {
+				stats = {"UPGRADES_RECEIVED", "OVERALL_ILEVEL_UPGRADES", "UPGRADES_RECEIVED_RATES"}
+			},
+	["Miscellaneous"] = {
+				stats = {"JUMPS", "JUMPS_RATE"}
+			},
+	["Pet Counts"] = {
+				stats = {"TOTAL_PETS", "MAX_LEVEL_PETS", "COMBAT_PETS", "WILD_CAUGHT_PETS", "PET_RARITY_COUNTS", "PET_TYPE_COUNTS", "PET_BATTLE_COUNTS", }
+			},
+	["Pet Battle Statistics"] = {
+				stats = {"TOTAL_BATTLES", "TOTAL_WILD_BATTLES", "TOTAL_TRAINER_BATTLES", "TOTAL_FORFEITS", "TOTAL_BATTLE_WINS", "TOTAL_WILD_BATTLE_WINS", "TOTAL_TRAINER_BATTLE_WINS", "TOTAL_WILD_FORFEITS", "TOTAL_TRAINER_FORFEITS", }
+			},
+	["Pet Battle Win Rates"] = {
+				stats = {"PCT_BATTLE_WINS", "PCT_WILD_BATTLE_WINS", "PCT_TRAINER_BATTLE_WINS", "PCT_BATTLE_WINS_NO_FORFEITS", "PCT_WILD_BATTLE_WINS_NO_FORFEITS", "PCT_TRAINER_BATTLE_WINS_NO_FORFEITS"}
+			},
+	["Pet Battle Counts"] = {
+				stats = {"PET_BATTLE_COUNTS"}
+			},
+	["Time Overview"] = {
+				stats = {"TIME_FISHING", "TIME_INDOORS", "TIME_OUTDOORS", "AIR_TIME", "TIME_COMBAT", "TIME_AFK", "PLAY_TIME", "TIME_SUB_MAX_LEVEL", "TIME_MOUNTED", "TIME_RESTED", "TIME_PET_BATTLE"}
+			},
+	["Play Time Percents"] = {
+				stats = {"PCT_TIME_FISHING", "PCT_TIME_INDOORS", "PCT_TIME_OUTDOORS", "PCT_TIME_JUMP", "PCT_PLAY_TIME_AFK", "PCT_PLAY_TIME_COMBAT", "PCT_TIME_MOUNTED", "PCT_TIME_RESTED", "PCT_TIME_PET_BATTLES"}
+			},
+	["Trade Good Counts"] = {
+				stats = {"COOKING_LOOTED", "CLOTH_LOOTED", "TRADESKILL_LOOTED", "ENCHANTING_LOOTED", "HERB_LOOTED", "JEWELCRAFTING_LOOTED", "MEAT_LOOTED", "LEATHER_LOOTED", "METAL_LOOTED"}
+			},
+	["Expansion Trade Goods"] = {
+				stats = {"BFA_TRADE_GOOD_COLLECTED"}
+			},
+	["Faction Reputations"] = {
+				stats = {"FACTION_REMAINING", "FACTION_REMAINING_TIME", "FACTION_TIME_NEUTRAL", "FACTION_TIME_EXALTED", "FACTION_REMAINING_EXALTED", "FACTION_CHANGE_DELTA_RATE"}
+			},
+	["Character Advancement Overview"] = {
+				stats = {"RESTED_XP_TIME_SAVED", "PCT_LEVELS_GAINED_RATE", "LEVELS_GAINED", "PCT_LEVELS_GAINED", "TIME_TO_LEVEL", "LEVELS_GAINED_RATE"}
+			},	
+	["Character XP"] = {
+				stats = {"PET_BATTLE_XP", "GATHERING_XP", "KILL_XP", "QUEST_XP", "RESTED_XP", "XP", "SCENARIO_XP", "OTHER_XP", "GROUP_XP"}
+			},
+	["Character XP Rates"] = {
+				stats = {"PET_BATTLE_XP_RATE", "GATHERING_XP_RATE", "KILL_XP_RATE", "QUEST_XP_RATE", "BONUS_RESTED_XP_RATE", "XP_RATE_TIL_MAX", "SCENARIO_XP_RATE", "OTHER_XP_RATE", "GROUP_XP_RATE"}
+			},
+	["Character XP Percentages"] = {
+				stats = {"PCT_XP_KILL", "PCT_XP_PET_BATTLE", "PCT_XP_QUEST", "PCT_XP_OTHER", "PCT_XP_GATHERING"}
+			},
+	["Azerite XP"] = {
+				stats = {"AZERITE_XP_RATE", "AZERITE_XP", "AZERITE_TIME_TO_LEVEL"}
+			},	
 }

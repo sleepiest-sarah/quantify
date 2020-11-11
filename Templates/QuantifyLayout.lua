@@ -1,6 +1,5 @@
 local agui = LibStub("AceGUI-3.0", true)
 
-
 --same as the ace List but doesn't show children frames that are hidden and doesn't consider hidden frames in the container height
 --useful for redoing the layout when reusing widgets
 agui:RegisterLayout("qList",

@@ -127,8 +127,8 @@ local function playerCurrency(event, msg)
     amount = 1
   end
   
-  local name, currentAmount, texture, earnedThisWeek, weeklyMax, totalMax, isDiscovered, rarity = GetCurrencyInfo(currency)
-  q:updateStatBlock("currency/data/currency/", updatePlayerCurrencyData, name, amount)
+  local currency_obj = C_CurrencyInfo.GetCurrencyInfoFromLink(currency)
+  q:updateStatBlock("currency/data/currency/", updatePlayerCurrencyData, currency_obj.name, amount)
 
 end
 
@@ -194,22 +194,30 @@ end
 function quantify_currency:calculateDerivedStats(segment, fullSeg)
   local stats = segment.stats
   
-  local rates = quantify:calculateSegmentRates(fullSeg, stats)
+  local play_time = q:getStat(fullSeg, "PLAY_TIME")
+  local rates = quantify:calculateSegmentRates(stats, play_time)
   
   stats.quest_money_rate = rates.quest_money
   stats.money_pickpocketed_rate = rates.money_pickpocketed
   stats.repair_money_rate = rates.repair_money
+  stats.auction_money_spent_rate = rates.auction_money_spent
+  stats.vendor_money_spent_rate = rates.vendor_money_spent
   stats.delta_money_rate = rates.delta_money
   stats.total_money_gained_rate = rates.total_money_gained
   stats.total_money_spent_rate = rates.total_money_spent
   stats.money_looted_rate = rates.money_looted
   
-  --stats.currency_gained_rates = quantify:calculateSegmentRates(fullSeg, stats.currency_gained)
+  local currency_gained = {}
+  for c,v in pairs(segment.data.currency) do
+    currency_gained[c] = v.gained
+  end
+  stats.currency_gained_rates = quantify:calculateSegmentRates(currency_gained, play_time)
   
-  stats.pct_money_quest  = (stats.quest_money / stats.total_money_gained) * 100
-  stats.pct_money_auction = (stats.auction_money / stats.total_money_gained) * 100
-  stats.pct_money_loot = (stats.money_looted / stats.total_money_gained) * 100
-  stats.pct_money_vendor = (stats.vendor_money / stats.total_money_gained) * 100
+  local total_money_gained = stats.total_money_gained == 0 and 1 or stats.total_money_gained
+  stats.pct_money_quest  = (stats.quest_money / total_money_gained) * 100
+  stats.pct_money_auction = (stats.auction_money / total_money_gained) * 100
+  stats.pct_money_loot = (stats.money_looted / total_money_gained) * 100
+  stats.pct_money_vendor = (stats.vendor_money / total_money_gained) * 100
   
 end
 

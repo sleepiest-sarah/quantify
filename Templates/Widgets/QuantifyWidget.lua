@@ -8,9 +8,9 @@ function qui:RegisterWidget(name, class)
   widgets[name] = class
 end
 
-function qui:CreateWidget(name)
+function qui:CreateWidget(name, ...)
   local widget = widgets[name]:new()
-  return widget:create()
+  return widget:create(...)
 end
 
 qui.Widget = {}
