@@ -163,6 +163,21 @@ function quantify:hookSecureFunc(func, callback, t)
   table.insert(secure_hooks[func], callback)
 end
 
+local function initDateSegments()
+  local character_key = q:getCharacterKey()
+  local cur_date = date("%b%d")
+  
+  for seg_key, seg in pairs(qDb) do
+    if (seg.date and seg.date ~= cur_date) then
+      qDb[seg_key] = nil
+    end
+  end
+  
+  local today_seg_key = character_key.."_"..cur_date
+  qDb[today_seg_key] = qDb[today_seg_key] or q:createNewSegment()
+  qDb[today_seg_key].date = cur_date
+end
+
 local function init(event, ...)
   local addon = ...
   if (event == "ADDON_LOADED" and addon == q.ADDON_NAME) then
@@ -172,6 +187,10 @@ local function init(event, ...)
     
     if (not qDbOptions) then
       qDbOptions = {profile = {minimap = {hide = false}}}
+    end
+    
+    if (not qDbData) then
+      qDbData = {}
     end
     
     if (qDb) then
@@ -206,6 +225,8 @@ local function init(event, ...)
     
     q:createNewCurrentSegment()
     table.insert(q.segments, q.current_segment)
+    
+    initDateSegments()
     
     --this will set any new stats the segment might be missing
     for seg_key, seg in pairs(qDb) do

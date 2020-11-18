@@ -15,26 +15,6 @@ local DELETED_DATA_ENTRIES = {
   
 }
 
-local function correctBnAccountNames()
-  for seg_k,seg in pairs(qDb) do
-    local new_whispers_stat = {}
-    if (type(seg) == "table" and seg.stats ~= nil and seg.stats.chat ~= nil and seg.stats.chat.data and seg.stats.chat.data.whispers_received_from ~= nil) then
-      for player,v in pairs(seg.stats.chat.data.whispers_received_from) do
-        local id = string.match(player, "|K[gsf]([0-9]+)|")
-        if (id == nil) then
-          new_whispers_stat[player] = v
-        else
-          local _,_,bnname = C_BattleNet.GetAccountInfoByID(id)
-          if (bnname) then					--friend could have been removed
-            new_whispers_stat[bnname] = v
-          end
-        end
-      end
-      seg.stats.chat.data.whispers_received_from = new_whispers_stat
-    end
-  end
-end
-
 local function setTimeSubMax(event)
   if (event == nil) then
     q:registerEvent("PLAYER_ENTERING_WORLD",setTimeSubMax)
@@ -63,7 +43,6 @@ local function sanityCheckTimes()
   for seg_k,seg in pairs(qDb) do
     if (type(seg) == "table" and seg.stats ~= nil and seg.stats.time ~= nil and seg.stats.time.stats.play_time ~= nil) then
       local play_time = seg.stats.time.stats.play_time
-      seg.time = play_time
       for k,v in pairs(seg.stats.time.stats) do
         if (v > play_time) then
           seg.stats.time.stats[k] = play_time
@@ -102,16 +81,22 @@ local function restructureInstancesData(seg)
   if (seg.stats[quantify_instances.MODULE_KEY]) then
     local instances = seg.stats[quantify_instances.MODULE_KEY]
     
-      instances.data.raids = instances.data.raids or {}
-      instances.data.dungeons = instances.data.dungeons or {}
-      instances.data.players = instances.data.players or instances.stats.party_members or {}
-      instances.stats.party_members = nil
+    instances.data.raids = instances.data.raids or {}
+    instances.data.dungeons = instances.data.dungeons or {}
+    instances.data.players = instances.data.players or instances.stats.party_members or {}
+    instances.stats.party_members = nil
 
     for name, value in pairs(instances.data.players) do
-      value.name = name
-      value.boss_kills = value.kills
-      value.boss_wipes = value.wipes
-      value.party_deaths = value.player_deaths
+      if (value.kills or value.wipes or value.player_deaths) then
+        value.name = name
+        value.boss_kills = value.kills
+        value.boss_wipes = value.wipes
+        value.party_deaths = value.player_deaths
+        
+        value.kills = nil
+        value.wipes = nil
+        value.player_deaths = nil
+      end
     end
     
     for name,value in pairs(instances.stats) do
@@ -173,10 +158,22 @@ end
 local function restructureChatData(seg)
   if (seg.stats[quantify_chat.MODULE_KEY]) then
     local chat = seg.stats[quantify_chat.MODULE_KEY]
-    chat.data = {}
-    chat.data.whispers_received_from = chat.whispers_received_from
-    chat.data.whispers_sent_to = chat.whispers_sent_to
-    chat.data.emotes_used = chat.data.emotes_used
+    
+    chat.data.whispers_received_from = chat.data.whispers_received_from or chat.stats.whispers_received_from or {}
+    chat.data.whispers_sent_to = chat.data.whispers_sent_to or chat.stats.whispers_sent_to or {}
+    chat.data.emotes_used = chat.data.emotes_used or chat.stats.emotes_used or {}
+  
+    for player, ct in pairs(chat.data.whispers_received_from) do
+      if (strfind(player, "|")) then
+        chat.data.whispers_received_from[player] = nil
+      end
+    end
+    
+    for player, ct in pairs(chat.data.whispers_sent_to) do
+      if (strfind(player, "|")) then
+        chat.data.whispers_sent_to[player] = nil
+      end
+    end
     
     chat.stats.whispers_received_from = nil
     chat.stats.whispers_sent_to = nil
@@ -206,8 +203,8 @@ local function restructureLootData(seg)
   if (seg.stats[quantify_loot.MODULE_KEY]) then
     local loot = seg.stats[quantify_loot.MODULE_KEY]
     
-    loot.stats.inv_type_looted = {}
-    loot.stats.upgrades_received = {} 
+    loot.stats.inv_type_looted = loot.stats.inv_type_looted or {}
+    loot.stats.upgrades_received = loot.stats.upgrades_received or {} 
     
     for k,v in pairs(loot.stats) do
       if (strfind(k,"inv_type_%*")) then
@@ -225,7 +222,7 @@ local function restructureZoneData(seg)
   if (seg.stats[quantify_zones.MODULE_KEY]) then
     local mod = seg.stats[quantify_zones.MODULE_KEY]
     
-    mod.stats.zones = {}
+    mod.stats.zones = mod.stats.zones or {}
     local zones = mod.stats.zones
     for k,v in pairs(mod.stats) do
       if (strfind(k,"zone_time_%*")) then
@@ -240,7 +237,7 @@ local function restructureTradeskillData(seg)
   if (seg.stats[quantify_tradeskill.MODULE_KEY]) then
     local mod = seg.stats[quantify_tradeskill.MODULE_KEY]
     
-    mod.stats.bfa_trade_good_collected = {}
+    mod.stats.bfa_trade_good_collected = mod.stats.bfa_trade_good_collected or {}
     local bfa_trade_good_collected = mod.stats.bfa_trade_good_collected
     for k,v in pairs(mod.stats) do
       if (strfind(k,"bfa_trade_good_%*")) then
@@ -379,6 +376,7 @@ local function verifySavedData()
             repair = true
             break
           end
+
         end
         
         for data_key,data in pairs(mod.data) do
@@ -386,6 +384,15 @@ local function verifySavedData()
             repair = true
             break
           end
+          
+          if (mod_name == quantify_chat.MODULE_KEY and (data_key == "whispers_received_from" or data_key == "whispers_sent_to")) then
+            for player, ct in pairs(data) do
+              if (strfind(player, "|")) then
+                repair = true
+                break
+              end
+            end
+          end          
         end
       end
     end
@@ -409,14 +416,9 @@ function q:runMigrations()
   --always run all migrations if the current version or data is an alpha or beta release
   if (qDbOptions.version == nil or installed_version == nil or isPreReleaseVersion(installed_version) or isPreReleaseVersion(qDbOptions.version)) then
     clearWatchlists()
-    correctBnAccountNames()
     setTimeSubMax()
     sanityCheckTimes()
   else
-    
-    if (qDbOptions.version < "1.0") then
-      correctBnAccountNames()
-    end
       
     if (qDbOptions.version < "1.1") then
       setTimeSubMax()    

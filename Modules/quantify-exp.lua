@@ -48,9 +48,8 @@ end
 
 local function playerQuestTurnedIn(event, ...)
   local questid, xp, money = unpack({...})
-  
-  if (xp ~= nil) then
-    session.quest_xp = session.quest_xp + xp
+
+  if (xp) then
     q:incrementStat("QUEST_XP", xp)
   end
   

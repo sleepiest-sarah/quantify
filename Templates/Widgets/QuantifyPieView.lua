@@ -56,12 +56,21 @@ function PieView:refresh(stats)
   self.chart:ResetPie()
   local pie_labels = {}
   for i,pct in ipairs(stats) do
-    pie_labels[i] = pct
     local t = string.gsub(pct[2], "%%", "")
-    self.chart:AddPie(tonumber(t))
+    local num = tonumber(t)
+    if (num > 0) then
+      table.insert(pie_labels,pct)
+      self.chart:AddPie(tonumber(t))
+    end
   end
-  pie_labels[#stats+1] = {"% Other", tostring(math.floor(100 - self.chart.PercentOn)).."%"}
-  self.chart:CompletePie()
+
+  if (#pie_labels == 1) then
+    self.chart:ResetPie()
+    self.chart:CompletePie()
+  else
+    table.insert(pie_labels,{"% Other", tostring(math.floor(100 - self.chart.PercentOn)).."%"})
+    self.chart:CompletePie()
+  end
   
   self.chart.pie_labels = pie_labels
 end

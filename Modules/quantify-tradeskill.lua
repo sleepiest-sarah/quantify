@@ -7,7 +7,6 @@ local q = quantify
 qt.MODULE_KEY = "tradeskill"
 
 function qt:processItem(item,amount) 
-  --q:printTable(item)
   
   --Tradeskill item type and subtypes are not in Classic
   if (item.itemType == "Tradeskill" or item.itemType == "Trade Goods") then 

@@ -53,7 +53,7 @@ local function zoneChangedNewArea(event, ...)
   if (s.player_in_instance and (s.instance_map_id ~= instanceMapID or s.instance_difficulty_name ~= difficultyName)) then
     s.instance_start_time = GetTime()
     s.instance_journal_id = EJ_GetInstanceForMap(s.UiMapDetails.mapID)
-    if (s.instance_journal_id) then
+    if (s.instance_journal_id and s.instance_journal_id > 0) then
       EJ_SelectInstance(s.instance_journal_id)
     end
     
@@ -162,7 +162,7 @@ local function checkClassSpec()
   if (q.isRetail) then  --is there some way to get this info in classic?
     local spec_i = GetSpecialization()
     if (spec_i) then
-      _,s.player_spec,_,_,_,s.player_role = GetSpecializationInfo(spec_i)
+      _,s.player_spec,_,_,s.player_role,_ = GetSpecializationInfo(spec_i)
     end
   end
   
@@ -392,6 +392,19 @@ function quantify_state:isCurrentDungeonComplete()
     return false
   end
   
+  if (s.instance_journal_id == 0) then
+    s.instance_journal_id = EJ_GetInstanceForMap(s.UiMapDetails.mapID)
+    if (s.instance_journal_id == 0) then
+      return false
+    end
+  end
+  
+  if (IsLFGComplete()) then
+    return true
+  end
+  
+  EJ_SelectInstance(s.instance_journal_id)
+  
   if (not quantify_state:isMythicPlus()) then
     local i = 1
     repeat
@@ -401,7 +414,6 @@ function quantify_state:isCurrentDungeonComplete()
       end
       i = i + 1
     until bossId == nil
-    
     return true
   else
     return s.keystone_completed

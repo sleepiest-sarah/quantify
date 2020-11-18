@@ -149,11 +149,15 @@ function q:refreshWatchlist(frame)
   local segments = {}  
   frame.items = {}
   for watchlist_key,item in pairs(watchlist) do
-    
     if (not segments[item.segment]) then
       segments[item.segment] = q:getSegment(item.segment)
-      q:updateSegment(segments[item.segment])
+      if (segments[item.segment]) then
+        q:updateSegment(segments[item.segment])
+      else
+        watchlist[watchlist_key] = nil
+      end
     end
+    
     local seg = segments[item.segment]
 
     if (seg)  then

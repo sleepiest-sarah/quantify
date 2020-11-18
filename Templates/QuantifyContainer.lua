@@ -38,12 +38,17 @@ end
 local function segmentListComparator(a,b)
   local a_id = string.match(a, "Segment (%d+)")
   local b_id = string.match(b, "Segment (%d+)")
+  local a_date = strfind(a, "_")
+  local b_date = strfind(b, "_")
+  
   if (a == "account" or b == "account") then  --account should always be first
     return a == "account"
   elseif (a_id ~= nil and b_id ~= nil) then   --sort segments according to id
     return a_id < b_id
   elseif ((a_id ~= nil and b_id == nil) or (a_id == nil and b_id ~= nil)) then   --segments should be last
     return a_id == nil
+  elseif ((a_date and not b_date) or (not a_date and b_date)) then  --date segments should directly after character segments
+    return not a_date
   else                                        --sort character names alphabetically
     return a < b
   end
@@ -92,11 +97,20 @@ function QuantifySegmentList_Refresh(self)
   local keys_t = {}
   table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
   table.sort(keys_t, segmentListComparator)
+  
+  local date_segment_separator = false
   for _,seg in ipairs(keys_t) do
     local label = agui:Create("InteractiveLabel")
     label:SetText(q:capitalizeString(seg))
     label:SetFontObject(AchievementPointsFontSmall)
     label.segment = seg
+    
+    if (not date_segment_separator and strfind(seg, "_")) then
+      local separator = agui:Create("Label")
+      separator:SetText("---")
+      self:AddChild(separator)    
+      date_segment_separator = true
+    end
     
     if (seg == "Segment 1") then
       local separator = agui:Create("Label")

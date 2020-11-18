@@ -58,8 +58,6 @@ local function playerAura(event, unit)
     
     local buff = {UnitBuff("player", 1)}
     local debuff = {UnitDebuff("player", 1)}
-    --q:printTable(buff)
-    --q:printTable(debuff)
   
     if (quantify_state:isPlayerInCombat()) then
       

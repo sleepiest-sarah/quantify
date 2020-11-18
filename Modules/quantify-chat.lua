@@ -16,25 +16,17 @@ qc.keys = {
 local keys = qc.keys
 
 local function chatMsgWhisper(event, ...)
-  local msg, author,_,_,recipient,_, _, _, _, _, _, _, bnSenderID = unpack({...})
+  local msg, player,_,_,_,_, _, _, _, _, _, _, bnSenderID = unpack({...})
   
-  --check if author/recipient is actually a BN account string
-  recipient = q:getBnAccountNameFromChatString(recipient) or recipient
-  author = q:getBnAccountNameFromChatString(author) or author
-  
-  local _,bn_account_name = BNGetInfo()
-  
-  --pretty sure the inform events only fire for battle.net messages you send and don't include anything about the author. Both the author field and bnSenderId refer to the recepient
-  if (event == "CHAT_MSG_BN_WHISPER_INFORM") then
-    recipient = author
-    author = bn_account_name
+  if (event == "CHAT_MSG_BN_WHISPER_INFORM" or event == "CHAT_MSG_BN_WHISPER") then
+    player = C_BattleNet.GetAccountInfoByID(bnSenderID).battleTag
   end
-  
-  if (author == quantify_state:getPlayerNameRealm() or author == bn_account_name or BNIsSelf(bnSenderID)) then
-    q:incrementStatByPath(keys.WHISPERS_SENT_TO..recipient,1)
+
+  if (event == "CHAT_MSG_BN_WHISPER_INFORM" or event == "CHAT_MSG_WHISPER_INFORM") then
+    q:incrementStatByPath(keys.WHISPERS_SENT_TO..player,1)
     q:incrementStat("WHISPERS_SENT",1)
   else
-    q:incrementStatByPath(keys.WHISPERS_RECEIVED_FROM..recipient,1)
+    q:incrementStatByPath(keys.WHISPERS_RECEIVED_FROM..player,1)
     q:incrementStat("WHISPERS_RECEIVED",1)
   end  
 end
@@ -165,6 +157,7 @@ table.insert(quantify.modules, quantify_chat)
 quantify:registerEvent("CHAT_MSG_BN_WHISPER", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_BN", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_BN_WHISPER_INFORM", chatMsgWhisper)
+quantify:registerEvent("CHAT_MSG_WHISPER_INFORM", chatMsgWhisper)
 quantify:registerEvent("CHAT_MSG_CHANNEL", chatMsgChannel)
 quantify:registerEvent("CHAT_MSG_OFFICER", chatMsgGuild)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsgGuild)
@@ -182,6 +175,7 @@ quantify:registerEvent("CHAT_MSG_YELL", chatMsgYell)
 quantify:registerEvent("CHAT_MSG_BN_WHISPER", chatMsg)
 quantify:registerEvent("CHAT_MSG_BN", chatMsg)
 quantify:registerEvent("CHAT_MSG_BN_WHISPER_INFORM", chatMsg)
+quantify:registerEvent("CHAT_MSG_WHISPER_INFORM", chatMsg)
 quantify:registerEvent("CHAT_MSG_CHANNEL", chatMsg)
 quantify:registerEvent("CHAT_MSG_OFFICER", chatMsg)
 quantify:registerEvent("CHAT_MSG_GUILD", chatMsg)

@@ -63,6 +63,7 @@ quantify.STATS = {
   BFA_RAID_BOSS_WIPES = {text = "BFA Raid Boss Wipes", path = "instances/stats/bfa_raid_boss_wipes", units = "integer", order = 200},
   OVERALL_RAID_BOSS_KILLS = {text = "Raid Boss Kills", path = "instances/stats/overall_raid_boss_kills", units = "integer"},
   LEGION_DUNGEON_BOSS_KILLS = {text = "Legion Dungeon Boss Kills", path = "instances/stats/legion_dungeon_boss_kills", units = "integer"},
+  OVERALL_DUNGEON_BOSS_KILLS = {text = "Dungeon Boss Kills", path = "instances/stats/overall_dungeon_boss_kills", units = "integer"},
   PLAYER_RAID_DEATHS = {text = "Players Deaths in Raids", path = "instances/stats/player_raid_deaths", units = "integer"},
   PLAYER_DUNGEON_DEATHS = {text = "Player Deaths in Dungeons", path = "instances/stats/player_dungeon_deaths", units = "integer"},
   LEGION_RAID_BOSS_KILLS = {text = "Legion Raid Boss Kills", path = "instances/stats/legion_raid_boss_kills", units = "integer"},
@@ -73,7 +74,7 @@ quantify.STATS = {
   
   --loot
   UPGRADES_RECEIVED = {text = "iLvl Upgrades: *", path = "loot/stats/upgrades_received/*", units = "integer", order = 150},
-  UPGRADES_RECEIVED_RATES = {text = "iLvl Upgrades Per Day: *", path = "loot/stats/upgrades_received_rates/*", units = "integer", order = 160},
+  UPGRADES_RECEIVED_RATES = {text = "iLvl Upgrades Per Day: *", path = "loot/stats/upgrades_received_rates/*", units = "decimal/hour", order = 160},
   OVERALL_ILEVEL_UPGRADES = {text = "Total iLvl Upgrades", path = "loot/stats/overall_ilevel_upgrades", units = "integer", order = 140},
   PCT_ARMOR_CLASS_LOOTED = {text = "% Armor Class Looted: *", path = "loot/stats/pct_armor_class_looted/*", units = "percentage", order = 870},
   PCT_LOOT_QUALITY = {text = "% * Loot", path = "loot/stats/pct_loot_quality/*", units = "percentage", order = 825},
@@ -308,7 +309,7 @@ quantify.VIEWS = {
 				stats = {"PET_BATTLE_XP_RATE", "GATHERING_XP_RATE", "KILL_XP_RATE", "QUEST_XP_RATE", "BONUS_RESTED_XP_RATE", "XP_RATE_TIL_MAX", "SCENARIO_XP_RATE", "OTHER_XP_RATE", "GROUP_XP_RATE"}
 			},
 	["Character XP Percentages"] = {
-				stats = {"PCT_XP_KILL", "PCT_XP_PET_BATTLE", "PCT_XP_QUEST", "PCT_XP_OTHER", "PCT_XP_GATHERING"}
+				stats = {"PCT_XP_KILL", "PCT_XP_PET_BATTLE", "PCT_XP_QUEST", "PCT_XP_GATHERING"}
 			},
 	["Azerite XP"] = {
 				stats = {"AZERITE_XP_RATE", "AZERITE_XP", "AZERITE_TIME_TO_LEVEL"}

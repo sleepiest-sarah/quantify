@@ -73,7 +73,6 @@ local function processItem(item,amount)
       q:incrementStat("BFA_UNCOMMON_LOOT",amount)
     end
   elseif (item.itemRarity == ql.COMMON) then
-    session.common_loot = session.common_loot + amount
     q:incrementStat("COMMON_LOOT",amount)
     if (item.expacID == ql.BFA) then
       q:incrementStat("BFA_COMMON_LOOT",amount)

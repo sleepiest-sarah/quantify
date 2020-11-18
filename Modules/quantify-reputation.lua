@@ -13,7 +13,8 @@ quantify_reputation.FACTION_STANDING_REMAINING_TIME_PATH = "reputation/stats/fac
 
 local qr = quantify_reputation
 
-local dirty_factions
+local initialized = false
+local dirty_factions = {}
 
 qr.factions = {}
 
@@ -30,7 +31,7 @@ local function processFaction(id)
 end
 
 local function processFactions()
-  if (dirty_factions == nil) then
+  if (not initialized) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
       local name, _, _, _, _, _, _, _, _,_, _, _, _, factionID = GetFactionInfo(i)
@@ -38,6 +39,7 @@ local function processFactions()
         processFaction(factionID)
       end
     end
+    initialized = GetNumFactions() > 0
     dirty_factions = {}
   elseif (table.maxn(dirty_factions) >= 1) then
     for i,id in ipairs(dirty_factions) do
@@ -76,7 +78,7 @@ local function combatFactionChange(event, msg)
     end
     
     if (amount ~= nil) then
-      q:incrementStat(qr.FACTION_CHANGE_DELTA_PATH..faction, amount)
+      q:incrementStatByPath(qr.FACTION_CHANGE_DELTA_PATH..faction, amount)
     end
   end
 end
@@ -87,25 +89,21 @@ end
 
 
 function quantify_reputation:calculateDerivedStats(segment, fullSeg)
-  --really shouldn't be checking the viewing segment but it's a quick workaround so we don't calculate these stats for the account
-  --if (segment == q.current_segment.stats.reputation or q:getViewingSegmentKey() == quantify_state:getPlayerNameRealm()) then  
     local stats = segment.stats
     local play_time = q:getStat(fullSeg, "PLAY_TIME")
     local rates = q:calculateSegmentRates(segment.data.faction_change_delta, play_time, 86400) --per day
     segment.stats.faction_change_delta_rate = rates
     
     for faction_key, faction in pairs(qr.factions) do
-      local r = rates[faction_key] or 0
-      
-      if (q:isInf(r) or q:isNan(r) or r <= 0) then
-          r = 1
-      end
+      local r = rates[faction_key]
+      local valid_r = r and (q:isInf(r) or q:isNan(r) or r <= 0)
       
       --time until neutral
       if (not faction.atWarWith and faction.standingId < q.Faction.NEUTRAL) then
-        stats.faction_time_neutral[faction_key] = (math.abs(faction.barValue) / r) * 86400
+        stats.faction_time_neutral[faction_key] = valid_r and (math.abs(faction.barValue) / r) * 86400 or math.huge
+      else
+        stats.faction_time_neutral[faction_key] = nil
       end
-      
       
       if (not faction.atWarWith and faction.standingId >= q.Faction.NEUTRAL and faction.standingId < q.Faction.EXALTED) then
         
@@ -114,25 +112,30 @@ function quantify_reputation:calculateDerivedStats(segment, fullSeg)
         stats.faction_remaining_exalted[faction_key] = remaining_rep
         
         --time until exalted
-        stats.faction_time_exalted[faction_key] = (remaining_rep / r) * 86400
+        stats.faction_time_exalted[faction_key] = valid_r and (remaining_rep / r) * 86400 or math.huge
 
-        if (faction.standingId == q.Faction.NEUTRAL) then
+        if (valid_r and faction.standingId == q.Faction.NEUTRAL) then
           remaining_rep = qr.TOTAL_FRIENDLY_REP - faction.barValue
           stats.faction_remaining[faction_key] = remaining_rep
           stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
-        elseif (faction.standingId == q.Faction.FRIENDLY) then
+        elseif (valid_r and faction.standingId == q.Faction.FRIENDLY) then
           remaining_rep = qr.TOTAL_HONORED_REP - faction.barValue
           stats.faction_remaining[faction_key] = remaining_rep
           stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
-        elseif (faction.standingId == q.Faction.HONORED) then
+        elseif (valid_r and faction.standingId == q.Faction.HONORED) then
           remaining_rep = qr.TOTAL_REVERED_REP - faction.barValue
           stats.faction_remaining[faction_key] = remaining_rep
           stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
+        else
+          stats.faction_remaining[faction_key] = nil
+          stats.faction_remaining_time[faction_key] = nil
         end
+      else
+        stats.faction_remaining_exalted[faction_key] = nil
+        stats.faction_remaining[faction_key] = nil
+        stats.faction_remaining_time[faction_key] = nil
       end
     end
-    
-  --end
 end
 
 function quantify_reputation:updateStats(segment, fullSeg)

@@ -67,7 +67,7 @@ local function playerMoney()
       durability_change_time = 0
       q:incrementStat("REPAIR_MONEY", math.abs(delta_money))
     else
-      q:incrementStat("VENDOR_MONEY_SPENT", delta_money)
+      q:incrementStat("VENDOR_MONEY_SPENT", math.abs(delta_money))
     end
   end
   
@@ -90,7 +90,7 @@ local function playerMoney()
   if (delta_money > 0) then
     q:incrementStat("TOTAL_MONEY_GAINED", delta_money)
   else
-    q:incrementStat("TOTAL_MONEY_SPENT", delta_money)
+    q:incrementStat("TOTAL_MONEY_SPENT", math.abs(delta_money))
   end
   
   q:incrementStat("DELTA_MONEY", delta_money)

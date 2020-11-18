@@ -1,8 +1,8 @@
-## Interface: 90001
+## Interface: 90002
 ## Title: quantify
 ## Author: Sarah Mantovani
 ## Version: r13-alpha
-## SavedVariables: qDb, qDbOptions
+## SavedVariables: qDb, qDbOptions, qDbData
 
 embeds.xml
 

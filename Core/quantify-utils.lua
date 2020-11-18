@@ -231,6 +231,26 @@ function q:getCurrencyString(n)
     return res
 end
 
+function q:getIntegerString(n)
+  if (n < 1000) then
+    return n
+  end
+  
+  n = strrev(tostring(n))
+
+  local res = ""
+  for i=#n,1,-1 do
+    local c = strsub(n, i, i)
+    if (i ~= #n and i % 3 == 0) then
+      res = res..","
+    end
+    
+    res = res..c
+  end
+  
+  return res
+end
+
 function q:getFormattedUnit(n,units,abbr)
   if (not n) then
     return "-"
@@ -241,12 +261,12 @@ function q:getFormattedUnit(n,units,abbr)
   end
   
   if (q:isInf(n) or q:isNan(n)) then
-    n = 0
+    return "-"
   end
   
   local res
   if (units == "integer") then
-    res = q:getShorthandInteger(n)
+    res = (abbr or n > 1000000) and q:getShorthandInteger(n) or q:getIntegerString(n)
   elseif (units == "time") then
     local min,sec,hour
     if (n < 60) then
@@ -273,7 +293,8 @@ function q:getFormattedUnit(n,units,abbr)
   elseif (units == "decimal/hour") then
     res = q:getShorthandInteger(n,2,true)
   elseif (units == "percentage") then
-    res = tostring(math.floor(n)).."%"
+    n = (n - math.floor(n)) > .5 and math.ceil(n) or math.floor(n)
+    res = tostring(n).."%"
   elseif (units == "money") then 
     if (abbr and (n > 10000 or q.isRetail)) then  --remove copper in Retail or if it's more than 1g
       local copper = math.floor(n) % 100
@@ -404,12 +425,13 @@ function q:capitalizeString(str)
 end
 
 function q:getBnAccountNameFromChatString(str)
-  local id = string.match(str, "|K[gsf]([0-9]+)|")
+  local id = string.match(str, "|Kq([0-9]+)|k")
   local bn_name
+
   if (id ~= nil) then
     local _,_,bn_name = C_BattleNet.GetAccountInfoByID(id)
   end
-  
+
   return bn_name
 end
 
@@ -495,6 +517,10 @@ function q:dump(v)
   SlashCmdList["DUMP"]("q_dump")
 end
 
-function q:getCharacterKey()
-  return GetUnitName("player", false).."-"..GetRealmName()
+function q:getCharacterKey(withDate)
+  if (withDate) then
+    return GetUnitName("player", false).."-"..GetRealmName().."_"..date("%b%d")
+  else
+    return GetUnitName("player", false).."-"..GetRealmName()
+  end
 end

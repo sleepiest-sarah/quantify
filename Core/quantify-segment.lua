@@ -129,6 +129,7 @@ function q:getAllActiveSegments()
   local segments = {}
   if (qDb ~= nil) then
     segments[q:getCharacterKey()] = qDb[q:getCharacterKey()]
+    segments[q:getCharacterKey(true)] = qDb[q:getCharacterKey(true)]
     segments.account = qDb.account
   end
   

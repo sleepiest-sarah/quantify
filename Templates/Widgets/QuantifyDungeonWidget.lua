@@ -39,13 +39,13 @@ local DUNGEONS_TABLE_COLS =
 local PLAYER_TABLE_COLS =
 {
     {
-      ["name"] = "Name",
-      ["width"] = 150,
+      ["name"] = "Player",
+      ["width"] = 160,
       
     },
     {
       ["name"] = "Runs",
-      ["width"] = 60
+      ["width"] = 50
     },
     {
       ["name"] = "Deaths-to-Clear Ratio",
@@ -57,15 +57,15 @@ local PARTY_TABLE_COLS =
 {
     {
       ["name"] = "Party",
-      ["width"] = 150
+      ["width"] = 200
     },
     {
       ["name"] = "Runs",
-      ["width"] = 60
+      ["width"] = 40
     },
     {
       ["name"] = "Kill-to-Wipe Ratio",
-      ["width"] = 110
+      ["width"] = 100
     }
 }
 
@@ -196,7 +196,8 @@ function DungeonWidget:create()
   party_table_wrapper:PauseLayout()
   party_table_wrapper:SetHeight(170)
   party_table_wrapper:SetWidth(300)
-  local party_table = st:CreateST(PARTY_TABLE_COLS,5,28,nil,party_table_wrapper.frame)
+  local party_table = st:CreateST(PARTY_TABLE_COLS,2,70,nil,party_table_wrapper.frame)
+  party_table.head:SetHeight(30)
   party_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.party_table = party_table
   party_frame:AddChild(party_table_wrapper)
@@ -230,7 +231,7 @@ function DungeonWidget:refresh(redoLayout, segmentUpdate, moduleUpdate, visibili
     self.dungeons_table:SortData();
     
     local players = qDA:getDungeonPlayers(self.filter)
-    local player_rows = q:buildDisplayTable(players, "name", "dungeons_completed", "ddr")
+    local player_rows = q:buildDisplayTable(players, "name", "completed_runs", "ddr")
     self.player_table:SetData(player_rows, true)
     self.player_table:SortData()
     
@@ -242,7 +243,7 @@ function DungeonWidget:refresh(redoLayout, segmentUpdate, moduleUpdate, visibili
       end
       p.party_display_string = party_string
     end
-    local party_rows = q:buildDisplayTable(parties, "party_display_string", "dungeons_completed", "kdr")
+    local party_rows = q:buildDisplayTable(parties, "party_display_string", "completed_runs", "kdr")
     self.party_table:SetData(party_rows, true)
     self.party_table:SortData()
   end
