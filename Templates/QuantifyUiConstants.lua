@@ -143,9 +143,9 @@ QUANTIFY_WIDGETS = {
       widget = "StatWidget",
       data = {
         rows = 1,
-        columns = 2,
+        columns = 1,
         views = {
-          {view_type = "filter", grid_position = "1,0", padding_x = 50, padding_y = -470,
+          {view_type = "filter", grid_position = "0,0", padding_x = 50, padding_y = -470,
            view_data = {"Faction Reputations"},
            view_options = {dropdown_values = qDA.getFactions, filter_type = "dropdown",
                       }
@@ -174,8 +174,8 @@ QUANTIFY_WIDGETS = {
         views = {
           {view_data = {"Trade Good Counts"}, grid_position = "0,0", padding_x = 50, padding_y = -470,
            view_options = {columns = {"Type", "Amount"}, label = "Trade Goods Collected"}},
-          {view_data = {"Expansion Trade Goods"}, padding_x = 50, padding_y = -470, grid_position = "1,0",
-           view_options = {columns = {"Type", "Amount"}, label = "BFA Trade Goods"}}
+          {view_data = {"Expansion Trade Goods"}, view_type = "filter", padding_x = 50, padding_y = -470, grid_position = "1,0",
+           view_options = {filter_type = "dropdown", filter_method = "table", dropdown_values = qDA.getExpansionLootIds, columns = {"Type", "Amount"}, label = "Trade Goods"}}
         }
       }
     },    

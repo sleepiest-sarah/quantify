@@ -68,12 +68,7 @@ local function QuantifySegmentLabel_OnClick(self)
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
-  if (active_widget) then
-    active_widget:Hide()
-  end
-  self.module:Show()
-  active_widget = self.module
-  maincontainer:DoLayout()
+  qui:SetActiveWidget(self.module)
   
   if (selected_module) then
     selected_module:SetColor(nil)
@@ -81,7 +76,6 @@ local function QuantifyModuleLabel_OnClick(self)
   
   self:SetColor(1,.82,0)
 
-  
   selected_module = self
   
   qui:RefreshWidget(true, false, true, false)
@@ -101,20 +95,20 @@ function QuantifySegmentList_Refresh(self)
   local date_segment_separator = false
   for _,seg in ipairs(keys_t) do
     local label = agui:Create("InteractiveLabel")
-    label:SetText(q:capitalizeString(seg))
+    label:SetText(q:capitalizeString(segments[seg].display_name or seg))
     label:SetFontObject(AchievementPointsFontSmall)
     label.segment = seg
     
     if (not date_segment_separator and strfind(seg, "_")) then
       local separator = agui:Create("Label")
-      separator:SetText("---")
+      separator:SetText("--- Today ---")
       self:AddChild(separator)    
       date_segment_separator = true
     end
     
     if (seg == "Segment 1") then
       local separator = agui:Create("Label")
-      separator:SetText("---")
+      separator:SetText("--- Session ---")
       self:AddChild(separator)
     end
     
@@ -256,6 +250,15 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
   end
   
   qui:RefreshWidget(true)
+end
+
+function qui:SetActiveWidget(widget)
+  if (active_widget) then
+    active_widget:Hide()
+  end
+  widget:Show()
+  active_widget = widget
+  maincontainer:DoLayout()  
 end
 
 function qui:RefreshWidget(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)

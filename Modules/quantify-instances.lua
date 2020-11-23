@@ -26,6 +26,7 @@ local keys = qi.keys
 quantify_instances.DUNGEON_TEMPLATE = {
     name = "",
     difficulty = "",
+    last_seen = 0,
     instance_map_id = 0,
     keystone_level = 0,
     affixes = nil,
@@ -51,6 +52,7 @@ quantify_instances.DUNGEON_TEMPLATE = {
   
 quantify_instances.PLAYER_TEMPLATE = {
   name = "",
+  last_seen = 0,
   boss_kills = 0,
   boss_wipes = 0,
   wipes = 0,
@@ -66,6 +68,7 @@ quantify_instances.PLAYER_TEMPLATE = {
 
 quantify_instances.PARTY_TEMPLATE = {
   members = nil,
+  last_seen = 0,
   boss_kills = 0,
   boss_wipes = 0,
   wipes = 0,
@@ -128,6 +131,7 @@ local function createHistoryRecord(run)
   
   local r = {}
   r.date = time()
+  r.difficulty = run.difficulty
   r.keystone_level = run.keystone_level
   r.affixes = getAffixesKey(run.affixes)
   r.party_deaths = run.party_deaths
@@ -155,6 +159,7 @@ local function updateDungeonStats(dungeons, run, noHistory)
   dungeon.name = run.name
   dungeon.difficulty = run.difficulty
   dungeon.keystone_level = run.keystone_level
+  dungeon.last_seen = time()
   
   dungeon.party_deaths = dungeon.party_deaths + run.party_deaths
   dungeon.player_deaths = dungeon.player_deaths + run.player_deaths
@@ -201,6 +206,7 @@ local function updatePlayerStats(players, run)
     local player = initializeFromTemplate(players[mate], qi.PLAYER_TEMPLATE)
     players[mate] = player
     
+    player.last_seen = time()
     player.party_deaths = player.party_deaths + run.party_deaths
     player.boss_kills = player.boss_kills + run.boss_kills
     player.boss_wipes = player.boss_wipes + run.boss_wipes
@@ -240,6 +246,7 @@ local function updatePartyStats(parties, run)
   local party = initializeFromTemplate(parties[party_key], qi.PARTY_TEMPLATE)
   parties[party_key] = party
   
+  party.last_seen = time()
   party.members = q:shallowCopy(run.party.members)
   party.party_deaths = party.party_deaths + run.party_deaths
   party.boss_kills = party.boss_kills + run.boss_kills
@@ -275,20 +282,23 @@ end
 
 local function dungeonCompleted()
   if (current_dungeon_run and not dungeon_complete) then
-    
     dungeon_complete = true
     
-    --in case the difficulty changed during the dungeon
-    local _, _, _, difficulty  = GetInstanceInfo()
-    current_dungeon_run.difficulty = difficulty
-    
     current_dungeon_run.party = quantify_state:GetPlayerParty()
+    if (current_dungeon_run.party) then
     
-    current_dungeon_run.end_time = GetTime()
-    
-    q:updateStatBlock(keys.DUNGEON, updateDungeonStats, current_dungeon_run)
-    q:updateStatBlock(keys.PLAYER, updatePlayerStats, current_dungeon_run)
-    q:updateStatBlock(keys.PARTY, updatePartyStats, current_dungeon_run)
+      --in case the difficulty changed during the dungeon
+      local _, _, _, difficulty  = GetInstanceInfo()
+      current_dungeon_run.difficulty = difficulty
+      
+      current_dungeon_run.party = quantify_state:GetPlayerParty()
+      
+      current_dungeon_run.end_time = GetTime()
+      
+      q:updateStatBlock(keys.DUNGEON, updateDungeonStats, current_dungeon_run)
+      q:updateStatBlock(keys.PLAYER, updatePlayerStats, current_dungeon_run)
+      q:updateStatBlock(keys.PARTY, updatePartyStats, current_dungeon_run)
+    end
     
     current_dungeon_run = nil
   end

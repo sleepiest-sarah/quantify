@@ -2,6 +2,7 @@ local agui = LibStub("AceGUI-3.0", true)
 local lg = LibStub("LibGraph-2.0")
 local LibQTip = LibStub('LibQTip-1.0')
 
+local q = quantify
 local qui = quantify_ui
 
 qui.PieView = qui.View:new()
@@ -56,6 +57,7 @@ function PieView:refresh(stats)
   self.chart:ResetPie()
   local pie_labels = {}
   for i,pct in ipairs(stats) do
+    pct[1] = q:capitalizeString(pct[1])
     local t = string.gsub(pct[2], "%%", "")
     local num = tonumber(t)
     if (num > 0) then

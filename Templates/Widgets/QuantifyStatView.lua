@@ -12,11 +12,13 @@ local DEFAULT_TABLE_COLUMNS =
   },
   {
     ["name"] = "Value",
-    ["width"] = 100
+    ["width"] = 100,
+    ["sortnext"] = 1
   },
   {
     ["name"] = "Value2",
-    ["width"] = 100
+    ["width"] = 100,
+    ["sortnext"] = 1
   }
 }
 
@@ -58,12 +60,13 @@ local function create(self,view)
   self.columns = {}
   for i=1,#view.view_data+1 do
     self.columns[i] = {name = view_options.columns and view_options.columns[i] or DEFAULT_TABLE_COLUMNS[i].name,
-                       width = view_options.col_widths and view_options.col_widths[i] or DEFAULT_TABLE_COLUMNS[i].width} 
+                       width = view_options.col_widths and view_options.col_widths[i] or DEFAULT_TABLE_COLUMNS[i].width,
+                       sortnext = view_options.sort_next and view_options.sort_next[i] or DEFAULT_TABLE_COLUMNS[i].sortnext} 
   end
   self.columns[1].defaultsort = st.SORT_ASC
   self.sorted = false
 
-  local stat_table = st:CreateST(self.columns, nil, 30, nil, table_wrapper.content)
+  local stat_table = st:CreateST(self.columns, 16, 30, nil, table_wrapper.content)
   stat_table:RegisterEvents({["OnDoubleClick"] = stDoubleClick, ["OnClick"] = stRightClick})
   table_wrapper:SetTable(stat_table)
   
@@ -105,9 +108,13 @@ function StatView:refresh(...)
       formatted_stats[i].data_key = {formatted_stats[i].data_key}
       if (stats[2]) then
         for j=3,#self.columns do
-          formatted_stats[i][j] = stats[j-1][i][2]
-          formatted_stats[i].stat_key[j-1] = stats[j-1][i].stat_key
-          formatted_stats[i].data_key[j-1] = stats[j-1][i].data_key
+          if (stats[j-1] and stats[j-1][i]) then
+            formatted_stats[i][j] = stats[j-1][i][2]
+            formatted_stats[i].stat_key[j-1] = stats[j-1][i].stat_key
+            formatted_stats[i].data_key[j-1] = stats[j-1][i].data_keyy
+          else
+            formatted_stats[i][j] = "-"
+          end
         end
       end
     end

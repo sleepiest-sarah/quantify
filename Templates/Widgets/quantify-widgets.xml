@@ -11,6 +11,7 @@
 
 <Script file="QuantifyStatWidget.lua" />
 <Script file="QuantifyDungeonWidget.lua" />
+<Script file="QuantifyDungeonDetailsWidget.lua" />
 
 </Ui>
 

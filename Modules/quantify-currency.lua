@@ -28,6 +28,7 @@ local last_delta_money = 0
 
 qc.CURRENCY_TEMPLATE = {
     name = "",
+    id = 0,
     gained = 0,
     spent = 0,
     net = 0
@@ -110,10 +111,12 @@ local function playerLootMoney(event, msg)
   end
 end
 
-local function updatePlayerCurrencyData(currencies, name, amount)
+local function updatePlayerCurrencyData(currencies, id, obj, amount)
+  local name = obj.name
   if (not currencies[name]) then
     currencies[name] = q:shallowCopy(qc.CURRENCY_TEMPLATE)
     currencies[name].name = name
+    currencies[name].id = id
   end
   currencies[name].gained = currencies[name].gained + tonumber(amount)
   
@@ -128,7 +131,8 @@ local function playerCurrency(event, msg)
   end
   
   local currency_obj = C_CurrencyInfo.GetCurrencyInfoFromLink(currency)
-  q:updateStatBlock("currency/data/currency/", updatePlayerCurrencyData, currency_obj.name, amount)
+  local currency_id = C_CurrencyInfo.GetCurrencyIdFromLink(currency)
+  q:updateStatBlock("currency/data/currency/", updatePlayerCurrencyData, currency_id, currency_obj, amount)
 
 end
 

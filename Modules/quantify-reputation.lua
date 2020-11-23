@@ -14,7 +14,7 @@ quantify_reputation.FACTION_STANDING_REMAINING_TIME_PATH = "reputation/stats/fac
 local qr = quantify_reputation
 
 local initialized = false
-local dirty_factions = {}
+local dirty_factions
 
 qr.factions = {}
 
@@ -31,7 +31,7 @@ local function processFaction(id)
 end
 
 local function processFactions()
-  if (not initialized) then
+  if (not dirty_factions) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
       local name, _, _, _, _, _, _, _, _,_, _, _, _, factionID = GetFactionInfo(i)
@@ -40,19 +40,19 @@ local function processFactions()
       end
     end
     initialized = GetNumFactions() > 0
-    dirty_factions = {}
   elseif (table.maxn(dirty_factions) >= 1) then
     for i,id in ipairs(dirty_factions) do
       processFaction(id)
     end
-    dirty_factions = {}
+    
   end
+  dirty_factions = {}
 end
 
 local function combatFactionChange(event, msg)
   
-  if (dirty_factions == nil) then
-    dirty_factions = {}
+  if (not dirty_factions) then
+    processFactions()
   end
   
   local faction = string.match(msg, "Reputation with (.*) decreased")
@@ -67,6 +67,7 @@ local function combatFactionChange(event, msg)
   if (faction ~= nil) then
     if (qr.factions[faction] == nil) then --newly discovered faction so reprocess everything
       dirty_factions = nil
+      processFactions()
     else
       table.insert(dirty_factions, qr.factions[faction].factionId)
     end

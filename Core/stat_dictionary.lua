@@ -76,8 +76,8 @@ quantify.STATS = {
   UPGRADES_RECEIVED = {text = "iLvl Upgrades: *", path = "loot/stats/upgrades_received/*", units = "integer", order = 150},
   UPGRADES_RECEIVED_RATES = {text = "iLvl Upgrades Per Day: *", path = "loot/stats/upgrades_received_rates/*", units = "decimal/hour", order = 160},
   OVERALL_ILEVEL_UPGRADES = {text = "Total iLvl Upgrades", path = "loot/stats/overall_ilevel_upgrades", units = "integer", order = 140},
-  PCT_ARMOR_CLASS_LOOTED = {text = "% Armor Class Looted: *", path = "loot/stats/pct_armor_class_looted/*", units = "percentage", order = 870},
-  PCT_LOOT_QUALITY = {text = "% * Loot", path = "loot/stats/pct_loot_quality/*", units = "percentage", order = 825},
+  PCT_ARMOR_CLASS_LOOTED = {text = "Armor Class Looted: *", path = "loot/stats/pct_armor_class_looted/*", units = "percentage", order = 870},
+  PCT_LOOT_QUALITY = {text = "* Loot", path = "loot/stats/pct_loot_quality/*", units = "percentage", order = 825},
   INV_TYPE_LOOTED = {text = "* Items Looted", path = "loot/stats/inv_type_looted/*", units = "integer", order = 900},
   JUNK_LOOTED_VALUE = {text = "Value of Junk Looted", path = "loot/stats/junk_looted_value", units = "money", order = 451},
   TOTAL_ITEMS_LOOTED = {text = "Total Items Looted", path = "loot/stats/total_items_looted", units = "integer", order = 150},
@@ -169,6 +169,14 @@ quantify.STATS = {
   LEATHER_LOOTED = {text = "Leather Gathered", units = "integer", path = "tradeskill/stats/leather_looted", order = 801, version = "retail"},
   METAL_LOOTED = {text = "Ore Gathered", path = "tradeskill/stats/metal_looted", units = "integer", order = 801, version = "retail"},
   BFA_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/bfa_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  LEGION_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/legion_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  WOD_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/wod_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  MOP_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/mop_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  CATA_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/cata_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  WOTLK_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/wotlk_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  BC_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/bc_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  CLASSIC_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/classic_trade_good_collected/*", units = "integer", order = 650, version="retail"},
+  SL_TRADE_GOOD_COLLECTED = {text = "* Gathered", path = "tradeskill/stats/sl_trade_good_collected/*", units = "integer", order = 650, version="retail"},
   
   --xp
   PET_BATTLE_XP = {text = "Total XP from Pet Battles", path = "xp/stats/pet_battle_xp", abbr="Pet Battle XP", units = "integer", version="retail"},
@@ -294,7 +302,18 @@ quantify.VIEWS = {
 				stats = {"COOKING_LOOTED", "CLOTH_LOOTED", "TRADESKILL_LOOTED", "ENCHANTING_LOOTED", "HERB_LOOTED", "JEWELCRAFTING_LOOTED", "MEAT_LOOTED", "LEATHER_LOOTED", "METAL_LOOTED"}
 			},
 	["Expansion Trade Goods"] = {
-				stats = {"BFA_TRADE_GOOD_COLLECTED"}
+				stats = {"BFA_TRADE_GOOD_COLLECTED", "LEGION_TRADE_GOOD_COLLECTED", "WOD_TRADE_GOOD_COLLECTED", "MOP_TRADE_GOOD_COLLECTED", "CATA_TRADE_GOOD_COLLECTED", "WOTLK_TRADE_GOOD_COLLECTED", "BC_TRADE_GOOD_COLLECTED", "CLASSIC_TRADE_GOOD_COLLECTED", "SL_TRADE_GOOD_COLLECTED"},
+				filter = {
+					[0] = "CLASSIC_TRADE_GOOD_COLLECTED",
+					[1] = "BC_TRADE_GOOD_COLLECTED",
+					[2] = "WOTLK_TRADE_GOOD_COLLECTED",
+					[3] = "CATA_TRADE_GOOD_COLLECTED",
+					[4] = "MOP_TRADE_GOOD_COLLECTED",
+					[5] = "WOD_TRADE_GOOD_COLLECTED",
+					[6] = "LEGION_TRADE_GOOD_COLLECTED",
+					[7] = "BFA_TRADE_GOOD_COLLECTED",
+					[8] = "SL_TRADE_GOOD_COLLECTED",
+				}
 			},
 	["Faction Reputations"] = {
 				stats = {"FACTION_REMAINING", "FACTION_REMAINING_TIME", "FACTION_TIME_NEUTRAL", "FACTION_TIME_EXALTED", "FACTION_REMAINING_EXALTED", "FACTION_CHANGE_DELTA_RATE"}

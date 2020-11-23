@@ -11,13 +11,15 @@ ql.UNCOMMON = 2
 ql.RARE = 3
 ql.EPIC = 4
 
-ql.VANILLA = 1
-ql.BC = 2
-ql.WOTLK = 3
-ql.CATA = 4
+ql.VANILLA = 0
+ql.BC = 1
+ql.WOTLK = 2
+ql.CATA = 3
+ql.MOP = 4
 ql.WOD = 5
 ql.LEGION = 6
 ql.BFA = 7
+ql.SL = 8
 ql.CLASSIC = 254
 
 

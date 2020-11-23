@@ -22,6 +22,10 @@
 	<Font name="SelectedRowBold" inherits="GameFontNormal">
 		<Color r="1.0" g="0.82" b="0" a="1.0"/>
 	</Font>
+  
+	<Font name="QuantifyRightStatText" justifyH="RIGHT" inherits="AchievementPointsFontSmall">
+	  <Color r="1.0" g="1.0" b="1.0" a="1.0" />
+	</Font>
 	
 	<Script file="Templates\QuantifyStatRowTemplate.lua" />
 	<Button name="QuantifyStatRowTemplate" enableMouse="true" virtual="true">

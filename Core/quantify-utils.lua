@@ -470,25 +470,27 @@ function q:getUnitGroupPrefix()
   return IsInRaid() and "raid" or "party"
 end
 
-function q:buildDisplayTable(data, ...)
+function q:buildDisplayTable(data, format_func, ...)
   local rows = {}
   local data_keys = {...}
   local num_columns = #data_keys
   
-  for _,d in pairs(data) do
+  local i = 1
+  local keys = {}
+  for k,d in pairs(data) do
+    keys[i] = k
     local r = {}
+    
     for i,data_key in ipairs({...}) do
-      --if (d[data_key]) then
-        table.insert(r, d[data_key])
-      --end
+      local cell = format_func and format_func(data_key, d[data_key]) or d[data_key]
+      table.insert(r, cell)
     end
     
-    --if (#r == num_columns) then
-      table.insert(rows, r)
-    --end
+    table.insert(rows, r)
+    i = i + 1
   end
     
-  return rows
+  return rows,keys
 end
 
 function q:getRoleIcon(role)

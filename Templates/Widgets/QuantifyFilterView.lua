@@ -10,6 +10,8 @@ local function create(self,view)
   local wrapper = self:createWrapper(view)
   local options = view.view_options
   
+  self.filter_method = options.filter_method
+  
   local filter_widget
   if (options.filter_type == "dropdown") then
     filter_widget = agui:Create("Dropdown")
@@ -20,7 +22,11 @@ local function create(self,view)
       if (type(dropdown_values) == "function") then
         dropdown_values = dropdown_values()
       end
-      dropdown_values = q:keyTable(dropdown_values)
+      
+      if (options.filter_method ~= "table") then
+        dropdown_values = q:keyTable(dropdown_values)
+      end
+      
       dropdown_values[""] = ""
       filter_widget:SetList(dropdown_values)
     end
@@ -85,7 +91,9 @@ function FilterView:refresh(stats)
   if (self.filterValue and self.filterValue ~= "") then
     filtered_stats = {}
     for i,s in ipairs(stats) do
-      if (strfind(strlower(s[1]), strlower(self.filterValue))) then
+      if ((not self.filter_method or self.filter_method == "text") and strfind(strlower(s[1]), strlower(self.filterValue))) then
+        table.insert(filtered_stats,s)
+      elseif (self.filter_method == "table" and s.filter and s.filter[self.filterValue] == s.stat_key) then
         table.insert(filtered_stats,s)
       end
     end

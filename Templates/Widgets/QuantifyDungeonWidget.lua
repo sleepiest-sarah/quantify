@@ -1,5 +1,6 @@
 local agui = LibStub("AceGUI-3.0", true)
 local st = LibStub("ScrollingTable")
+local LibQTip = LibStub('LibQTip-1.0')
 
 local q = quantify
 local qui = quantify_ui
@@ -71,11 +72,45 @@ local PARTY_TABLE_COLS =
 
 DungeonWidget.filter = {
   dungeons = {},
-  expansion = "Shadowlands",
+  expansion = q.EJ_SL,
+  expansion_name = "Shadowlands",
   difficulties = {},
   minKeystoneLevel = 1,
   maxKeystoneLevel = 99
 }
+
+local function stOnEnter(rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, ...)
+  if (row) then
+    local tooltip = LibQTip:Acquire("LabelTooltip", 1, "LEFT")
+    rowFrame.tooltip = tooltip 
+     
+    tooltip:AddLine(quantify.DUNGEON_WIDGET_HIGHLIGHT_TEXT)
+     
+    tooltip:SmartAnchorTo(rowFrame)
+
+    tooltip:Show()  
+  end
+end
+
+local function stOnLeave(rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, ...)
+  if (row) then
+    LibQTip:Release(rowFrame.tooltip)
+    rowFrame.tooltip = nil
+  end
+end
+
+local function stOnDoubleClick(rowFrame, cellFrame, data, cols, row, realrow, column, scrollingTable, button)
+  if (button == "LeftButton" and row) then
+    local self = scrollingTable.dungeon_widget
+    if (not self.details_widget) then
+      self.details_widget = qui:CreateWidget("DungeonDetailsWidget", self)
+      self.widget.parent:AddChild(self.details_widget.widget)
+    end
+    self.details_widget:update(scrollingTable.name, scrollingTable.data_keys[realrow], data[realrow], self.filter)
+    qui:SetActiveWidget(self.details_widget)
+    qui:RefreshWidget(false)
+  end
+end
 
 local function createKeystoneFilter(self)
   local keystone_wrapper = agui:Create("QuantifyContainerWrapper")
@@ -180,8 +215,11 @@ function DungeonWidget:create()
   player_table_wrapper:SetHeight(170)
   player_table_wrapper:SetFullWidth(true)
   local players_table = st:CreateST(PLAYER_TABLE_COLS,7,20,nil,player_table_wrapper.frame)
+  players_table.name = "players"
+  players_table:RegisterEvents({["OnEnter"] = stOnEnter, ["OnLeave"] = stOnLeave, ["OnDoubleClick"] = stOnDoubleClick})
   players_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.player_table = players_table
+  players_table.dungeon_widget = self
   players_frame:AddChild(player_table_wrapper)
   
   c:AddChild(players_frame)
@@ -197,9 +235,12 @@ function DungeonWidget:create()
   party_table_wrapper:SetHeight(170)
   party_table_wrapper:SetWidth(300)
   local party_table = st:CreateST(PARTY_TABLE_COLS,2,70,nil,party_table_wrapper.frame)
+  party_table.name = "parties"
+  party_table:RegisterEvents({["OnEnter"] = stOnEnter, ["OnLeave"] = stOnLeave, ["OnDoubleClick"] = stOnDoubleClick})
   party_table.head:SetHeight(30)
   party_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.party_table = party_table
+  party_table.dungeon_widget = self
   party_frame:AddChild(party_table_wrapper)
   
   c:AddChild(party_frame)
@@ -207,8 +248,11 @@ function DungeonWidget:create()
   local dungeonsTableWrapper = agui:Create("SimpleGroup")
   dungeonsTableWrapper:PauseLayout()
   local dungeons_table = st:CreateST(DUNGEONS_TABLE_COLS,nil,30,nil,dungeonsTableWrapper.frame)
+  dungeons_table.name = "dungeons"
+  dungeons_table:RegisterEvents({["OnEnter"] = stOnEnter, ["OnLeave"] = stOnLeave, ["OnDoubleClick"] = stOnDoubleClick})  
   dungeons_table.frame:SetPoint("TOPLEFT", 10, 25)
   self.dungeons_table = dungeons_table
+  dungeons_table.dungeon_widget = self
   dungeonsTableWrapper.gridPosition = "0,5"
   dungeonsTableWrapper.colspan = 3
   dungeonsTableWrapper.rowspan = 5
@@ -222,16 +266,28 @@ function DungeonWidget:create()
   return self:registerWidget(c)
 end
 
+local function formatTableData(key,data)
+  if (key == "avg_time") then
+    return q:getFormattedUnit(data,"time")
+  elseif (key == "kdr" or key == "ddr") then
+    return q:getFormattedUnit(data,"decimal")
+  else
+    return data
+  end
+end
+
 function DungeonWidget:refresh(redoLayout, segmentUpdate, moduleUpdate, visibilityUpdate, filterUpdate)
   if (segmentUpdate or moduleUpdate or visibilityUpdate or filterUpdate) then
     
     local dungeons = qDA:getDungeonData(self.filter)
-    local dungeons_list = q:buildDisplayTable(dungeons, "name", "difficulty", "completed_runs", "avg_time", "kdr", "ddr")
+    local dungeons_list, dungeon_keys = q:buildDisplayTable(dungeons, formatTableData, "name", "difficulty", "completed_runs", "avg_time", "kdr", "ddr")
+    self.dungeons_table.data_keys = dungeon_keys
     self.dungeons_table:SetData(dungeons_list,true)
     self.dungeons_table:SortData();
     
     local players = qDA:getDungeonPlayers(self.filter)
-    local player_rows = q:buildDisplayTable(players, "name", "completed_runs", "ddr")
+    local player_rows, player_keys = q:buildDisplayTable(players, formatTableData, "name", "completed_runs", "ddr")
+    self.player_table.data_keys = player_keys
     self.player_table:SetData(player_rows, true)
     self.player_table:SortData()
     
@@ -243,7 +299,8 @@ function DungeonWidget:refresh(redoLayout, segmentUpdate, moduleUpdate, visibili
       end
       p.party_display_string = party_string
     end
-    local party_rows = q:buildDisplayTable(parties, "party_display_string", "completed_runs", "kdr")
+    local party_rows, party_keys = q:buildDisplayTable(parties, formatTableData, "party_display_string", "completed_runs", "kdr")
+    self.party_table.data_keys = party_keys
     self.party_table:SetData(party_rows, true)
     self.party_table:SortData()
   end
@@ -252,6 +309,7 @@ end
 function DungeonWidget:expansionValueChanged(event, key)
   local filter = self.parentWidget.filter
   filter.expansion = key
+  filter.expansion_name = self.list[key]
   
   local dungeons = qDA:getExpansionDungeons(key)
   filter.dungeons = {}

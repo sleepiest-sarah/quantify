@@ -76,6 +76,7 @@ function q:buildStatsList(view)
     row.stat_key = statobj.stat_key
     row.data_key = statobj.data_key
     row.viewing_segment_key = viewing_segment_key
+    row.filter = view.filter
     table.insert(stats_list, row)
   end
   

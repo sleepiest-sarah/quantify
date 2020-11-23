@@ -30,7 +30,6 @@ bp.TYPES[8] = "Beast"
 bp.TYPES[9] = "Aquatic" 
 bp.TYPES[10] = "Mechanical" 
 
-quantify_bp.MOST_USED_PETS_PREFIX = "most_used_pets_*"
 bp.PET_BATTLE_COUNT_PATH = "battlepets/data/pet_battle_counts/"
 
 quantify_bp.MODULE_KEY = "battlepets"
@@ -56,7 +55,7 @@ local function petBattleStart()
   for i=1,pb.GetNumPets(1) do
     local _,species = pb.GetName(1,i)
     
-    q:incrementStat(bp.PET_BATTLE_COUNT_PATH..species,1)
+    q:incrementStatByPath(bp.PET_BATTLE_COUNT_PATH..species,1)
   end
 end
 

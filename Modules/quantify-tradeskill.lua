@@ -31,18 +31,29 @@ function qt:processItem(item,amount)
   end
   
   if (item.isCraftingReagent) then
-    local key = nil
     if (item.expacID == quantify_loot.BFA) then
-      key = item.itemName
+      q:incrementStatByPath("tradeskill/stats/bfa_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.VANILLA) then
+      q:incrementStatByPath("tradeskill/stats/classic_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.BC) then
+      q:incrementStatByPath("tradeskill/stats/bc_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.WOTLK) then
+      q:incrementStatByPath("tradeskill/stats/wotlk_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.CATA) then
+      q:incrementStatByPath("tradeskill/stats/cata_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.MOP) then
+      q:incrementStatByPath("tradeskill/stats/mop_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.WOD) then
+      q:incrementStatByPath("tradeskill/stats/wod_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.LEGION) then
+      q:incrementStatByPath("tradeskill/stats/legion_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.SL) then
+      q:incrementStatByPath("tradeskill/stats/sl_trade_good_collected/"..item.itemName, amount)
     end
     
-    if (key) then
-      q:incrementStat("tradeskill/stats/bfa_trade_good_collected/"..key, amount)
-    end
   end
     
 end
-
 
 function quantify_tradeskill:calculateDerivedStats(segment)
 
@@ -64,7 +75,15 @@ function quantify_tradeskill:newSegment(segment)
                      leather_looted = 0,
                      metal_looted = 0,
                      cooking_looted = 0,
-                     bfa_trade_good_collected = {}})
+                     bfa_trade_good_collected = {},
+                     classic_trade_good_collected = {},
+                     bc_trade_good_collected = {},
+                     wotlk_trade_good_collected = {},
+                     cata_trade_good_collected = {},
+                     mop_trade_good_collected = {},
+                     wod_trade_good_collected = {},
+                     legion_trade_good_collected = {},
+                     sl_trade_good_collected = {}})
   
 end
 

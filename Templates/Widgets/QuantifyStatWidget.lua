@@ -77,7 +77,7 @@ function StatWidget:refresh(redoLayout)
   for _,v in pairs(self.views) do
     local stats = {}
     for _,d in pairs(v.view_data) do
-      table.insert(stats, q:buildStatsList(d))
+      table.insert(stats, q:buildStatsList(d, v.table_filter_value))
     end
     v.view_obj:refresh(unpack(stats))
   end

@@ -102,7 +102,6 @@ local function createLoadWatchListMenu(self)
 end
 
 function QuantifyWatchlistContextMenu_Load(self,level)
-  --print(UIDROPDOWNMENU_MENU_VALUE,level)
   if (level == 1) then
     local remove = {
         text = "Remove from Watchlist",

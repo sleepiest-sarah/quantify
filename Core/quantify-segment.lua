@@ -152,6 +152,9 @@ function q:getSegment(segment_key)
 end
 
 function q:incrementStat(key, increment)
+  if (not stats[key]) then
+    print("not valid stat key: "..key)
+  end
   q:incrementStatByPath(stats[key].path,increment)
 end
 

@@ -40,6 +40,8 @@ This is an advanced feature intended to allow repairing single stats without cle
 As always please feel free to contact me or submit an issue if you are resetting stats due to a bug or other issue.
 ]]
 
+quantify.DUNGEON_WIDGET_HIGHLIGHT_TEXT = "Double click to view details."
+
 quantify.EJ_CLASSIC = 1
 quantify.EJ_BC = 2
 quantify.EJ_WOTLK = 3
@@ -49,3 +51,15 @@ quantify.EJ_WOD = 6
 quantify.EJ_LEGION = 7
 quantify.EJ_BFA = 8
 quantify.EJ_SL = 9
+
+quantify.EXPAC_LOOT_IDS_TEXT = {
+  [0] = "Classic",
+  [1] = "Burning Crusade",
+  [2] = "Wrath of the Lich King",
+  [3] = "Cataclysm",
+  [4] = "Mists of Pandaria",
+  [5] = "Warlords of Draenor",
+  [6] = "Legion",
+  [7] = "Battle for Azeroth",
+  [8] = "Shadowlands",
+  }

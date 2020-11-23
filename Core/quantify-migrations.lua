@@ -159,9 +159,9 @@ local function restructureChatData(seg)
   if (seg.stats[quantify_chat.MODULE_KEY]) then
     local chat = seg.stats[quantify_chat.MODULE_KEY]
     
-    chat.data.whispers_received_from = chat.data.whispers_received_from or chat.stats.whispers_received_from or {}
-    chat.data.whispers_sent_to = chat.data.whispers_sent_to or chat.stats.whispers_sent_to or {}
-    chat.data.emotes_used = chat.data.emotes_used or chat.stats.emotes_used or {}
+    chat.data.whispers_received_from = chat.data.whispers_received_from or q:shallowCopy(chat.stats.whispers_received_from) or {}
+    chat.data.whispers_sent_to = chat.data.whispers_sent_to or q:shallowCopy(chat.stats.whispers_sent_to) or {}
+    chat.data.emotes_used = chat.data.emotes_used or q:shallowCopy(chat.stats.emotes_used) or {}
   
     for player, ct in pairs(chat.data.whispers_received_from) do
       if (strfind(player, "|")) then
@@ -251,8 +251,8 @@ end
 local function restructureBattlePetsData(seg)
   if (seg.stats[quantify_bp.MODULE_KEY]) then
     local mod = seg.stats[quantify_bp.MODULE_KEY]
-    
-    mod.data.pet_battle_counts = mod.stats.pet_battle_counts
+
+    mod.data.pet_battle_counts = mod.data.pet_battle_counts or q:shallowCopy(mod.stats.pet_battle_counts) or {}
     mod.stats.pet_battle_counts = nil
   end
 end
@@ -308,6 +308,7 @@ local function restructureStats()
       restructureInstancesData(seg)
       restructureZoneData(seg)
       restructureTradeskillData(seg)
+      restructureBattlePetsData(seg)
     end
   end
 end

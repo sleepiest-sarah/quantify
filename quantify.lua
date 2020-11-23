@@ -176,6 +176,7 @@ local function initDateSegments()
   local today_seg_key = character_key.."_"..cur_date
   qDb[today_seg_key] = qDb[today_seg_key] or q:createNewSegment()
   qDb[today_seg_key].date = cur_date
+  qDb[today_seg_key].display_name = character_key
 end
 
 local function init(event, ...)
