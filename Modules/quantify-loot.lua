@@ -66,29 +66,14 @@ local function processItem(item,amount)
   --item quality
   if (item.itemRarity == ql.POOR) then
     q:incrementStat("POOR_LOOT",amount)
-    if (item.expacID == ql.BFA) then
-      q:incrementStat("BFA_POOR_LOOTED",amount)
-    end
   elseif (item.itemRarity == ql.UNCOMMON) then
     q:incrementStat("UNCOMMON_LOOT",amount)
-    if (item.expacID == ql.BFA) then
-      q:incrementStat("BFA_UNCOMMON_LOOT",amount)
-    end
   elseif (item.itemRarity == ql.COMMON) then
     q:incrementStat("COMMON_LOOT",amount)
-    if (item.expacID == ql.BFA) then
-      q:incrementStat("BFA_COMMON_LOOT",amount)
-    end
   elseif (item.itemRarity == ql.RARE) then
     q:incrementStat("RARE_LOOT",amount)
-    if (item.expacID == ql.BFA) then
-      q:incrementStat("BFA_RARE_LOOT",amount)
-    end
   elseif (item.itemRarity == ql.EPIC) then
     q:incrementStat("EPIC_LOOT",amount)
-    if (item.expacID == ql.BFA) then
-      q:incrementStat("BFA_EPIC_LOOT",amount)
-    end
   end
 end
 
