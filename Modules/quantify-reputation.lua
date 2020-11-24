@@ -2,26 +2,18 @@ quantify_reputation = {}
 
 local q = quantify
 
-quantify_reputation.Session = {}
-
 quantify_reputation.MODULE_KEY = "reputation"
-quantify_reputation.FACTION_CHANGE_DELTA_PREFIX = "faction_delta_*"
-quantify_reputation.FACTION_TIME_NEUTRAL_PREFIX = "faction_time_neutral_*"
-quantify_reputation.FACTION_TIME_EXALTED_PREFIX = "faction_time_exalted_*"
-quantify_reputation.FACTION_STANDING_REMAINING_EXALTED_PREFIX = "faction_remaining_exalted_*"
-quantify_reputation.FACTION_STANDING_REMAINING_NEXT_RANK = "faction_remaining_*"
-quantify_reputation.FACTION_STANDING_REMAINING_TIME = "faction_remaining_time_*"
+
+quantify_reputation.FACTION_CHANGE_DELTA_PATH = "reputation/data/faction_change_delta/"
+quantify_reputation.FACTION_TIME_NEUTRAL_PATH = "reputation/stats/faction_time_neutral/"
+quantify_reputation.FACTION_TIME_EXALTED_PATH = "reputation/stats/faction_time_exalted/"
+quantify_reputation.FACTION_STANDING_REMAINING_EXALTED_PATH = "reputation/stats/faction_remaining_exalted/"
+quantify_reputation.FACTION_STANDING_REMAINING_NEXT_RANK_PATH = "reputation/stats/faction_remaining/"
+quantify_reputation.FACTION_STANDING_REMAINING_TIME_PATH = "reputation/stats/faction_remaining_time/"
 
 local qr = quantify_reputation
 
-function quantify_reputation.Session:new(o)
-  o = o or {}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-local session,tally
+local initialized = false
 local dirty_factions
 
 qr.factions = {}
@@ -31,41 +23,15 @@ qr.TOTAL_REVERED_REP = 21000
 qr.TOTAL_HONORED_REP = 9000
 qr.TOTAL_FRIENDLY_REP = 3000
 
-
-local function init()
-  q.current_segment.stats[qr.MODULE_KEY] = {}
-  q.current_segment.stats[qr.MODULE_KEY].raw = qr.Session:new()
-  q.current_segment.stats[qr.MODULE_KEY].tally = {hated = 0, hostile = 0, unfriendly = 0, neutral = 0, friendly = 0, honored = 0, revered = 0, exalted = 0}
-  tally = q.current_segment.stats[qr.MODULE_KEY].tally
-  session = q.current_segment.stats[qr.MODULE_KEY].raw
-end
-
 local function processFaction(id)
   local faction = q.Faction:new(GetFactionInfoByID(id))
   if (faction.name and not faction.isHeader or faction.hasRep) then
     qr.factions[faction.name] = faction
-    if (faction.standingId == q.Faction.HATED) then
-      tally.hated = tally.hated + 1
-    elseif (faction.standingId == q.Faction.HOSTILE) then
-      tally.hostile = tally.hostile + 1
-    elseif (faction.standingId == q.Faction.UNFRIENDLY) then
-      tally.unfriendly = tally.unfriendly + 1
-    elseif (faction.standingId == q.Faction.NEUTRAL) then
-      tally.neutral = tally.neutral + 1
-    elseif (faction.standingId == q.Faction.FRIENDLY) then
-      tally.friendly = tally.friendly + 1
-    elseif (faction.standingId == q.Faction.HONORED) then
-      tally.honored = tally.honored + 1
-    elseif (faction.standingId == q.Faction.REVERED) then
-      tally.revered = tally.revered + 1
-    elseif (faction.standingId == q.Faction.EXALTED) then
-      tally.exalted = tally.exalted + 1
-    end
   end
 end
 
 local function processFactions()
-  if (dirty_factions == nil) then
+  if (not dirty_factions) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
       local name, _, _, _, _, _, _, _, _,_, _, _, _, factionID = GetFactionInfo(i)
@@ -73,19 +39,20 @@ local function processFactions()
         processFaction(factionID)
       end
     end
-    dirty_factions = {}
+    initialized = GetNumFactions() > 0
   elseif (table.maxn(dirty_factions) >= 1) then
     for i,id in ipairs(dirty_factions) do
       processFaction(id)
     end
-    dirty_factions = {}
+    
   end
+  dirty_factions = {}
 end
 
 local function combatFactionChange(event, msg)
   
-  if (dirty_factions == nil) then
-    dirty_factions = {}
+  if (not dirty_factions) then
+    processFactions()
   end
   
   local faction = string.match(msg, "Reputation with (.*) decreased")
@@ -100,6 +67,7 @@ local function combatFactionChange(event, msg)
   if (faction ~= nil) then
     if (qr.factions[faction] == nil) then --newly discovered faction so reprocess everything
       dirty_factions = nil
+      processFactions()
     else
       table.insert(dirty_factions, qr.factions[faction].factionId)
     end
@@ -111,11 +79,7 @@ local function combatFactionChange(event, msg)
     end
     
     if (amount ~= nil) then
-      local key = qr.FACTION_CHANGE_DELTA_PREFIX..faction
-      if (session[key] == nil) then
-        session[key] = 0
-      end
-      session[key] = session[key] + amount
+      q:incrementStatByPath(qr.FACTION_CHANGE_DELTA_PATH..faction, amount)
     end
   end
 end
@@ -125,69 +89,74 @@ local function playerLogin()
 end
 
 
-function quantify_reputation:calculateDerivedStats(segment)
-  --really shouldn't be checking the viewing segment but it's a quick workaround so we don't calculate these stats for the account
-  if (segment == q.current_segment or q:getViewingSegmentKey() == quantify_state:getPlayerNameRealm()) then  
-    local derived = {}
-    local rates = q:calculateSegmentRates(segment, segment.stats.reputation.raw, 86400) --per day
+function quantify_reputation:calculateDerivedStats(segment, fullSeg)
+    local stats = segment.stats
+    local play_time = q:getStat(fullSeg, "PLAY_TIME")
+    local rates = q:calculateSegmentRates(segment.data.faction_change_delta, play_time, 86400) --per day
+    segment.stats.faction_change_delta_rate = rates
     
     for faction_key, faction in pairs(qr.factions) do
-      local rate_key = qr.FACTION_CHANGE_DELTA_PREFIX..faction_key
-      local r = rates[rate_key] or 0
-      
-      if (q:isInf(r) or q:isNan(r) or r <= 0) then
-          r = 0
-      end
+      local r = rates[faction_key]
+      local valid_r = r and (q:isInf(r) or q:isNan(r) or r <= 0)
       
       --time until neutral
       if (not faction.atWarWith and faction.standingId < q.Faction.NEUTRAL) then
-        derived[qr.FACTION_TIME_NEUTRAL_PREFIX..faction_key] = (math.abs(faction.barValue) / r) * 86400
+        stats.faction_time_neutral[faction_key] = valid_r and (math.abs(faction.barValue) / r) * 86400 or math.huge
+      else
+        stats.faction_time_neutral[faction_key] = nil
       end
-      
       
       if (not faction.atWarWith and faction.standingId >= q.Faction.NEUTRAL and faction.standingId < q.Faction.EXALTED) then
         
         --rep until exalted
         local remaining_rep = qr.TOTAL_EXALTED_REP - faction.barValue
-        derived[qr.FACTION_STANDING_REMAINING_EXALTED_PREFIX..faction_key] = remaining_rep
+        stats.faction_remaining_exalted[faction_key] = remaining_rep
         
         --time until exalted
-        derived[qr.FACTION_TIME_EXALTED_PREFIX..faction_key] = (remaining_rep / r) * 86400
+        stats.faction_time_exalted[faction_key] = valid_r and (remaining_rep / r) * 86400 or math.huge
 
-        if (faction.standingId == q.Faction.NEUTRAL) then
+        if (valid_r and faction.standingId == q.Faction.NEUTRAL) then
           remaining_rep = qr.TOTAL_FRIENDLY_REP - faction.barValue
-          derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
-          derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
-        elseif (faction.standingId == q.Faction.FRIENDLY) then
+          stats.faction_remaining[faction_key] = remaining_rep
+          stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
+        elseif (valid_r and faction.standingId == q.Faction.FRIENDLY) then
           remaining_rep = qr.TOTAL_HONORED_REP - faction.barValue
-          derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
-          derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
-        elseif (faction.standingId == q.Faction.HONORED) then
+          stats.faction_remaining[faction_key] = remaining_rep
+          stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
+        elseif (valid_r and faction.standingId == q.Faction.HONORED) then
           remaining_rep = qr.TOTAL_REVERED_REP - faction.barValue
-          derived[qr.FACTION_STANDING_REMAINING_NEXT_RANK..faction_key] = remaining_rep
-          derived[qr.FACTION_STANDING_REMAINING_TIME..faction_key] = (remaining_rep / r) * 86400
+          stats.faction_remaining[faction_key] = remaining_rep
+          stats.faction_remaining_time[faction_key] = (remaining_rep / r) * 86400
+        else
+          stats.faction_remaining[faction_key] = nil
+          stats.faction_remaining_time[faction_key] = nil
         end
+      else
+        stats.faction_remaining_exalted[faction_key] = nil
+        stats.faction_remaining[faction_key] = nil
+        stats.faction_remaining_time[faction_key] = nil
       end
     end
-    
-    segment.stats.reputation.derived_stats = derived
-    segment.stats.reputation.session_rates = rates
-  end
 end
 
-function quantify_reputation:updateStats(segment)
+function quantify_reputation:updateStats(segment, fullSeg)
   processFactions()
   
-  qr:calculateDerivedStats(segment)
+  qr:calculateDerivedStats(segment, fullSeg)
 end
  
-function quantify_reputation:newSegment(previous_seg,new_seg)
+function quantify_reputation:newSegment(segment)
+  segment.data = segment.data or {}
+  segment.data.faction_change_delta = segment.data.faction_change_delta or {}
   
-  init()
-  
+  segment.stats = q:addKeysLeft(segment.stats,
+                     {faction_remaining = {},
+                      faction_remaining_time = {},
+                      faction_time_neutral = {},
+                      faction_time_exalted = {},
+                      faction_remaining_exalted = {}
+                      })
 end
-
-init()
 
 table.insert(quantify.modules, quantify_reputation)
 

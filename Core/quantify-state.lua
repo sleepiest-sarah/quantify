@@ -6,6 +6,7 @@ local q = quantify
 quantify_state.state = {
     current_zone_name = nil,
     UiMapDetails = nil,
+    party = nil,
     player_combat = false,
     current_player_name = nil,
     player_name_realm = nil,
@@ -14,6 +15,8 @@ quantify_state.state = {
     instance_type = nil,
     instance_map_id = nil,
     instance_name = nil,
+    instance_journal_id = nil,
+    keystone_completed = false,
     player_control = true,
     instance_difficulty_name = nil,
     instance_start_time = nil,
@@ -24,6 +27,7 @@ quantify_state.state = {
     player_weapon_skills = nil,
     player_class = nil,
     player_spec = nil,
+    player_role = nil,
     player_indoors = nil,
     player_outdoors = nil,
     player_can_gain_xp = true
@@ -38,16 +42,29 @@ local function zoneChangedNewArea(event, ...)
     s.current_zone_name = s.UiMapDetails.name
   end
   
-  local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize = GetInstanceInfo()
-  s.player_in_instance = instanceType ~= "none"
-  if (s.instance_map_id ~= instanceMapID or s.instance_difficulty_name ~= difficultyName) then
-    s.instance_start_time = GetTime()
+  local name, instanceType, difficultyID, difficultyName, maxPlayers, dynamicDifficulty, isDynamic, instanceMapID, instanceGroupSize, lfgDungeonID = GetInstanceInfo()
+  if (s.player_in_instance and instanceType == "none") then
+    q:triggerQEvent("LEFT_INSTANCE")
   end
-  s.instance_type = instanceType
-  s.instance_map_id = instanceMapID
-  s.instance_name = name
-  s.instance_difficulty_name = difficultyName
   
+  s.player_in_instance = instanceType ~= "none"
+  s.instance_type = instanceType
+  s.instance_name = name
+  if (s.player_in_instance and (s.instance_map_id ~= instanceMapID or s.instance_difficulty_name ~= difficultyName)) then
+    s.instance_start_time = GetTime()
+    s.instance_journal_id = EJ_GetInstanceForMap(s.UiMapDetails.mapID)
+    if (s.instance_journal_id and s.instance_journal_id > 0) then
+      EJ_SelectInstance(s.instance_journal_id)
+    end
+    
+    s.keystone_completed = false
+    
+    q:triggerQEvent("ENTERED_NEW_INSTANCE", instanceMapID, difficultyName)
+  end
+  
+  s.instance_map_id = instanceMapID
+  s.instance_difficulty_name = difficultyName
+
   s.player_indoors = IsIndoors()
   s.player_outdoors = IsOutdoors()
 
@@ -145,7 +162,7 @@ local function checkClassSpec()
   if (q.isRetail) then  --is there some way to get this info in classic?
     local spec_i = GetSpecialization()
     if (spec_i) then
-      _,s.player_spec = GetSpecializationInfo(spec_i)
+      _,s.player_spec,_,_,s.player_role,_ = GetSpecializationInfo(spec_i)
     end
   end
   
@@ -166,6 +183,33 @@ local function checkAzeriteItem(event, unit)
   end
 end
 
+local function checkParty()
+  if (IsInGroup() and not IsInRaid()) then
+    local num_members = GetNumGroupMembers()
+    local grouptype = q:getUnitGroupPrefix()
+    
+    if (grouptype == "party") then
+      s.party = q.Party:new()
+      
+      s.party:addMember(s.current_player_name, s.player_role)
+      
+      for i=1,num_members-1 do
+        local mate = GetUnitName(grouptype..i, true)
+        local role = UnitGroupRolesAssigned(grouptype..i)
+        s.party:addMember(mate, role)
+      end
+    end
+  end
+end
+
+local function keystoneStart(event, mapId)
+  s.keystone_completed = false
+end
+
+local function keystoneComplete(event)
+  s.keystone_completed = true
+end
+
 local function playerEnteringWorld()
   zoneChangedNewArea()
   
@@ -176,6 +220,8 @@ local function playerEnteringWorld()
   initArmorWeaponSkills()
   
   checkClassSpec()
+  
+  checkParty()
   
   s.player_mounted = IsMounted()
   s.player_indoors = IsIndoors()
@@ -196,6 +242,13 @@ quantify:registerEvent("PLAYER_CONTROL_LOST", playerControlLost)
 quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 
+quantify:registerEvent("ROLE_CHANGED_INFORM", checkParty)
+quantify:registerEvent("GROUP_ROSTER_UPDATE", checkParty)
+
+q:registerEvent("CHALLENGE_MODE_START", keystoneStart)
+q:registerEvent("CHALLENGE_MODE_RESET", keystoneStart)
+q:registerEvent("CHALLENGE_MODE_COMPLETED", keystoneComplete)
+
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChangedNewArea)
 quantify:registerEvent("ZONE_CHANGED", zoneChangedNewArea)
 
@@ -203,7 +256,6 @@ if (q.isRetail) then
   quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
   quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)  
 end
-
 
 --getters
 function quantify_state:getCurrentZoneName()
@@ -283,6 +335,10 @@ function quantify_state:getInstanceDifficulty()
   return s.instance_difficulty_name
 end
 
+function quantify_state:isMythicPlus()
+  return s.instance_difficulty_name == "Mythic Keystone"
+end
+
 function quantify_state:getInstanceStartTime()
   return s.instance_start_time
 end
@@ -325,4 +381,42 @@ end
 
 function quantify_state:CanPlayerJump()
   return not IsSubmerged() and not IsFalling() and (q.isClassic or (q.isRetail and not IsFlying()))
+end
+
+function quantify_state:GetPlayerParty()
+  return s.party
+end
+
+function quantify_state:isCurrentDungeonComplete()
+  if (not s.player_in_instance or not s.instance_journal_id) then
+    return false
+  end
+  
+  if (s.instance_journal_id == 0) then
+    s.instance_journal_id = EJ_GetInstanceForMap(s.UiMapDetails.mapID)
+    if (s.instance_journal_id == 0) then
+      return false
+    end
+  end
+  
+  if (IsLFGComplete()) then
+    return true
+  end
+  
+  EJ_SelectInstance(s.instance_journal_id)
+  
+  if (not quantify_state:isMythicPlus()) then
+    local i = 1
+    repeat
+      local _,_,bossId,_,_,_,encounterId = EJ_GetEncounterInfoByIndex(i, s.instance_journal_id)
+      if (bossId and not C_EncounterJournal.IsEncounterComplete(bossId)) then
+        return false
+      end
+      i = i + 1
+    until bossId == nil
+    return true
+  else
+    return s.keystone_completed
+  end
+  
 end

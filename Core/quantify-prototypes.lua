@@ -1,83 +1,4 @@
-quantify.Segment = {}
 
-local Segment = quantify.Segment
-function Segment:new(o)
-  o = o or {start_time = nil, end_time = nil, total_start_time = nil, _duration = nil, stats = {}}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-function Segment:duration()
-  if (self.end_time ~= nil and self.start_time ~= nil) then
-    return self.end_time - self.start_time
-  elseif (self.end_time == nil and self.start_time ~= nil) then
-    return GetTime() - self.start_time
-  else 
-    return self._duration
-  end
-end
-
-function Segment:getContainer(key, subkey)
-  local group,concatkey = quantify:getGroupConcatKey(key,subkey)
-  
-  for _,mod in pairs(self.stats) do
-    if (mod[group] ~= nil) then
-      for k,v in pairs(mod[group]) do
-        if (k == concatkey) then
-          return mod[group]
-        end
-      end
-    end
-  end
-end
-
-function Segment:resetStat(key, subkey)
-  local modgroup = self:getContainer(key,subkey)
-  local _,concatkey = quantify:getGroupConcatKey(key,subkey)
-  if (modgroup) then
-    modgroup[concatkey] = 0
-  end
-end
-
-quantify.TotalSegment = {}
-local TotalSegment = quantify.TotalSegment
-function TotalSegment:new(o)
-  o = o or {time = 0, stats = {}}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-function TotalSegment:characterKey()
-  return GetUnitName("player", false).."-"..GetRealmName()
-end
-
-function TotalSegment:getContainer(self, key, subkey)
-  local group,concatkey = quantify:getGroupConcatKey(key,subkey)
-  
-  for _,mod in pairs(self.stats) do
-    for k,v in pairs(mod) do
-      if (k == concatkey) then
-        return mod
-      end
-    end
-  end
-end
-
-function TotalSegment:resetStat(self, key,subkey)
-  local mod = TotalSegment:getContainer(self, key, subkey)
-  local _,concatkey = quantify:getGroupConcatKey(key,subkey)
-  
-  mod[concatkey] = 0
-  local snapshot = quantify:getSnapshotSegment()
-  if (snapshot) then
-    snapshot:resetStat(key,subkey)
-  end
-end
-
-
-  
 quantify.Item = {}
 local Item = quantify.Item
 function Item:new(arg1)
@@ -197,3 +118,28 @@ Faction.FRIENDLY = 5
 Faction.HONORED = 6
 Faction.REVERED = 7
 Faction.EXALTED = 8
+
+quantify.Party = {}
+local Party = quantify.Party
+
+function Party:new(o)
+  o = o or {members = {}}
+  setmetatable(o, self)
+  self.__index = self
+  return o
+end
+
+function Party:addMember(name, role)
+  self.members[name] = {name = name, role = role}
+end
+
+function Party:getPartyKey()
+  local mates = {}
+  for k,v in pairs(self.members) do
+    table.insert(mates, v.name.."-"..v.role)
+  end
+  
+  table.sort(mates)
+  
+  return strjoin("|", unpack(mates))
+end

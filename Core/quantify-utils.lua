@@ -1,14 +1,16 @@
 local q = quantify
 
-function q:printTable(t)
-  if (not t) then
+function q:printTable(t, depth)
+  depth = depth or 0
+  
+  if (not t or depth > 5) then
     return
   end
   
   for k,v in pairs(t) do
     if (type(v) == "table") then
       print(string.format("%s:", tostring(k)))
-      q:printTable(v)
+      q:printTable(v, depth + 1)
     else
       print(string.format("%s: %s", tostring(k), tostring(v)))
     end
@@ -45,31 +47,34 @@ function q:printSegment(segment)
   end
 end
 
-function q:calculateSegmentRates(segment, segment_stats, period, duration)
-  period = period or 3600
-  
-  if (segment ~= nil and segment:duration() ~= nil) then
-    duration = segment:duration()
-  elseif (segment ~= nil) then
-    local start = segment.start_time or GetTime()
-    local endt = segment.end_time or GetTime()
-    duration = endt - start
+function q:addKeysLeft(a,b)
+  a = a or {}
+  for k,v in pairs(b) do
+    if (not a[k]) then
+      a[k] = type(v) == "table" and {} or v
+    end
   end
   
+  return a
+end
+
+function q:calculateSegmentRates(stats, duration, period)
+  period = period or 3600
+  
   local session_rates = {}
-  for k,v in pairs(segment_stats) do
+  for k,v in pairs(stats) do
     if (type(v) == "number") then
-      session_rates[k] = (v/duration) * period
+      session_rates[k] = duration == 0 and 0 or (v/duration) * period
     end
   end
   
   return session_rates
 end
 
-function q:addTables(a,b)
+function q:addTables(a,b,shallow)
   --b expected to be the most up to date in the case of missing keys
   for k,v in pairs(b) do
-    if (type(v) == "table") then
+    if (type(v) == "table" and not shallow) then
       if (a[k] == nil) then
         a[k] = {}
       end
@@ -134,23 +139,6 @@ function q:deepcopy(orig)
     return copy
 end
 
-function q:getSegmentList()
-  local segments = {}
-  if (qDb ~= nil) then
-    for k,v in pairs(qDb) do
-      if (type(v) == "table" and k ~= "data") then
-        segments[k] = v
-      end
-    end
-  end
-  
-  for i,v in ipairs(q.segments) do
-    segments["Segment "..i] = v
-  end
-  
-  return segments
-end
-
 --flattens stat table
 function q:getAllStats(segment, type)
   local stats = {}
@@ -167,35 +155,6 @@ function q:getAllStats(segment, type)
   return stats
 end
 
-function q:convertSavedSegment(segment)
-  local cseg = q.Segment:new()
-  cseg._duration = segment.time
-  
-  for k,v in pairs(segment.stats) do
-    cseg.stats[k] = {}
-    cseg.stats[k].raw = v
-  end
-  
-  for _,m in ipairs(q.modules) do
-    if (cseg.stats[m.MODULE_KEY] == nil) then
-      cseg.stats[m.MODULE_KEY] = {}
-      cseg.stats[m.MODULE_KEY].raw = m.Session:new()
-    end
-    
-    --add any stats that are missing from the saved segment
-    local empty_stats = m.Session:new()
-    for s,v in pairs(empty_stats) do
-      if (cseg.stats[m.MODULE_KEY].raw[s] == nil) then
-        cseg.stats[m.MODULE_KEY].raw[s] = v
-      end
-    end
-    
-    m:updateStats(cseg)
-  end
-  
-  return cseg
-end
-
 function q:getSingleModuleSegment(key,segment,type)
   local new_seg = q:shallowCopy(segment)
   
@@ -207,9 +166,17 @@ function q:getSingleModuleSegment(key,segment,type)
     new_seg.stats[key] = segment.stats[key]
   end
   
-
-  
   return new_seg 
+end
+
+function q:getTableKeys(t)
+  local keys = {}
+  
+  for k,_ in pairs(t) do
+    table.insert(keys, k)
+  end
+  
+  return keys  
 end
 
 function q:getModuleKeys()
@@ -264,18 +231,42 @@ function q:getCurrencyString(n)
     return res
 end
 
+function q:getIntegerString(n)
+  if (n < 1000) then
+    return n
+  end
+  
+  n = strrev(tostring(n))
+
+  local res = ""
+  for i=#n,1,-1 do
+    local c = strsub(n, i, i)
+    if (i ~= #n and i % 3 == 0) then
+      res = res..","
+    end
+    
+    res = res..c
+  end
+  
+  return res
+end
+
 function q:getFormattedUnit(n,units,abbr)
+  if (not n) then
+    return "-"
+  end
+  
   if (units == "string") then
     return n
   end
   
   if (q:isInf(n) or q:isNan(n)) then
-    n = 0
+    return "-"
   end
   
   local res
   if (units == "integer") then
-    res = q:getShorthandInteger(n)
+    res = (abbr or n > 1000000) and q:getShorthandInteger(n) or q:getIntegerString(n)
   elseif (units == "time") then
     local min,sec,hour
     if (n < 60) then
@@ -302,7 +293,8 @@ function q:getFormattedUnit(n,units,abbr)
   elseif (units == "decimal/hour") then
     res = q:getShorthandInteger(n,2,true)
   elseif (units == "percentage") then
-    res = tostring(math.floor(n)).."%"
+    n = (n - math.floor(n)) > .5 and math.ceil(n) or math.floor(n)
+    res = tostring(n).."%"
   elseif (units == "money") then 
     if (abbr and (n > 10000 or q.isRetail)) then  --remove copper in Retail or if it's more than 1g
       local copper = math.floor(n) % 100
@@ -433,12 +425,13 @@ function q:capitalizeString(str)
 end
 
 function q:getBnAccountNameFromChatString(str)
-  local id = string.match(str, "|K[gsf]([0-9]+)|")
+  local id = string.match(str, "|Kq([0-9]+)|k")
   local bn_name
+
   if (id ~= nil) then
-    local _,_,bn_name = BNGetFriendInfoByID(id)
+    local _,_,bn_name = C_BattleNet.GetAccountInfoByID(id)
   end
-  
+
   return bn_name
 end
 
@@ -473,16 +466,63 @@ function q:generateUUID()
   end)
 end
 
-function q:storeData(key,data)
-  if (not qDb.data) then
-    qDb.data = {}
-  end
-  
-  qDb.data[key] = data
+function q:getUnitGroupPrefix()
+  return IsInRaid() and "raid" or "party"
 end
 
-function q:getData(key)
-  if (qDb and qDb.data and qDb.data[key]) then
-    return qDb.data[key]
+function q:buildDisplayTable(data, format_func, ...)
+  local rows = {}
+  local data_keys = {...}
+  local num_columns = #data_keys
+  
+  local i = 1
+  local keys = {}
+  for k,d in pairs(data) do
+    keys[i] = k
+    local r = {}
+    
+    for i,data_key in ipairs({...}) do
+      local cell = format_func and format_func(data_key, d[data_key]) or d[data_key]
+      table.insert(r, cell)
+    end
+    
+    table.insert(rows, r)
+    i = i + 1
+  end
+    
+  return rows,keys
+end
+
+function q:getRoleIcon(role)
+  if (role == "TANK") then
+    return INLINE_TANK_ICON
+  elseif (role == "HEALER") then
+    return INLINE_HEALER_ICON
+  elseif (role == "DAMAGER") then
+    return INLINE_DAMAGER_ICON
+  end
+  
+  return ""
+end
+
+function q:keyTable(t)
+  local res = {}
+  for i,v in pairs(t) do
+    res[v] = v
+  end
+  
+  return res
+end
+
+function q:dump(v)
+  _G["q_dump"] = v
+  SlashCmdList["DUMP"]("q_dump")
+end
+
+function q:getCharacterKey(withDate)
+  if (withDate) then
+    return GetUnitName("player", false).."-"..GetRealmName().."_"..date("%b%d")
+  else
+    return GetUnitName("player", false).."-"..GetRealmName()
   end
 end

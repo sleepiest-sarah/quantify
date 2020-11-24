@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
    <Script file="quantify-ui.lua"/>
    
-   <Include file="Templates\quantify-widgets.xml"/>
+   <Include file="Templates\quantify-templates.xml"/>
    
    <Frame name="ViewWindowTemplate" virtual="true" inherits="BackdropTemplate">
     <!--
@@ -21,6 +21,10 @@
 	
 	<Font name="SelectedRowBold" inherits="GameFontNormal">
 		<Color r="1.0" g="0.82" b="0" a="1.0"/>
+	</Font>
+  
+	<Font name="QuantifyRightStatText" justifyH="RIGHT" inherits="AchievementPointsFontSmall">
+	  <Color r="1.0" g="1.0" b="1.0" a="1.0" />
 	</Font>
 	
 	<Script file="Templates\QuantifyStatRowTemplate.lua" />
@@ -165,7 +169,7 @@
   <Script file="Templates\QuantifyContainer.lua" />
   <Frame name="QuantifyContainer_Frame" toplevel="true" parent="UIParent" movable="true" enableMouse="true" inherits="ViewWindowTemplate" hidden="true" clampedToScreen="true">
 		<Size>
-			<AbsDimension x="700" y="380"/>
+			<AbsDimension x="1000" y="680"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER">

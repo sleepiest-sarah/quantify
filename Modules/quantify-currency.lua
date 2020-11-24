@@ -2,7 +2,6 @@ quantify_currency = {}
 
 local q = quantify
 
-quantify_currency.Session = {}
 
 quantify_currency.MODULE_KEY = "currency"
 
@@ -12,15 +11,6 @@ qc.CURRENCY_GAINED_PREFIX = "currency_gained_*"
 qc.CURRENCY_LOST_PREFIX = "currency_lost_*" 
 qc.PICKPOCKET_THRESHOLD_TIME = 2
 qc.DURABILITY_CHANGE_TOLERANCE = .5
-
-function quantify_currency.Session:new(o)
-  o = o or {total_money_gained = 0, total_money_spent = 0, delta_money = 0, money_looted = 0, guild_tax = 0, quest_money = 0, auction_money = 0, auction_money_spent = 0, vendor_money = 0, vendor_money_spent = 0, money_pickpocketed = 0, repair_money = 0}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-local session
 
 local money = nil
 
@@ -35,12 +25,14 @@ local durability_change_time = 0
 local money_change_time = 0
 local last_delta_money = 0
 
-local function init()
-  q.current_segment.stats.currency = {}
-  q.current_segment.stats.currency.raw = quantify_currency.Session:new()
-  q.current_segment.stats.currency.derived_stats = { }
-  session = q.current_segment.stats.currency.raw
-end
+
+qc.CURRENCY_TEMPLATE = {
+    name = "",
+    id = 0,
+    gained = 0,
+    spent = 0,
+    net = 0
+  }
 
 local function playerEnteringWorld()
   money = GetMoney()
@@ -52,9 +44,10 @@ local function updateInventoryDurability()
   --in retail the player money event fires first
   if (GetTime() - money_change_time < qc.DURABILITY_CHANGE_TOLERANCE) then
     money_change_time = 0
-    session.repair_money = session.repair_money + math.abs(last_delta_money)
+    q:incrementStat("REPAIR_MONEY", math.abs(last_delta_money))
+    
     --subtract the repair amount from vendor money spent since it already got added to vendor money spent if we're in here
-    session.vendor_money_spent = session.vendor_money_spent - math.abs(last_delta_money)
+    q:decrementStat("VENDOR_MONEY_SPENT", math.abs(last_delta_money))
   end
 end
 
@@ -65,17 +58,17 @@ local function playerMoney()
   money_change_time = GetTime()
   
   if (auction_open and delta_money < 0) then
-    session.auction_money_spent = session.auction_money_spent + math.abs(delta_money)
+    q:incrementStat("AUCTION_MONEY_SPENT", math.abs(delta_money))
   end
   
   if (vendor_open) then
     if (delta_money > 0) then
-      session.vendor_money = session.vendor_money + delta_money
+      q:incrementStat("VENDOR_MONEY", delta_money)
     elseif (GetTime() - durability_change_time < qc.DURABILITY_CHANGE_TOLERANCE) then
       durability_change_time = 0
-      session.repair_money = session.repair_money + math.abs(delta_money)
+      q:incrementStat("REPAIR_MONEY", math.abs(delta_money))
     else
-      session.vendor_money_spent = session.vendor_money_spent + math.abs(delta_money)
+      q:incrementStat("VENDOR_MONEY_SPENT", math.abs(delta_money))
     end
   end
   
@@ -89,41 +82,45 @@ local function playerMoney()
         end
         
         if (item.isAuction) then
-          session.auction_money = session.auction_money + delta_money
+          q:incrementStat("AUCTION_MONEY", delta_money)
         end
       end
     end
   end
   
   if (delta_money > 0) then
-    session.total_money_gained = session.total_money_gained + delta_money
+    q:incrementStat("TOTAL_MONEY_GAINED", delta_money)
   else
-    session.total_money_spent = session.total_money_spent + math.abs(delta_money)
+    q:incrementStat("TOTAL_MONEY_SPENT", math.abs(delta_money))
   end
   
-  session.delta_money = session.delta_money + delta_money
-  
+  q:incrementStat("DELTA_MONEY", delta_money)
 
-  
   money = GetMoney()
 end
 
 local function playerLootMoney(event, msg)
-  local money_string,guild_tax = string.match(msg, "You loot ([%w, ]+) (([%w, ]+) deposited to guild bank)")
-  if (guild_tax ~= nil and money_string ~= nil) then
-    session.guild_tax =  session.guild_tax + q:getCoppersFromText(guild_tax)
-    session.money_looted = session.money_looted + q:getCoppersFromText(money_string)
-  else
-    money_string = string.match(msg, "You loot ([%w, ]+)")
-    if (money_string ~= nil) then
-      local copper = q:getCoppersFromText(money_string)
-      session.money_looted = session.money_looted + copper
-      
-      if (GetTime() - pickpocket_time < qc.PICKPOCKET_THRESHOLD_TIME) then
-        session.money_pickpocketed = session.money_pickpocketed + copper
-      end
+  local money_string = string.match(msg, "You loot ([%w, ]+)")
+  if (money_string ~= nil) then
+    local copper = q:getCoppersFromText(money_string)
+    q:incrementStat("MONEY_LOOTED", copper)
+    
+    if (GetTime() - pickpocket_time < qc.PICKPOCKET_THRESHOLD_TIME) then
+      q:incrementStat("MONEY_PICKPOCKETED", copper)
     end
   end
+end
+
+local function updatePlayerCurrencyData(currencies, id, obj, amount)
+  local name = obj.name
+  if (not currencies[name]) then
+    currencies[name] = q:shallowCopy(qc.CURRENCY_TEMPLATE)
+    currencies[name].name = name
+    currencies[name].id = id
+  end
+  currencies[name].gained = currencies[name].gained + tonumber(amount)
+  
+  currencies[name].net = currencies[name].gained - currencies[name].spent
 end
 
 local function playerCurrency(event, msg)
@@ -133,18 +130,17 @@ local function playerCurrency(event, msg)
     amount = 1
   end
   
-  local name, currentAmount, texture, earnedThisWeek, weeklyMax, totalMax, isDiscovered, rarity = GetCurrencyInfo(currency)
-  if (session[qc.CURRENCY_GAINED_PREFIX..name] == nil) then
-    session[qc.CURRENCY_GAINED_PREFIX..name] = 0
-  end
-  session[qc.CURRENCY_GAINED_PREFIX..name] = session[qc.CURRENCY_GAINED_PREFIX..name] + tonumber(amount)
+  local currency_obj = C_CurrencyInfo.GetCurrencyInfoFromLink(currency)
+  local currency_id = C_CurrencyInfo.GetCurrencyIdFromLink(currency)
+  q:updateStatBlock("currency/data/currency/", updatePlayerCurrencyData, currency_id, currency_obj, amount)
+
 end
 
 local function playerQuestTurnedIn(event, ...)
   local questid, xp, money = unpack({...})
   
   if (money and money > 0) then
-    session.quest_money = session.quest_money + money
+    q:incrementStat("QUEST_MONEY", money)
   end
   
 end
@@ -199,31 +195,59 @@ local function merchant(event)
   end
 end
 
-function quantify_currency:calculateDerivedStats(segment)
-  local raw = segment.stats.currency.raw
+function quantify_currency:calculateDerivedStats(segment, fullSeg)
+  local stats = segment.stats
   
-  segment.stats.currency.session_rates = quantify:calculateSegmentRates(segment, segment.stats.currency.raw)
+  local play_time = q:getStat(fullSeg, "PLAY_TIME")
+  local rates = quantify:calculateSegmentRates(stats, play_time)
   
-  local derived = {}
-  derived.pct_money_quest  = (raw.quest_money / raw.total_money_gained) * 100
-  derived.pct_money_auction = (raw.auction_money / raw.total_money_gained) * 100
-  derived.pct_money_loot = (raw.money_looted / raw.total_money_gained) * 100
-  derived.pct_money_vendor = (raw.vendor_money / raw.total_money_gained) * 100
+  stats.quest_money_rate = rates.quest_money
+  stats.money_pickpocketed_rate = rates.money_pickpocketed
+  stats.repair_money_rate = rates.repair_money
+  stats.auction_money_spent_rate = rates.auction_money_spent
+  stats.vendor_money_spent_rate = rates.vendor_money_spent
+  stats.delta_money_rate = rates.delta_money
+  stats.total_money_gained_rate = rates.total_money_gained
+  stats.total_money_spent_rate = rates.total_money_spent
+  stats.money_looted_rate = rates.money_looted
   
-  segment.stats.currency.derived_stats = derived
+  local currency_gained = {}
+  for c,v in pairs(segment.data.currency) do
+    currency_gained[c] = v.gained
+  end
+  stats.currency_gained_rates = quantify:calculateSegmentRates(currency_gained, play_time)
+  
+  local total_money_gained = stats.total_money_gained == 0 and 1 or stats.total_money_gained
+  stats.pct_money_quest  = (stats.quest_money / total_money_gained) * 100
+  stats.pct_money_auction = (stats.auction_money / total_money_gained) * 100
+  stats.pct_money_loot = (stats.money_looted / total_money_gained) * 100
+  stats.pct_money_vendor = (stats.vendor_money / total_money_gained) * 100
+  
 end
 
-function quantify_currency:updateStats(segment)
-  qc:calculateDerivedStats(segment)
+function quantify_currency:updateStats(segment, fullSeg)
+  qc:calculateDerivedStats(segment, fullSeg)
 end
  
-function quantify_currency:newSegment(previous_seg,new_seg)
+function quantify_currency:newSegment(segment)
   
-  init()
+  segment.data = segment.data or {}
+  segment.data.currency = segment.data.currency or {}
+  
+  segment.stats = q:addKeysLeft(segment.stats,
+                 {total_money_gained = 0,
+                  total_money_spent = 0,
+                  delta_money = 0,
+                  money_looted = 0,
+                  quest_money = 0,
+                  auction_money = 0,
+                  auction_money_spent = 0,
+                  vendor_money = 0,
+                  vendor_money_spent = 0,
+                  money_pickpocketed = 0,
+                  repair_money = 0})
   
 end
-
-init()
 
 table.insert(quantify.modules, quantify_currency)
   

@@ -4,78 +4,56 @@ local qt = quantify_tradeskill
 
 local q = quantify
 
-qt.Session = {}
-
 qt.MODULE_KEY = "tradeskill"
-qt.BFA_TRADE_GOOD_PREFIX = "bfa_trade_good_*"
-qt.CLASSIC_TRADE_GOOD_PREFIX = "classic_trade_good_*"
-
-
-
-function quantify_tradeskill.Session:new(o)
-  o = o or {cloth_looted = 0, tradeskill_looted = 0, enchanting_looted = 0, herb_looted = 0, jewelcrafting_looted = 0, meat_looted = 0, leather_looted = 0, metal_looted = 0, cooking_looted = 0, classic_fish_looted = 0}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-local session
-
-
-local function init()
-  q.current_segment.stats[qt.MODULE_KEY] = {}
-  q.current_segment.stats[qt.MODULE_KEY].raw = qt.Session:new()
-  session = q.current_segment.stats[qt.MODULE_KEY].raw
-end
 
 function qt:processItem(item,amount) 
-  --q:printTable(item)
   
   --Tradeskill item type and subtypes are not in Classic
-  if (item.itemType == "Tradeskill" or item.itemType == "Trade Goods") then
-    session.tradeskill_looted = session.tradeskill_looted + amount  
+  if (item.itemType == "Tradeskill" or item.itemType == "Trade Goods") then 
+    q:incrementStat("TRADESKILL_LOOTED", amount)
     if (item.itemSubType == "Cloth") then
-      session.cloth_looted = session.cloth_looted + amount
+      q:incrementStat("CLOTH_LOOTED", amount)
     elseif (item.itemSubType == "Enchanting") then
-      session.enchanting_looted = session.enchanting_looted + amount
+      q:incrementStat("ENCHANTING_LOOTED", amount)
     elseif (item.itemSubType == "Herb") then
-      session.herb_looted = session.herb_looted + amount
+      q:incrementStat("HERB_LOOTED", amount)
     elseif (item.itemSubType == "Jewelcrafting") then
-      session.jewelcrafting_looted = session.jewelcrafting_looted + amount
+      q:incrementStat("JEWELCRAFTING_LOOTED", amount)
     elseif (item.itemSubType == "Leather") then
-      session.leather_looted = session.leather_looted + amountw
+      q:incrementStat("LEATHER_LOOTED", amount)
     elseif (item.itemSubType == "Meat") then
-      session.meat_looted = session.meat_looted + amount
+      q:incrementStat("MEAT_LOOTED", amount)
     elseif (item.itemSubType == "Metal & Stone") then
-      session.metal_looted = session.metal_looted + amount
+      q:incrementStat("METAL_LOOTED", amount)
     elseif (item.itemSubType == "Cooking") then
-      session.cooking_looted = session.cooking_looted + amount
+      q:incrementStat("COOKING_LOOTED", amount)
     end
   end
   
-  if (item.itemType == "Consumable" and q.isClassic and string.find(item.itemName, "Raw")) then
-    session.classic_fish_looted = session.classic_fish_looted + amount
-    session.tradeskill_looted = session.tradeskill_looted + amount  
-  end
-  
-  if (item.isCraftingReagent or (q.isClassic and item.itemType == "Trade Goods")) then
-    local key = nil
+  if (item.isCraftingReagent) then
     if (item.expacID == quantify_loot.BFA) then
-      key = qt.BFA_TRADE_GOOD_PREFIX..item.itemName
-    elseif (item.expacID == quantify_loot.CLASSIC) then
-      key = qt.CLASSIC_TRADE_GOOD_PREFIX..item.itemName
+      q:incrementStatByPath("tradeskill/stats/bfa_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.VANILLA) then
+      q:incrementStatByPath("tradeskill/stats/classic_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.BC) then
+      q:incrementStatByPath("tradeskill/stats/bc_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.WOTLK) then
+      q:incrementStatByPath("tradeskill/stats/wotlk_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.CATA) then
+      q:incrementStatByPath("tradeskill/stats/cata_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.MOP) then
+      q:incrementStatByPath("tradeskill/stats/mop_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.WOD) then
+      q:incrementStatByPath("tradeskill/stats/wod_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.LEGION) then
+      q:incrementStatByPath("tradeskill/stats/legion_trade_good_collected/"..item.itemName, amount)
+    elseif (item.expacID == quantify_loot.SL) then
+      q:incrementStatByPath("tradeskill/stats/sl_trade_good_collected/"..item.itemName, amount)
     end
     
-    if (key) then
-      if (session[key] == nil) then
-        session[key] = 0
-      end
-      session[key] = session[key] + amount
-    end
   end
     
 end
-
 
 function quantify_tradeskill:calculateDerivedStats(segment)
 
@@ -85,12 +63,28 @@ function quantify_tradeskill:updateStats(segment)
 
 end
  
-function quantify_tradeskill:newSegment(previous_seg,new_seg)
+function quantify_tradeskill:newSegment(segment)
   
-  init()
+  segment.stats = q:addKeysLeft(segment.stats,
+                    {cloth_looted = 0,
+                     tradeskill_looted = 0,
+                     enchanting_looted = 0,
+                     herb_looted = 0,
+                     jewelcrafting_looted = 0,
+                     meat_looted = 0,
+                     leather_looted = 0,
+                     metal_looted = 0,
+                     cooking_looted = 0,
+                     bfa_trade_good_collected = {},
+                     classic_trade_good_collected = {},
+                     bc_trade_good_collected = {},
+                     wotlk_trade_good_collected = {},
+                     cata_trade_good_collected = {},
+                     mop_trade_good_collected = {},
+                     wod_trade_good_collected = {},
+                     legion_trade_good_collected = {},
+                     sl_trade_good_collected = {}})
   
 end
-
-init()
 
 table.insert(quantify.modules, quantify_tradeskill)

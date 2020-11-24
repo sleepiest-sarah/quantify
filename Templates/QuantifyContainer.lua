@@ -1,12 +1,8 @@
 local agui = LibStub("AceGUI-3.0")
 local q = quantify
+local qui = quantify_ui
 
 local LibQTip = LibStub('LibQTip-1.0')
-
-local PRE_INITIALIZED_BUTTONS = 350
-local FIRST_INITIALIZATION_BUTTONS = 100
-local BUTTON_INITIALIZATION_INCREMENT = 1
-local num_buttons = 0
 
 local watchlist_cb
 
@@ -14,9 +10,12 @@ local selected_module,selected_segment
 
 local segment_list
 
-local stats_scrollframe
-
 local stats_buttons = {}
+
+local widgets = {}
+
+local active_widget
+local maincontainer
 
 local function CreateWatchlistCheckbox(width)
   width = width or 200
@@ -39,12 +38,17 @@ end
 local function segmentListComparator(a,b)
   local a_id = string.match(a, "Segment (%d+)")
   local b_id = string.match(b, "Segment (%d+)")
+  local a_date = strfind(a, "_")
+  local b_date = strfind(b, "_")
+  
   if (a == "account" or b == "account") then  --account should always be first
     return a == "account"
   elseif (a_id ~= nil and b_id ~= nil) then   --sort segments according to id
     return a_id < b_id
   elseif ((a_id ~= nil and b_id == nil) or (a_id == nil and b_id ~= nil)) then   --segments should be last
     return a_id == nil
+  elseif ((a_date and not b_date) or (not a_date and b_date)) then  --date segments should directly after character segments
+    return not a_date
   else                                        --sort character names alphabetically
     return a < b
   end
@@ -55,28 +59,27 @@ local function QuantifySegmentLabel_OnClick(self)
   q:setViewingSegment(self.segment)
   
   selected_segment:SetColor(nil)
-  selected_segment:SetFontObject(GameFontHighlightSmall)
   
   self:SetColor(1,.82,0)
-  self:SetFontObject(AchievementPointsFontSmall)
   
   selected_segment = self
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true, true, false, false)
 end
 
 local function QuantifyModuleLabel_OnClick(self) 
-  q:setCurrentViewModule(self.module)
+  qui:SetActiveWidget(self.module)
   
-  selected_module:SetColor(nil)
-  selected_module:SetFontObject(GameFontHighlightSmall)
+  if (selected_module) then
+    selected_module:SetColor(nil)
+  end
   
   self:SetColor(1,.82,0)
-  self:SetFontObject(AchievementPointsFontSmall)
-  
+
   selected_module = self
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true, false, true, false)
+
 end
 
 function QuantifySegmentList_Refresh(self)
@@ -84,24 +87,33 @@ function QuantifySegmentList_Refresh(self)
   
   self:ReleaseChildren()
   
-  local segments = quantify:getSegmentList()
+  local segments = quantify:getAllSegments()
   local keys_t = {}
   table.foreach(segments, function(k,v) table.insert(keys_t,k) end)
   table.sort(keys_t, segmentListComparator)
+  
+  local date_segment_separator = false
   for _,seg in ipairs(keys_t) do
     local label = agui:Create("InteractiveLabel")
-    label:SetText(q:capitalizeString(seg))
+    label:SetText(q:capitalizeString(segments[seg].display_name or seg))
+    label:SetFontObject(AchievementPointsFontSmall)
     label.segment = seg
+    
+    if (not date_segment_separator and strfind(seg, "_")) then
+      local separator = agui:Create("Label")
+      separator:SetText("--- Today ---")
+      self:AddChild(separator)    
+      date_segment_separator = true
+    end
     
     if (seg == "Segment 1") then
       local separator = agui:Create("Label")
-      separator:SetText("---")
+      separator:SetText("--- Session ---")
       self:AddChild(separator)
     end
     
     if (seg == "Segment "..table.maxn(q.segments)) then 
       label:SetColor(1,.82,0)
-      label:SetFontObject(AchievementPointsFontSmall)
       selected_segment = label
     end
     
@@ -142,23 +154,35 @@ local function CreateModuleList()
   
   scrollcontainer:AddChild(c)
   
-  local label = agui:Create("InteractiveLabel")
-  label:SetText("All")
-  label.module = "All"
-  label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-  label:SetColor(1,.82,0)
-  label:SetFontObject(AchievementPointsFontSmall)
-  c:AddChild(label)  
+  local labels = {}
   
-  selected_module = label
+  maincontainer:PauseLayout()
   
-  for _,m in ipairs(modules) do
+  for k,w in pairs(QUANTIFY_WIDGETS) do
+    local label
     label = agui:Create("InteractiveLabel")
-    label:SetText(q:capitalizeString(m))
-    label.module = m
+    label:SetText(k)
+    label.qText = k
+    label.module = qui:CreateWidget(w.widget, w.data)
     label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-    c:AddChild(label)
+    label:SetFontObject(AchievementPointsFontSmall)
+    table.insert(labels, label) 
   end
+  
+  table.sort(labels, function (a,b) 
+        return a.qText < b.qText
+      end)
+  
+  for _,label in pairs(labels) do
+    c:AddChild(label)
+    maincontainer:AddChild(label.module.widget)
+    label.module:Hide()
+  end
+  
+  maincontainer:ResumeLayout()
+  maincontainer:DoLayout()
+  
+  QuantifyModuleLabel_OnClick(labels[1])
   
   return scrollcontainer  
 end
@@ -172,7 +196,7 @@ end
 local function CreateSegmentControl()
   local container = agui:Create("SimpleGroup")
   container:SetLayout("Flow")
-  container:SetFullWidth(true)
+  container:SetWidth(180)
   
   local new_seg_button = agui:Create("Button")
   new_seg_button:SetText("New Segment")
@@ -225,145 +249,37 @@ function QuantifyTabGroup_OnGroupSelected(self,event,group)
     quantify:ViewAllStats_Update()
   end
   
-  QuantifyStatsScrollFrame_Refresh(true)
+  qui:RefreshWidget(true)
 end
 
-local function createStatRow(self,i)
-  local wrapper = stats_buttons["ViewStatsButton"..tostring(i)]
-  if (not wrapper) then
-    local button = CreateFrame("Button", nil, nil, "QuantifyStatRowTemplate")
-    
-    wrapper = agui:Create("QuantifyContainerWrapper")
-    wrapper:SetQuantifyFrame(button)
-    wrapper:SetLayout("Fill")
-    wrapper:SetFullWidth(true)
-    
-    wrapper.i = i
-    
-    num_buttons = i
-    
-    stats_buttons["ViewStatsButton"..tostring(i)] = wrapper
-    
-    self:PauseLayout()
-    self:AddChild(wrapper)
+function qui:SetActiveWidget(widget)
+  if (active_widget) then
+    active_widget:Hide()
   end
-  
-  return wrapper
+  widget:Show()
+  active_widget = widget
+  maincontainer:DoLayout()  
 end
 
-function QuantifyStatsScrollFrame_Refresh(redoLayout)
-  local self = stats_scrollframe
-  
-  if (self) then
-    --self:ReleaseChildren()
-    
-    local list = quantify:getStatsList()
-    local listn = #list
-    
-    --reuse buttons for performance
-    for i,item in ipairs(list) do
-      local wrapper = createStatRow(self,i)
-      
-      QuantifyStatRowTemplate_SetText(wrapper.frame,item)
-      
-      wrapper.frame:Show()
-    end
-
-    local index = 1
-    for _,b in pairs(stats_buttons) do
-      if (b.i > listn) then
-        b.frame:Hide()
-      end
-      
-      index = index + 1
-    end
-
-    if (redoLayout or stats_scrollframe.LayoutPaused) then
-      stats_scrollframe:ResumeLayout()
-      self:DoLayout()
-    end
-    
-  end
-end
-
-function QuantifyContainer_InitializeScrollButtons()
-  stats_scrollframe:PauseLayout()
-  
-  local min,max
-  if (num_buttons == 0) then
-    min = 1
-    max = FIRST_INITIALIZATION_BUTTONS
-  else
-    min = num_buttons + 1
-    max = min + BUTTON_INITIALIZATION_INCREMENT
-  end
-  
-  for i=min,math.min(max,PRE_INITIALIZED_BUTTONS) do
-    createStatRow(stats_scrollframe,i)
-    
-  end
-  
-  if (max < PRE_INITIALIZED_BUTTONS) then
-    q:registerNextFrame(QuantifyContainer_InitializeScrollButtons, 1)
-  else
-    stats_scrollframe:ResumeLayout()
+function qui:RefreshWidget(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
+  if (active_widget and q.quantify_ui_shown) then
+    active_widget:refresh(redoLayout, segmentUpdate, moduleUpdate, visiblityUpdate)
   end
 end
 
 function QuantifyContainer_Initialize()
   QuantifyContainer_Frame:SetBackdrop(BACKDROP_QUANTIFY_WINDOW)
-  QuantifyBottomBar:SetBackdrop(BACKDROP_QUANTIFY_BAR)
+  --QuantifyBottomBar:SetBackdrop(BACKDROP_QUANTIFY_BAR)
   
   local qcontainer = agui:Create("QuantifyContainerWrapper")
   qcontainer:SetQuantifyFrame(QuantifyContainer_Frame)
   qcontainer:SetLayout("Fill")
   
-  local maincontainer = agui:Create("QuantifyContainerWrapper")
+  maincontainer = agui:Create("QuantifyContainerWrapper")
   maincontainer:SetQuantifyFrame(QuantifyMainPane)
-  maincontainer:SetLayout("Fill")
-  maincontainer:SetWidth("490")
-  
-  local stats_scrollcontainer = agui:Create("SimpleGroup")
-  stats_scrollcontainer:SetFullWidth(true)
-  --stats_scrollcontainer:SetFullHeight(true)
-  stats_scrollcontainer:SetLayout("Fill")
-  
-  stats_scrollframe = agui:Create("ScrollFrame")
-  stats_scrollframe:SetLayout("qList")
-  
-  --create some buttons ahead of time for performance
-  if (qDbOptions.preload ~= false) then
-    stats_scrollframe:PauseLayout()
-    for i=1,PRE_INITIALIZED_BUTTONS do
-      createStatRow(stats_scrollframe,i)
-    end
-    stats_scrollframe:ResumeLayout()
-  end
-  
-  stats_scrollcontainer:AddChild(stats_scrollframe)
-  
-  local tabgroup = agui:Create("TabGroup")
-  tabgroup:SetLayout("Fill")
-  tabgroup:SetWidth(470)
-  tabgroup:SetTabs({
-        {value = "all", text = "All"},
-        --{value = "summary", text = "Summary"},
-        {value = "raw", text = "Totals"},
-        {value = "session_rates", text = "Rates"},
-        {value = "derived_stats", text = "Complex"},
-        ---{value = "graphs", text = "Graphs"},
-        --{value = "settings", text = "Settings"}
-      })
-  tabgroup:SetUserData("all",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("raw",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("session_rates",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("derived_stats",stats_scrollcontainer.frame)
-  tabgroup:SetUserData("selected","all")
-  tabgroup:SetCallback("OnGroupSelected", QuantifyTabGroup_OnGroupSelected)
-  tabgroup:SelectTab("all")
-  tabgroup:AddChild(stats_scrollcontainer)
-  
-  maincontainer:AddChild(tabgroup)
+  maincontainer:SetLayout("qFill")
+  maincontainer:SetWidth("780")
+  maincontainer:SetHeight("630")
   
   local bottom_bar = agui:Create("QuantifyContainerWrapper")
   bottom_bar:SetQuantifyFrame(QuantifyBottomBar)
@@ -380,13 +296,12 @@ function QuantifyContainer_Initialize()
   left_pane:SetPadding(10,-10)
   
   local segmentlist = CreateSegmentList()
-  segmentlist:SetHeight(100)
+  segmentlist:SetHeight(250)
   
   local modulelist = CreateModuleList()
-  modulelist:SetHeight(140)
+  modulelist:SetHeight(240)
 
   local segment_group =  agui:Create("QuantifyInlineGroup")
-  segment_group:SetBackdropColor(.1,.1,.1,.8)
   segment_group:SetWidth(180)
   segment_group:SetTitle("Segments")
   segment_group:AddChild(segmentlist)
@@ -398,20 +313,9 @@ function QuantifyContainer_Initialize()
   
   local segment_control_group = CreateSegmentControl()
   
-  
   left_pane:AddChild(segment_group)
   left_pane:AddChild(segment_control_group)
   left_pane:AddChild(module_group)
-  
-  
---  local watchlist_frame = agui:Create("Window")
---  watchlist_frame:SetLayout("Fill")
-  
---  local watchlist_container = agui:Create("QuantifyContainerWrapper")
---  watchlist_container:SetQuantifyFrame(QuantifyWatchList)
---  watchlist_container:SetLayout("Fill")
-  
---  watchlist_frame:AddChild(watchlist_container)
   
   QuantifyContextMenu_Initialize()
 end

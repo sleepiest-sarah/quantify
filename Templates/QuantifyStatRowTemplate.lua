@@ -11,8 +11,8 @@ function QuantifyStatRowTemplate_SetValue(self,text)
 end
 
 function QuantifyStatRowTemplate_SetText(self,item)
-  self.dict_key = item.dict_key
-  self.subkey = item.subkey
+  self.stat_key = item.stat_key
+  self.data_key = item.data_key
   self.segment = item.segment
   self.label = item.label
   self.value = item.value
@@ -28,7 +28,7 @@ end
 
 function QuantifyWatchListRowTemplate_OnDoubleClick(self, button)
   if (button == "LeftButton") then
-    quantify:removeWatchListItem(self.dict_key,self.subkey,self.segment)
+    quantify:removeWatchListItem(self.stat_key,self.data_key,self.segment)
   end
 end
 

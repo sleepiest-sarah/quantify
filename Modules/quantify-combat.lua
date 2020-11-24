@@ -2,18 +2,8 @@ quantify_combat = {}
 
 local q = quantify
 
-quantify_combat.Session = {}
 
 quantify_combat.MODULE_KEY = "combat"
-
-function quantify_combat.Session:new(o)
-  o = o or {num_deaths = 0, num_corpse_runs = 0, num_brez_accepted = 0, num_spirit_healer_rez = 0, num_rez_accepted = 0, time_crowd_controlled = 0, player_kills = 0, player_actual_kills = 0}
-  setmetatable(o, self)
-  self.__index = self
-  return o
-end
-
-local session
 
 local rez_request = false
 local spirit_healer = false
@@ -25,26 +15,18 @@ local CC_WINDOW = 30
 
 local dead_time = 0
 
-local function init()
-  quantify.current_segment.stats.combat = {} 
-  quantify.current_segment.stats.combat.raw = quantify_combat.Session:new()
-  quantify.current_segment.stats.combat.derived_stats = {}
-  quantify.current_segment.stats.combat.session_rates = {}
-  session = quantify.current_segment.stats.combat.raw
-end
-
 local function playerDead()
   if (GetTime() - dead_time > quantify.EVENT_WINDOW) then --getting occasional double death events
-    session.num_deaths = session.num_deaths + 1
+    q:incrementStat("NUM_DEATHS", 1)
     dead_time = GetTime()
   end
 end
 
 local function playerAlive()
   if (rez_request and quantify_state:isPlayerInCombat()) then
-    session.num_brez_accepted = session.num_brez_accepted + 1
+    q:incrementStat("NUM_BREZ_ACCEPTED",1)
   elseif (rez_request and not quantify_state:isPlayerInCombat()) then
-    session.num_rez_accepted = session.num_rez_accepted + 1
+    q:incrementStat("NUM_REZ_ACCEPTED",1)
   end
   
   rez_request = false
@@ -52,7 +34,7 @@ end
 
 local function playerUnghost()
   if (not spirit_healer) then
-    session.num_corpse_runs = session.num_corpse_runs + 1
+    q:incrementStat("NUM_CORPSE_RUNS",1)
   end
   
   rez_request = false
@@ -60,7 +42,7 @@ local function playerUnghost()
 end
 
 local function playerSpiritHealer()
-  session.num_spirit_healer_rez = session.num_spirit_healer_rez + 1
+  q:incrementStat("NUM_SPIRIT_HEALER_REZ",1)
   
   spirit_healer = true
   rez_request = false
@@ -76,8 +58,6 @@ local function playerAura(event, unit)
     
     local buff = {UnitBuff("player", 1)}
     local debuff = {UnitDebuff("player", 1)}
-    --q:printTable(buff)
-    --q:printTable(debuff)
   
     if (quantify_state:isPlayerInCombat()) then
       
@@ -87,7 +67,7 @@ local function playerAura(event, unit)
       elseif (event == "PLAYER_CONTROL_GAINED") then
         local duration = GetTime() - cc_start_time
         if (combat_cc and duration < CC_WINDOW) then
-          session.time_crowd_controlled = session.time_crowd_controlled + duration
+          q:incrementStat("TIME_CROWD_CONTROLLED", duration)
         end
         
         combat_cc = false
@@ -104,38 +84,42 @@ local function combatLog()
   
   if (event == "PARTY_KILL") then
     if (sourceGUID == UnitGUID("player")) then
-      session.player_actual_kills = session.player_actual_kills + 1
+      q:incrementStat("PLAYER_ACTUAL_KILLS",1)
     end
     
     local source_affiliation = bit.band(sourceFlags, 0xf) --only keep affiliation bits
     if (source_affiliation == 1 or source_affiliation == 2 or source_affiliation == 4) then --self,party,raid
-      session.player_kills = session.player_kills + 1
+      q:incrementStat("PLAYER_KILLS",1)
     end
   end
 end
 
 function quantify_combat:calculateDerivedStats(segment)
-  local derived = {}
   
-  local raw = segment.stats.combat.raw
+  local stats = segment.stats
   
-  local deaths = raw.num_deaths == 0 and 1 or raw.num_deaths
-  derived.kd_ratio = raw.player_kills / deaths
+  local deaths = stats.num_deaths == 0 and 1 or stats.num_deaths
+  stats.kd_ratio = stats.player_kills / deaths
   
-  segment.stats.combat.derived_stats = derived
 end
 
 function quantify_combat:updateStats(segment)
   quantify_combat:calculateDerivedStats(segment)
 end
  
-function quantify_combat:newSegment(previous_seg,new_seg)
+function quantify_combat:newSegment(segment)
   
-  init()
+  segment.stats = q:addKeysLeft(segment.stats,
+                         {num_deaths = 0,
+                          num_corpse_runs = 0,
+                          num_brez_accepted = 0,
+                          num_spirit_healer_rez = 0,
+                          num_rez_accepted = 0,
+                          time_crowd_controlled = 0,
+                          player_kills = 0,
+                          player_actual_kills = 0})
   
 end
-
-init() 
 
 table.insert(quantify.modules, quantify_combat)
   
