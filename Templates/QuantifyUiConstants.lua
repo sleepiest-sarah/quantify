@@ -147,7 +147,7 @@ QUANTIFY_WIDGETS = {
         views = {
           {view_type = "filter", grid_position = "0,0", padding_x = 450, padding_y = -480,
            view_data = {"Faction Reputations"},
-           view_options = {dropdown_values = qDA.getFactions, filter_type = "dropdown", col_widths = {400, 140}, filter_padding = {-320, 0}}
+           view_options = {dropdown_values = qDA.getFactions, filter_type = "dropdown", col_widths = {400, 140}, filter_padding = {-320, 0}, filter_refresh_events = {"PROCESSED_ALL_FACTIONS"}}
           }
         }
       }

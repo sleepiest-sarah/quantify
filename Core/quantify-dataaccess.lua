@@ -22,8 +22,6 @@ function qDA:getDungeonData(filter, dungeon)
     end
   end
   
-  
-  
   return filtered_list
 end
 

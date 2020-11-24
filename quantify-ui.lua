@@ -23,7 +23,7 @@ local viewing_segment_key = "Segment 1"
 local watchlist_enabled = false
 local watchlist = {}
 
-local function expandViewStats(segment, view, data_key)
+local function expandViewStats(segment, view, data_key, abbr)
   local stats = {}
   
   if (view.stats) then
@@ -36,7 +36,7 @@ local function expandViewStats(segment, view, data_key)
       if (type(current_stat_value) == "table") then
         for k,v in pairs(current_stat_value) do
           if (not data_key or data_key and k == data_key) then
-            local formatted_value = q:getFormattedUnit(v,stat.units)
+            local formatted_value = q:getFormattedUnit(v,stat.units, abbr)
             local formatted_name = string.gsub(stat.text,"*",k)
             
             local statobj = {}
@@ -48,7 +48,7 @@ local function expandViewStats(segment, view, data_key)
           end
         end
       else
-        local formatted_value = q:getFormattedUnit(current_stat_value,stat.units)
+        local formatted_value = q:getFormattedUnit(current_stat_value,stat.units, abbr)
         local statobj = {}
         statobj.text = stat.text
         statobj.stat_key = stat_key
@@ -163,7 +163,7 @@ function q:refreshWatchlist(frame)
 
     if (seg)  then
       local view = {stats = {item.stat_key}}
-      local stat = expandViewStats(seg, view, item.data_key)[1]
+      local stat = expandViewStats(seg, view, item.data_key, true)[1]
     
       QuantifyWatchList_Add(frame, {label = stat.text, value = stat.value, stat_key = item.stat_key, datakey = item.datakey, segment = item.segment})
     end

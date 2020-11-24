@@ -541,7 +541,6 @@ q:registerEvent("PLAYER_REGEN_ENABLED", playerRegen)
 q:registerEvent("COMBAT_LOG_EVENT_UNFILTERED", combatLog)
 
 q:registerQEvent("ENTERED_NEW_INSTANCE", enteredNewInstance)
-q:registerQEvent("LEFT_INSTANCE", leftInstance)
 
 if (q.isRetail) then
   q:registerEvent("LFG_COMPLETION_REWARD", lfgComplete)

@@ -6,9 +6,28 @@ local qui = quantify_ui
 qui.FilterView = qui.View:new()
 local FilterView = qui.FilterView
 
+local function setDropdownValues(self, filter_widget)
+  local options = self.options
+  
+  if (options and options.dropdown_values) then
+    local dropdown_values = options.dropdown_values
+    if (type(dropdown_values) == "function") then
+      dropdown_values = dropdown_values()
+    end
+    
+    if (options.filter_method ~= "table") then
+      dropdown_values = q:keyTable(dropdown_values)
+    end
+    
+    dropdown_values[""] = ""
+    filter_widget:SetList(dropdown_values)
+  end  
+end
+
 local function create(self,view)
   local wrapper = self:createWrapper(view)
   local options = view.view_options
+  self.options = options
   
   self.filter_method = options.filter_method
   
@@ -17,18 +36,13 @@ local function create(self,view)
     filter_widget = agui:Create("Dropdown")
     filter_widget.parentWidget = self
     filter_widget:SetCallback("OnValueChanged", self.filterValueChanged)
-    if (options and options.dropdown_values) then
-      local dropdown_values = options.dropdown_values
-      if (type(dropdown_values) == "function") then
-        dropdown_values = dropdown_values()
+ 
+    setDropdownValues(self, filter_widget)
+    
+    if (options.filter_refresh_events) then
+      for _,e in pairs(options.filter_refresh_events) do
+        q:registerQEvent(e, setDropdownValues, self, filter_widget)
       end
-      
-      if (options.filter_method ~= "table") then
-        dropdown_values = q:keyTable(dropdown_values)
-      end
-      
-      dropdown_values[""] = ""
-      filter_widget:SetList(dropdown_values)
     end
   elseif (options.filter_type == "text") then
     filter_widget = agui:Create("EditBox")
@@ -37,6 +51,7 @@ local function create(self,view)
     filter_widget:SetCallback("OnTextChanged", self.textFilterValueChanged)
     filter_widget:SetLabel(options.filter_label or "Filter Stats")
   end
+  self.filter_widget = filter_widget
   
   local statview = qui.StatView:new(view)
   self.statview = statview
@@ -88,6 +103,7 @@ end
 
 function FilterView:refresh(stats)
   local filtered_stats
+  
   if (self.filterValue and self.filterValue ~= "") then
     filtered_stats = {}
     for i,s in ipairs(stats) do

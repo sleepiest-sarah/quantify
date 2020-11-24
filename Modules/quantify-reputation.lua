@@ -31,7 +31,7 @@ local function processFaction(id)
 end
 
 local function processFactions()
-  if (not dirty_factions) then
+  if (not dirty_factions or not initialized) then
     ExpandAllFactionHeaders()
     for i=1,GetNumFactions() do
       local name, _, _, _, _, _, _, _, _,_, _, _, _, factionID = GetFactionInfo(i)
@@ -40,6 +40,8 @@ local function processFactions()
       end
     end
     initialized = GetNumFactions() > 0
+    
+    q:triggerQEvent("PROCESSED_ALL_FACTIONS")
   elseif (table.maxn(dirty_factions) >= 1) then
     for i,id in ipairs(dirty_factions) do
       processFaction(id)
@@ -82,10 +84,6 @@ local function combatFactionChange(event, msg)
       q:incrementStatByPath(qr.FACTION_CHANGE_DELTA_PATH..faction, amount)
     end
   end
-end
-
-local function playerLogin()
-  processFactions()
 end
 
 
@@ -149,6 +147,8 @@ function quantify_reputation:newSegment(segment)
   segment.data = segment.data or {}
   segment.data.faction_change_delta = segment.data.faction_change_delta or {}
   
+  processFactions()
+  
   segment.stats = q:addKeysLeft(segment.stats,
                      {faction_remaining = {},
                       faction_remaining_time = {},
@@ -161,4 +161,3 @@ end
 table.insert(quantify.modules, quantify_reputation)
 
 quantify:registerEvent("CHAT_MSG_COMBAT_FACTION_CHANGE", combatFactionChange)
-quantify:registerEvent("PLAYER_LOGIN", playerLogin)
