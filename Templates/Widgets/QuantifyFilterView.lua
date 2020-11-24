@@ -46,7 +46,7 @@ local function create(self,view)
   
   wrapper:PauseLayout()
   
-  filter_widget:SetPoint("TOPLEFT", wrapper.frame, "TOPRIGHT", -210, 5)
+  filter_widget:SetPoint("TOPLEFT", wrapper.frame, "TOPRIGHT", options.filter_padding and options.filter_padding[1] or -220, options.filter_padding and options.filter_padding[2] or 5)
   statview.widget:SetPoint("TOPLEFT", 0, 0)
   
   self:fixWidgetHeight(statview.widget)

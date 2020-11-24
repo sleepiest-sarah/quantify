@@ -148,7 +148,7 @@ function quantify_exp:calculateDerivedStats(segment, fullSeg)
   stats.azerite_xp_rate = rates.azerite_xp
   stats.kill_xp_rate = rates.kill_xp
 
-  stats.time_to_level = ((UnitXPMax("player") - UnitXP("player")) / (session_xp_rate == 0 and 1 or session_xp_rate)) * 3600
+  stats.time_to_level = session_xp_rate == 0 and nil or ((UnitXPMax("player") - UnitXP("player")) / session_xp_rate) * 3600
   
   local time_sub_max_level = q:getStat(fullSeg, "TIME_SUB_MAX_LEVEL")
   local time_rested = q:getStat(fullSeg, "TIME_RESTED")

@@ -145,10 +145,12 @@ function qDA:getDungeonHistory(data_type, data_key, filter)
     end
     
     local res = {}
-    for i,history_guid in pairs(data.history) do
-      local dungeon = qDbData.dungeon_history[history_guid]
-      if (dungeon and isDungeonApplicable(dungeon, filter)) then
-        table.insert(res, qDbData.dungeon_history[history_guid])
+    if (data.history) then
+      for i,history_guid in pairs(data.history) do
+        local dungeon = qDbData.dungeon_history[history_guid]
+        if (dungeon and isDungeonApplicable(dungeon, filter)) then
+          table.insert(res, qDbData.dungeon_history[history_guid])
+        end
       end
     end
     

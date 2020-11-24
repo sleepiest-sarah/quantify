@@ -33,7 +33,7 @@ QUANTIFY_WIDGETS = {
         views = { 
                 {view_type = "filter", padding_x = 450, padding_y = -540, grid_position = "0,0", 
                  view_data = {"All"},
-                 view_options = {filter_type = "text", label = "", col_widths = {500, 200}, columns = {"Stat", "Value"}}
+                 view_options = {filter_type = "text", label = "", col_widths = {500, 200}, columns = {"Stat", "Value"}, filter_padding = {-240, 0}}
                   }
                }
       }
@@ -145,10 +145,9 @@ QUANTIFY_WIDGETS = {
         rows = 1,
         columns = 1,
         views = {
-          {view_type = "filter", grid_position = "0,0", padding_x = 50, padding_y = -470,
+          {view_type = "filter", grid_position = "0,0", padding_x = 450, padding_y = -480,
            view_data = {"Faction Reputations"},
-           view_options = {dropdown_values = qDA.getFactions, filter_type = "dropdown",
-                      }
+           view_options = {dropdown_values = qDA.getFactions, filter_type = "dropdown", col_widths = {400, 140}, filter_padding = {-320, 0}}
           }
         }
       }

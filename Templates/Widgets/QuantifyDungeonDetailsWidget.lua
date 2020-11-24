@@ -218,7 +218,7 @@ end
 
 local function formatHistoryData(key, data)
   if (key == "date") then
-    return date("%b/%d/%y %X", data)
+    return date("%b-%d-%y %X", data)
   elseif (key == "time") then
     return q:getFormattedUnit(data,"time")
   else
