@@ -40,8 +40,12 @@ local function processFactions()
       end
     end
     initialized = GetNumFactions() > 0
-    
-    q:triggerQEvent("PROCESSED_ALL_FACTIONS")
+
+    if (initialized) then
+      q:triggerQEvent("PROCESSED_ALL_FACTIONS")
+    else
+      q:registerNextFrame(processFactions)
+    end
   elseif (table.maxn(dirty_factions) >= 1) then
     for i,id in ipairs(dirty_factions) do
       processFaction(id)

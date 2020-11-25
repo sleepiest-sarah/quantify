@@ -105,18 +105,28 @@ function quantify:registerTimer(callback, seconds, ...)
   end
 end
 
-function quantify:registerQEvent(event,func)
+function quantify:registerQEvent(event,func, ...)
   if (qevent_map[event] == nil) then
     qevent_map[event] = {}
   end
-    
-  table.insert(qevent_map[event], func)  
+
+  table.insert(qevent_map[event], {func = func, args = {...}})  
 end
 
 function quantify:triggerQEvent(event, ...)
   if (qevent_map[event] ~= nil) then
     for _, f in pairs(qevent_map[event]) do
-      f(event, ...)
+
+      if (#f.args > 0) then
+        local args = {unpack(f.args)}
+        for _,v in pairs({...}) do
+          table.insert(args, v)
+        end
+        
+        f.func(event, unpack(args))
+      else
+        f.func(event, ...)
+      end
     end
   end  
 end

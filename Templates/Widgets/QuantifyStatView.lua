@@ -30,7 +30,8 @@ local function stDoubleClick(rowFrame, cellFrame, data, cols, row, realrow, colu
     local datarow = data[realrow]
     
     local stat_key = type(datarow.stat_key) == "table" and datarow.stat_key[1] or datarow.stat_key
-    local data_key = type(datarow.data_key) == "table" and datarow.data_key[1] or datarow.data_key
+    local data_key = type(datarow.data_key) ~= "table" and datarow.data_key or (datarow.data_key and datarow.data_key[1])
+
     q:addWatchListItem(stat_key, data_key)
   end
 end
@@ -41,7 +42,7 @@ local function stRightClick(rowFrame, cellFrame, data, cols, row, realrow, colum
     local userdata = {}
     
     userdata.stat_key = type(datarow.stat_key) == "table" and datarow.stat_key[1] or datarow.stat_key
-    userdata.data_key = type(datarow.data_key) == "table" and datarow.data_key[1] or datarow.data_key
+    userdata.data_key = type(datarow.data_key) ~= "table" and datarow.data_key or (datarow.data_key and datarow.data_key[1])
     userdata.segment = datarow.viewing_segment_key
     userdata.label = datarow[1]
     userdata.value = datarow[2] .. " " .. (datarow[3] or "")

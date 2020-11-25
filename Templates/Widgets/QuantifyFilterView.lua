@@ -24,6 +24,10 @@ local function setDropdownValues(self, filter_widget)
   end  
 end
 
+local function refreshFilterValues(event, self, filter_widget, something)
+  setDropdownValues(self, filter_widget)
+end
+
 local function create(self,view)
   local wrapper = self:createWrapper(view)
   local options = view.view_options
@@ -41,7 +45,7 @@ local function create(self,view)
     
     if (options.filter_refresh_events) then
       for _,e in pairs(options.filter_refresh_events) do
-        q:registerQEvent(e, setDropdownValues, self, filter_widget)
+        q:registerQEvent(e, refreshFilterValues, self, filter_widget)
       end
     end
   elseif (options.filter_type == "text") then

@@ -49,13 +49,3 @@ function QuantifyWatchList_Add(self, item)
     table.insert(self.items,item)
   end
 end
-
-function QuantifyWatchList_Remove(self,key)
-  for i,item in ipairs(self.items) do
-    local concat_key = item.subkey and item.key..item.subkey or item.key
-    if (concat_key == key) then
-      table.remove(self.items, i)
-      break
-    end
-  end
-end

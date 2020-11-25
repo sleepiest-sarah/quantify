@@ -165,7 +165,9 @@ function q:refreshWatchlist(frame)
       local view = {stats = {item.stat_key}}
       local stat = expandViewStats(seg, view, item.data_key, true)[1]
     
-      QuantifyWatchList_Add(frame, {label = stat.text, value = stat.value, stat_key = item.stat_key, datakey = item.datakey, segment = item.segment})
+      if (stat) then
+        QuantifyWatchList_Add(frame, {label = stat.text, value = stat.value, stat_key = item.stat_key, data_key = item.data_key, segment = item.segment})
+      end
     end
   end
 
