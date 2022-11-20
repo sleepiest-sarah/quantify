@@ -12,9 +12,6 @@ quantify.LOADED_TEXT =
 [[
 quantify loaded :)
   use /qty or /quantify to see options
-
-For issues, bugs, suggestions, or anything else please feel free to contact me.
-  Discord: Aeroxis#2344 Twitch: quitesleepysarah
 ]]
 
 quantify.HELP_TEXT =

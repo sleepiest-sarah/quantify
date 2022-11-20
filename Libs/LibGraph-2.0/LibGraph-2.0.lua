@@ -19,12 +19,12 @@ local minor = 90000 + tonumber(("$Revision: 55 $"):match("(%d+)"))
 --doesn't get modified with a newer revision (this one)
 local TextureDirectory
 do
-	local path = string.match(debugstack(1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
-	if path then
-		TextureDirectory = "Interface\\AddOns\\"..path
-	else
-		error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
-	end
+	--local path = string.match(debugstack(1, 1, 0), "AddOns\\(.+)LibGraph%-2%.0%.lua")
+	--if path then
+		TextureDirectory = "Interface\\AddOns\\quantify\\Libs\\LibGraph-2.0\\Textures"
+	--else
+	--	error(major.." cannot determine the folder it is located in because the path is too long and got truncated in the debugstack(1, 1, 0) function call")
+	--end
 end
 
 

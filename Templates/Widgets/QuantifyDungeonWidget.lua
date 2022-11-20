@@ -144,6 +144,11 @@ local function createKeystoneFilter(self)
   min_level_box:SetText("1")
   max_level_box:SetText("99")
   
+  min_level_box.editbox.parentWidget = self
+  min_level_box.parentWidget = self
+  max_level_box.editbox.parentWidget = self
+  max_level_box.parentWidget = self
+  
   keystone_wrapper:AddChild(keystone_level_label)
   keystone_wrapper:AddChild(min_level_box)
   keystone_wrapper:AddChild(keystone_to_level_label)
@@ -191,6 +196,8 @@ function DungeonWidget:create()
   local difficulty_dropdown = agui:Create("Dropdown")
   difficulty_dropdown.gridPosition = "2,0"
   difficulty_dropdown:SetMultiselect(true)
+  --difficulty_dropdown.Button.obj:SetHitRectInsets(-5, -5, 0, -5)
+  
   self.filter.difficulties = {["Mythic+"] = true, ["Mythic"] = true, ["Heroic"] = true, ["Normal"] = true, ["Timewalking"] = true}
   difficulty_dropdown:SetList({["Mythic+"] = "Mythic+",["Mythic"] = "Mythic",["Heroic"] = "Heroic",["Normal"] = "Normal",["Timewalking"] = "Timewalking"}, {"Mythic+","Mythic","Heroic","Normal","Timewalking"})
   self:checkAllDropdownValues(difficulty_dropdown)
@@ -237,7 +244,7 @@ function DungeonWidget:create()
   local party_table = st:CreateST(PARTY_TABLE_COLS,2,70,nil,party_table_wrapper.frame)
   party_table.name = "parties"
   party_table:RegisterEvents({["OnEnter"] = stOnEnter, ["OnLeave"] = stOnLeave, ["OnDoubleClick"] = stOnDoubleClick})
-  party_table.head:SetHeight(30)
+  party_table.head:SetHeight(15)
   party_table.frame:SetPoint("TOPLEFT", 0, -5)
   self.party_table = party_table
   party_table.dungeon_widget = self

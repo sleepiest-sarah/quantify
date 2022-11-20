@@ -535,13 +535,19 @@ function InitializeTooltip(tooltip, key)
 	----------------------------------------------------------------------
 	-- (Re)set frame settings
 	----------------------------------------------------------------------
-	local backdrop = GameTooltip:GetBackdrop()
-
-	tooltip:SetBackdrop(backdrop)
+	local backdrop = {
+  bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
+  edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
+  tile=true,
+  tileSize = 256,
+  edgeSize = 16,
+  insets = {left=4, right=4, top=4, bottom=4}
+}
 
 	if backdrop then
-		tooltip:SetBackdropColor(GameTooltip:GetBackdropColor())
-		tooltip:SetBackdropBorderColor(GameTooltip:GetBackdropBorderColor())
+    tooltip:SetBackdrop(backdrop)
+		--tooltip:SetBackdropColor(GameTooltip:GetBackdropColor())
+		--tooltip:SetBackdropBorderColor(GameTooltip:GetBackdropBorderColor())
 	end
 
 	tooltip:SetScale(GameTooltip:GetScale())
