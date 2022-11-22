@@ -25,35 +25,35 @@ local watchlist = {}
 
 local function expandViewStats(segment, view, data_key, abbr)
   local stats = {}
-  
+
   if (view.stats) then
     for i,stat_key in ipairs(view.stats) do
       local stat = q.STATS[stat_key]
-      if (not stat or not stat.path) then
-        print(stat_key.." is not a valid")
-      end
-      local current_stat_value = q:getStat(segment, stat_key)
-      if (type(current_stat_value) == "table") then
-        for k,v in pairs(current_stat_value) do
-          if (not data_key or data_key and k == data_key) then
-            local formatted_value = q:getFormattedUnit(v,stat.units, abbr)
-            local formatted_name = string.gsub(stat.text,"*",k)
-            
-            local statobj = {}
-            statobj.text = formatted_name
-            statobj.stat_key = stat_key
-            statobj.value = formatted_value
-            statobj.data_key = k
-            table.insert(stats, statobj)
+      if (q.isRetail or not stat.version) then
+
+        local current_stat_value = q:getStat(segment, stat_key)
+        if (type(current_stat_value) == "table") then
+          for k,v in pairs(current_stat_value) do
+            if (not data_key or data_key and k == data_key) then
+              local formatted_value = q:getFormattedUnit(v,stat.units, abbr)
+              local formatted_name = string.gsub(stat.text,"*",k)
+              
+              local statobj = {}
+              statobj.text = formatted_name
+              statobj.stat_key = stat_key
+              statobj.value = formatted_value
+              statobj.data_key = k
+              table.insert(stats, statobj)
+            end
           end
+        else
+          local formatted_value = q:getFormattedUnit(current_stat_value,stat.units, abbr)
+          local statobj = {}
+          statobj.text = stat.text
+          statobj.stat_key = stat_key
+          statobj.value = formatted_value
+          table.insert(stats, statobj)
         end
-      else
-        local formatted_value = q:getFormattedUnit(current_stat_value,stat.units, abbr)
-        local statobj = {}
-        statobj.text = stat.text
-        statobj.stat_key = stat_key
-        statobj.value = formatted_value
-        table.insert(stats, statobj)
       end
 
     end

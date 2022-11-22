@@ -249,7 +249,7 @@ local function restructureTradeskillData(seg)
 end
 
 local function restructureBattlePetsData(seg)
-  if (seg.stats[quantify_bp.MODULE_KEY]) then
+  if (quantify_bp and seg.stats[quantify_bp.MODULE_KEY]) then
     local mod = seg.stats[quantify_bp.MODULE_KEY]
 
     mod.data.pet_battle_counts = mod.data.pet_battle_counts or q:shallowCopy(mod.stats.pet_battle_counts) or {}

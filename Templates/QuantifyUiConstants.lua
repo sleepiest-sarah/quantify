@@ -40,6 +40,7 @@ QUANTIFY_WIDGETS = {
     },
     ["Battle Pets"] = {
       widget = "StatWidget",
+      retail_only = true,
       data = {
         rows = 2,
         columns = 2,
@@ -100,6 +101,7 @@ QUANTIFY_WIDGETS = {
     },
     ["Dungeons"] = {
       widget = "DungeonWidget",
+      retail_only = true
     },
     ["Loot"] = {
       widget = "StatWidget",

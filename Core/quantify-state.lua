@@ -21,8 +21,6 @@ quantify_state.state = {
     instance_difficulty_name = nil,
     instance_start_time = nil,
     player_mounted = false,
-    player_has_azerite_item = false,
-    azerite_item_table = nil,
     player_armor_skills = nil,
     player_weapon_skills = nil,
     player_class = nil,
@@ -174,15 +172,6 @@ local function playerLogin()
   s.player_name_realm = GetUnitName("player", false).."-"..GetRealmName()
 end
 
-local function checkAzeriteItem(event, unit)
-  if (event == nil or unit == "player") then
-    s.player_has_azerite_item = C_AzeriteItem.HasActiveAzeriteItem()
-    if (s.player_has_azerite_item) then
-      s.azerite_item_table = C_AzeriteItem.FindActiveAzeriteItem()
-    end
-  end
-end
-
 local function checkParty()
   if (IsInGroup() and not IsInRaid()) then
     local num_members = GetNumGroupMembers()
@@ -213,10 +202,6 @@ end
 local function playerEnteringWorld()
   zoneChangedNewArea()
   
-  if (q.isRetail) then
-    checkAzeriteItem()
-  end
-  
   initArmorWeaponSkills()
   
   checkClassSpec()
@@ -245,17 +230,16 @@ quantify:registerEvent("PLAYER_MOUNT_DISPLAY_CHANGED", playerMount)
 quantify:registerEvent("ROLE_CHANGED_INFORM", checkParty)
 quantify:registerEvent("GROUP_ROSTER_UPDATE", checkParty)
 
-q:registerEvent("CHALLENGE_MODE_START", keystoneStart)
-q:registerEvent("CHALLENGE_MODE_RESET", keystoneStart)
-q:registerEvent("CHALLENGE_MODE_COMPLETED", keystoneComplete)
+if (q.isRetail) then
+  q:registerEvent("CHALLENGE_MODE_START", keystoneStart)
+  q:registerEvent("CHALLENGE_MODE_RESET", keystoneStart)
+  q:registerEvent("CHALLENGE_MODE_COMPLETED", keystoneComplete)
+  
+  quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)  
+end
 
 quantify:registerEvent("ZONE_CHANGED_INDOORS", zoneChangedNewArea)
 quantify:registerEvent("ZONE_CHANGED", zoneChangedNewArea)
-
-if (q.isRetail) then
-  quantify:registerEvent("UNIT_INVENTORY_CHANGED", checkAzeriteItem)
-  quantify:registerEvent("PLAYER_SPECIALIZATION_CHANGED", checkClassSpec)  
-end
 
 --getters
 function quantify_state:getCurrentZoneName()
@@ -345,14 +329,6 @@ end
 
 function quantify_state:isPlayerMounted()
   return s.player_mounted
-end
-
-function quantify_state:hasAzeriteItem()
-  return s.player_has_azerite_item
-end
-
-function quantify_state:getActiveAzeriteLocationTable()
-  return s.azerite_item_table
 end
 
 function quantify_state:canPlayerEquipType(equip_type)

@@ -132,13 +132,11 @@ function qDA:getDungeonHistory(data_type, data_key, filter)
     elseif (data_type == "dungeons") then
       data = seg.stats.instances.data.dungeons
     else 
-      print("quantify: unimplemented data type")
       return nil
     end
     
     data = data and data[data_key]
     if (not data) then
-      print("quantify: invalid data key")
       return nil
     end
     

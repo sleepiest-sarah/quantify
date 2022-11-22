@@ -159,14 +159,16 @@ local function CreateModuleList()
   maincontainer:PauseLayout()
   
   for k,w in pairs(QUANTIFY_WIDGETS) do
-    local label
-    label = agui:Create("InteractiveLabel")
-    label:SetText(k)
-    label.qText = k
-    label.module = qui:CreateWidget(w.widget, w.data)
-    label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
-    label:SetFontObject(AchievementPointsFontSmall)
-    table.insert(labels, label) 
+    if (q.isRetail or not w.retail_only) then
+      local label
+      label = agui:Create("InteractiveLabel")
+      label:SetText(k)
+      label.qText = k
+      label.module = qui:CreateWidget(w.widget, w.data)
+      label:SetCallback("OnClick", QuantifyModuleLabel_OnClick)
+      label:SetFontObject(AchievementPointsFontSmall)
+      table.insert(labels, label) 
+    end
   end
   
   table.sort(labels, function (a,b) 

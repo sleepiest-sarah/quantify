@@ -36,7 +36,7 @@ local function create(self, view)
   
   chart_wrapper:PauseLayout()
   
-  local chart = lg:CreateGraphPieChart("test", chart_wrapper.frame, "TOPLEFT", "TOPLEFT", view.padding_x, view.padding_y, 250, 250)
+  local chart = lg:CreateGraphPieChart(nil, chart_wrapper.frame, "TOPLEFT", "TOPLEFT", view.padding_x, view.padding_y, 250, 250)
   chart:SetSelectionFunc(pieSliceSelected)
   
   self.chart = chart
@@ -69,7 +69,7 @@ function PieView:refresh(stats)
   if (#pie_labels == 1) then
     self.chart:ResetPie()
     self.chart:CompletePie()
-  else
+  elseif (#pie_labels > 1)  then
     table.insert(pie_labels,{"% Other", tostring(math.floor(100 - self.chart.PercentOn)).."%"})
     self.chart:CompletePie()
   end

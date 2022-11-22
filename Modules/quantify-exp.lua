@@ -112,24 +112,6 @@ local function playerLogin(event, ...)
   previous_level = UnitLevel("player")
 end
 
-local function playerEnteringWorld()
-  if (quantify_state:getActiveAzeriteLocationTable() ~= nil) then
-    _,previous_max_azerite_xp = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
-  end
-end
-
-local function azeriteChanged(event, azeriteItemLocation, oldExp, newExp)
-  local xp, totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(quantify_state:getActiveAzeriteLocationTable())
-  
-  local delta = newExp - oldExp
-  if (delta < 0) then
-    delta = (previous_max_azerite_xp - oldExp) + xp
-    previous_max_azerite_xp = totalLevelXP
-  end
-
-  q:incrementStat("AZERITE_XP", delta)
-end
-
 function quantify_exp:calculateDerivedStats(segment, fullSeg)
   local play_time = q:getStat(fullSeg, "PLAY_TIME")
   local rates = quantify:calculateSegmentRates(segment.stats, play_time)
@@ -163,13 +145,6 @@ function quantify_exp:calculateDerivedStats(segment, fullSeg)
   local time_per_total_xp_no_rested = stats.xp * 3600/ (xp_rate_no_rested == 0 and 1 or xp_rate_no_rested)               --seconds
 
   stats.rested_xp_time_saved = time_per_total_xp_no_rested - time_per_total_xp
-  
-  if (q.isRetail and quantify_state:hasAzeriteItem() and quantify_state:getActiveAzeriteLocationTable()) then
-    local success,xp, totalLevelXP = pcall(C_AzeriteItem.GetAzeriteItemXPInfo,quantify_state:getActiveAzeriteLocationTable())
-    if (success) then
-      stats.azerite_time_to_level = ((totalLevelXP - xp) / (rates.azerite_xp == 0 and 1 or rates.azerite_xp)) * 3600
-    end
-  end
   
   local total_xp = stats.xp == 0 and 1 or stats.xp
   stats.pct_xp_kill = (stats.kill_xp / total_xp) * 100
@@ -210,11 +185,9 @@ quantify:registerEvent("CHAT_MSG_COMBAT_XP_GAIN", playerMsgCombatXpGain)
 quantify:registerEvent("QUEST_TURNED_IN", playerQuestTurnedIn)
 quantify:registerEvent("PLAYER_LEVEL_UP", playerLevelUp)
 quantify:registerEvent("PLAYER_LOGIN", playerLogin)
-quantify:registerEvent("PLAYER_ENTERING_WORLD", playerEnteringWorld)
 quantify:registerEvent("CHAT_MSG_OPENING", chatMsgOpening)
 
 if (q.isRetail) then
   quantify:registerEvent("SCENARIO_COMPLETED", playerScenarioCompleted)
-  quantify:registerEvent("AZERITE_ITEM_EXPERIENCE_CHANGED", azeriteChanged)
   quantify:registerEvent("PET_BATTLE_CLOSE", petBattleClose)  
 end

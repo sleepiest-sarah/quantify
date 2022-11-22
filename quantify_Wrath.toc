@@ -1,0 +1,39 @@
+## Interface: 30400
+## Title: quantify
+## Author: Sarah Mantovani
+## Version: r14-alpha
+## SavedVariables: qDb, qDbOptions, qDbData
+
+embeds.xml
+
+Core\ClassicApi.lua
+
+Core\constants.lua
+Core\stat_dictionary.lua
+Core\instance_dictionary.lua
+
+Core\quantify-segment.lua
+Core\quantify-dataaccess.lua
+Core\quantify-prototypes.lua
+Core\quantify-utils.lua
+Core\quantify-migrations.lua
+
+quantify.lua
+
+Core\quantify-state.lua
+
+Modules\quantify-time.lua
+Modules\quantify-exp.lua
+Modules\quantify-combat.lua
+Modules\quantify-zones.lua
+Modules\quantify-chat.lua
+Modules\quantify-instances.lua
+Modules\quantify-currency.lua
+Modules\quantify-loot.lua
+Modules\quantify-tradeskill.lua
+Modules\quantify-reputation.lua
+Modules\quantify-miscellaneous.lua
+
+quantify-ui.xml
+
+Core\quantify-test.lua

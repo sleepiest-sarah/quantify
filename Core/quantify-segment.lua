@@ -16,6 +16,9 @@ end
 
 function q:getStatByPath(segment, path, data_key)
   local paths = q:evaluatePath(segment, path, data_key)
+  if (not paths) then
+    return nil
+  end
   
   if (type(paths) == "table") then
     local stats = {}
@@ -30,9 +33,6 @@ end
 
 function q:getStat(segment, key, data_key)
   local stat = q.STATS[key]
-  if (not stat or not stat.path) then
-    print(key.." is not a valid key")
-  end
   return q:getStatByPath(segment, stat.path, data_key)
 end
 
@@ -50,8 +50,8 @@ function q:evaluatePath(segment, path, data_key)
   local obj = segment.stats
   for i,p in pairs(pieces) do
     if (not obj) then
-      print(p.." in "..path.." not valid")
-    end    
+      return nil
+    end
     
     if (p == "*") then
       local stats = {}
@@ -71,9 +71,6 @@ end
 
 function q:setStat(segment, stat_key, value, data_key)
   local stat = q.STATS[stat_key]
-  if (not stat or not stat.path) then
-    print(stat_key.." is not a valid key")
-  end
   q:setStatByPath(segment, stat.path, value, data_key)
 end
 
@@ -152,9 +149,6 @@ function q:getSegment(segment_key)
 end
 
 function q:incrementStat(key, increment)
-  if (not stats[key]) then
-    print("not valid stat key: "..key)
-  end
   q:incrementStatByPath(stats[key].path,increment)
 end
 

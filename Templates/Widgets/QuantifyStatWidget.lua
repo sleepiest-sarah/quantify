@@ -77,6 +77,7 @@ function StatWidget:refresh(redoLayout)
   for _,v in pairs(self.views) do
     local stats = {}
     for _,d in pairs(v.view_data) do
+      --TODO what was this table filter supposed to be? the method signature only has one parameter
       table.insert(stats, q:buildStatsList(d, v.table_filter_value))
     end
     v.view_obj:refresh(unpack(stats))

@@ -268,7 +268,7 @@ function DungeonWidget:create()
   c:ResumeLayout()
   c:DoLayout()
   
-  expansion_dropdown.pullout.items[q.EJ_SL]:Fire("OnValueChanged",q.EJ_SL)
+  --expansion_dropdown.pullout.items[q.EJ_SL]:Fire("OnValueChanged",q.EJ_SL)
   
   return self:registerWidget(c)
 end
